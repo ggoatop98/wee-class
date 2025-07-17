@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -8,14 +9,16 @@ import { Button } from '@/components/ui/button';
 import { CalendarPlus, UserPlus, ArrowRight } from 'lucide-react';
 import StudentForm from '@/components/students/StudentForm';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Student } from '@/types';
+import type { Student, Appointment } from '@/types';
+import Link from 'next/link';
 
 export default function Home() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
     const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
@@ -23,8 +26,23 @@ export default function Home() {
         setStudents(studentsData);
     });
 
+    const today = new Date().toISOString().split('T')[0];
+    const q = query(
+      collection(db, "appointments"), 
+      orderBy("date"), 
+      orderBy("startTime"),
+      limit(5)
+    );
+
+    const unsubAppointments = onSnapshot(q, (snapshot) => {
+      const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+      setAppointments(appointmentsData);
+    });
+
+
     return () => {
       unsubStudents();
+      unsubAppointments();
     };
   }, []);
 
@@ -59,34 +77,21 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
-                {/* Dummy Data */}
-                <li className="flex items-center justify-between p-3 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                  <div>
-                    <p className="font-semibold">김민준 학생 상담</p>
-                    <p className="text-sm text-muted-foreground">오늘, 14:00 - 15:00</p>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </li>
-                <li className="flex items-center justify-between p-3 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                  <div>
-                    <p className="font-semibold">이서연 학생 정서행동검사</p>
-                    <p className="text-sm text-muted-foreground">내일, 10:00 - 11:00</p>
-                  </div>
-                   <Button variant="ghost" size="sm">
-                    자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </li>
-                 <li className="flex items-center justify-between p-3 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                  <div>
-                    <p className="font-semibold">교사 자문회의</p>
-                    <p className="text-sm text-muted-foreground">2025.07.25, 16:00 - 17:00</p>
-                  </div>
-                   <Button variant="ghost" size="sm">
-                    자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </li>
+                {appointments.length > 0 ? appointments.map(app => (
+                  <li key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-background hover:bg-muted/80 transition-colors">
+                    <div>
+                      <p className="font-semibold">{app.title}</p>
+                      <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString()} {app.startTime}</p>
+                    </div>
+                    <Link href="/schedule">
+                      <Button variant="ghost" size="sm">
+                        자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </li>
+                )) : (
+                  <p className="text-muted-foreground text-center py-4">예정된 일정이 없습니다.</p>
+                )}
               </ul>
             </CardContent>
           </Card>
