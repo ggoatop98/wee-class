@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import type { Student, CounselingLog } from "@/types";
+import type { Student } from "@/types";
 
 import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
@@ -22,67 +22,15 @@ export default function StudentsClient() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const [counselingLogsByStudent, setCounselingLogsByStudent] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "students"), async (snapshot) => {
       const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
       setStudents(studentsData);
-
-      if (studentsData.length > 0) {
-        const studentIds = studentsData.map(s => s.id);
-        const logsQuery = query(collection(db, "counselingLogs"), where("studentId", "in", studentIds));
-        const logsSnapshot = await getDocs(logsQuery);
-        const logsExistMap: Record<string, boolean> = {};
-        
-        // Initialize all as false
-        studentIds.forEach(id => {
-          logsExistMap[id] = false;
-        });
-
-        // Set to true if logs exist
-        logsSnapshot.docs.forEach(doc => {
-          const log = doc.data() as CounselingLog;
-          if (log.studentId) {
-            logsExistMap[log.studentId] = true;
-          }
-        });
-        
-        setCounselingLogsByStudent(logsExistMap);
-      } else {
-        setCounselingLogsByStudent({});
-      }
-
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    const unsubLogs = onSnapshot(collection(db, "counselingLogs"), async () => {
-       if (students.length > 0) {
-        const studentIds = students.map(s => s.id);
-        const logsQuery = query(collection(db, "counselingLogs"), where("studentId", "in", studentIds));
-        const logsSnapshot = await getDocs(logsQuery);
-        const logsExistMap: Record<string, boolean> = {};
-
-        studentIds.forEach(id => {
-          logsExistMap[id] = false;
-        });
-
-        logsSnapshot.docs.forEach(doc => {
-          const log = doc.data() as CounselingLog;
-          if (log.studentId) {
-            logsExistMap[log.studentId] = true;
-          }
-        });
-        
-        setCounselingLogsByStudent(logsExistMap);
-      }
-    });
-
-    return () => unsubLogs();
-  }, [students]);
 
   const handleAddStudent = () => {
     setSelectedStudent(null);
@@ -135,7 +83,6 @@ export default function StudentsClient() {
         onDelete={handleDeleteStudent}
         onAddLog={handleAddLog}
         loading={loading}
-        counselingLogsByStudent={counselingLogsByStudent}
       />
       <StudentForm
         isOpen={isStudentModalOpen}

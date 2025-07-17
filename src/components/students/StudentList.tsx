@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { Pencil, Trash2, FileText } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -22,10 +22,9 @@ interface StudentListProps {
   onDelete: (id: string) => void;
   onAddLog: (student: Student) => void;
   loading: boolean;
-  counselingLogsByStudent: Record<string, boolean>;
 }
 
-export default function StudentList({ students, onEdit, onDelete, onAddLog, loading, counselingLogsByStudent }: StudentListProps) {
+export default function StudentList({ students, onEdit, onDelete, onAddLog, loading }: StudentListProps) {
   if (loading) {
     return (
       <div className="rounded-lg border">
@@ -51,7 +50,7 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
                 <TableCell><Skeleton className="h-4 w-8" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-8 w-24" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
               </TableRow>
             ))}
@@ -73,7 +72,7 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
             <TableHead>연락처</TableHead>
             <TableHead>이메일</TableHead>
             <TableHead>상담기록</TableHead>
-            <TableHead className="text-right w-[160px]">작업</TableHead>
+            <TableHead className="text-right w-[120px]">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -97,17 +96,12 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
                 <TableCell>{student.contact || '-'}</TableCell>
                 <TableCell>{student.email || '-'}</TableCell>
                 <TableCell>
-                  {counselingLogsByStudent[student.id] ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-muted-foreground" />
-                  )}
+                  <Button variant="outline" size="sm" onClick={() => onAddLog(student)}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    기록하기
+                  </Button>
                 </TableCell>
                 <TableCell className="text-right">
-                   <Button variant="ghost" size="icon" onClick={() => onAddLog(student)} title="상담 기록">
-                    <FileText className="h-4 w-4" />
-                    <span className="sr-only">상담 기록</span>
-                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">수정</span>
