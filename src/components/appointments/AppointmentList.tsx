@@ -30,22 +30,22 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
         <Table>
           <TableHeader>
              <TableRow>
-                <TableHead>날짜</TableHead>
-                <TableHead>시간</TableHead>
-                <TableHead>제목 (내담자)</TableHead>
-                <TableHead>구분</TableHead>
-                <TableHead>상담일지</TableHead>
-                <TableHead className="text-right">작업</TableHead>
+                <TableHead className="text-base">날짜</TableHead>
+                <TableHead className="text-base">시간</TableHead>
+                <TableHead className="text-base">제목 (내담자)</TableHead>
+                <TableHead className="text-base">구분</TableHead>
+                <TableHead className="text-base">상담일지</TableHead>
+                <TableHead className="text-right text-base">작업</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {[...Array(5)].map((_, i) => (
               <TableRow key={i}>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-28" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-8" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
               </TableRow>
             ))}
@@ -60,29 +60,29 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[120px]">날짜</TableHead>
-            <TableHead className="w-[180px]">시간</TableHead>
-            <TableHead>제목 (내담자)</TableHead>
-            <TableHead>구분</TableHead>
-            <TableHead>상담일지</TableHead>
-            <TableHead className="text-right w-[120px]">작업</TableHead>
+            <TableHead className="w-[150px] text-base">날짜</TableHead>
+            <TableHead className="w-[200px] text-base">시간</TableHead>
+            <TableHead className="text-base">제목 (내담자)</TableHead>
+            <TableHead className="text-base">구분</TableHead>
+            <TableHead className="text-base">상담일지</TableHead>
+            <TableHead className="text-right w-[120px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {appointments.length === 0 ? (
              <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
+              <TableCell colSpan={6} className="h-24 text-center text-base">
                 등록된 일정이 없습니다.
               </TableCell>
             </TableRow>
           ) : (
             appointments.map((item, index) => (
               <TableRow key={item.id}>
-                <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
-                <TableCell>{`${item.startTime} - ${item.endTime}`}</TableCell>
-                <TableCell className="font-medium">{`${item.title} (${item.studentName})`}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{item.type}</Badge>
+                <TableCell className="text-base">{new Date(item.date).toLocaleDateString()}</TableCell>
+                <TableCell className="text-base">{`${item.startTime}`}</TableCell>
+                <TableCell className="font-medium text-base">{`${item.title} (${item.studentName})`}</TableCell>
+                <TableCell className="text-base">
+                  <Badge variant="secondary" className="text-sm">{item.type}</Badge>
                 </TableCell>
                 <TableCell>
                   {item.counselingLogExists ? (
