@@ -15,11 +15,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const logSchema = z.object({
   counselingDate: z.string().min(1, '상담 날짜를 입력해주세요.'),
   counselingTime: z.string().min(1, '상담 시간을 입력해주세요.'),
-  counselingSubject: z.string().min(1, '상담 주제를 입력해주세요.'),
+  counselingSubject: z.string().min(1, '상담 주제를 선택해주세요.'),
   counselingDetails: z.string().min(1, '상담 내용을 입력해주세요.'),
 });
 
@@ -131,7 +132,26 @@ export default function CounselingLogForm({ student, log, onSave, className }: C
               )}/>
             </div>
             <FormField control={form.control} name="counselingSubject" render={({ field }) => (
-              <FormItem><FormLabel>상담 주제</FormLabel><FormControl><Input placeholder="예: 친구 관계의 어려움" {...field} /></FormControl><FormMessage /></FormItem>
+              <FormItem>
+                <FormLabel>상담 주제</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="상담 주제 선택" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="친구관계">친구관계</SelectItem>
+                    <SelectItem value="우울/불안">우울/불안</SelectItem>
+                    <SelectItem value="문제행동">문제행동</SelectItem>
+                    <SelectItem value="주의력">주의력</SelectItem>
+                    <SelectItem value="충동성/과잉행동">충동성/과잉행동</SelectItem>
+                    <SelectItem value="가족">가족</SelectItem>
+                    <SelectItem value="기타">기타</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
             )}/>
             <FormField control={form.control} name="counselingDetails" render={({ field }) => (
               <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 상세하게 기록하세요." {...field} rows={10} /></FormControl><FormMessage /></FormItem>
