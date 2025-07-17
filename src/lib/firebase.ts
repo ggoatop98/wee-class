@@ -1,0 +1,16 @@
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCzS0kGNOaEcKKAWN5Bhk37W8c8i7aZghs",
+  authDomain: "holy-counseling-aid.firebaseapp.com",
+  projectId: "holy-counseling-aid",
+  storageBucket: "holy-counseling-aid.appspot.com",
+  messagingSenderId: "177143536754",
+  appId: "1:177143536754:web:3b615c13ea9bf13e81f6eb"
+};
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
+
+export { app, db };
