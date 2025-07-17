@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarPlus, UserPlus, ArrowRight } from 'lucide-react';
 import StudentForm from '@/components/students/StudentForm';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
@@ -26,16 +26,29 @@ export default function Home() {
         setStudents(studentsData);
     });
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    
     const q = query(
       collection(db, "appointments"), 
-      orderBy("date"), 
-      orderBy("startTime"),
+      where("date", ">=", todayStr),
+      orderBy("date"),
       limit(5)
     );
 
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+      
+      // Sort by startTime on the client-side
+      appointmentsData.sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        if (a.startTime < b.startTime) return -1;
+        if (a.startTime > b.startTime) return 1;
+        return 0;
+      });
+
       setAppointments(appointmentsData);
     });
 
