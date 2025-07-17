@@ -51,6 +51,26 @@ export default function RecordsClient() {
     }
   }, []);
 
+  const sortedStudentsForDropdown = useMemo(() => {
+    const lastLogDateMap = new Map<string, string>();
+    allCounselingLogs.forEach(log => {
+      const existingDate = lastLogDateMap.get(log.studentId);
+      if (!existingDate || new Date(log.counselingDate) > new Date(existingDate)) {
+        lastLogDateMap.set(log.studentId, log.counselingDate);
+      }
+    });
+
+    const sorted = students
+      .filter(student => lastLogDateMap.has(student.id))
+      .sort((a, b) => {
+        const dateA = new Date(lastLogDateMap.get(a.id)!).getTime();
+        const dateB = new Date(lastLogDateMap.get(b.id)!).getTime();
+        return dateB - dateA;
+      });
+
+    return sorted.slice(0, 10);
+  }, [students, allCounselingLogs]);
+
   const counselingLogs = useMemo(() => {
     if (!selectedStudentId) return [];
     return allCounselingLogs
@@ -105,7 +125,7 @@ export default function RecordsClient() {
               <SelectValue placeholder="내담자 선택..." />
             </SelectTrigger>
             <SelectContent>
-              {students.map(student => (
+              {sortedStudentsForDropdown.map(student => (
                 <SelectItem key={student.id} value={student.id}>{student.name} ({student.class})</SelectItem>
               ))}
             </SelectContent>
