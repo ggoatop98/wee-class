@@ -131,12 +131,12 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment, stu
               <FormItem className="flex flex-col"><FormLabel>내담자 검색</FormLabel>
                 <Popover open={popoverOpen} onOpenChange={setPopoverOpen}><PopoverTrigger asChild>
                     <FormControl><Button variant="outline" role="combobox" className={cn("w-full justify-between", !field.value && "text-muted-foreground")}>
-                        {field.value ? students.find((s) => s.id === field.value)?.name : "내담자 선택"}
+                        {field.value ? (students || []).find((s) => s.id === field.value)?.name : "내담자 선택"}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button></FormControl>
                 </PopoverTrigger><PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <Command><CommandInput placeholder="이름으로 검색..." /><CommandList><CommandEmpty>내담자를 찾을 수 없습니다.</CommandEmpty><CommandGroup>
-                        {students.map((s) => (
+                        {(students || []).map((s) => (
                           <CommandItem value={s.name} key={s.id} onSelect={() => { form.setValue('studentId', s.id); setPopoverOpen(false); }}>
                             <Check className={cn("mr-2 h-4 w-4", s.id === field.value ? "opacity-100" : "opacity-0")} />
                             {s.name} ({s.class})

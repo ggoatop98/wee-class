@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
@@ -8,10 +8,26 @@ import { Button } from '@/components/ui/button';
 import { CalendarPlus, UserPlus, ArrowRight } from 'lucide-react';
 import StudentForm from '@/components/students/StudentForm';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { Student } from '@/types';
 
 export default function Home() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
+
+  useEffect(() => {
+    const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
+        const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
+        setStudents(studentsData);
+    });
+
+    return () => {
+      unsubStudents();
+    };
+  }, []);
+
 
   return (
     <AppLayout>
@@ -88,7 +104,7 @@ export default function Home() {
         </div>
       </main>
       <StudentForm isOpen={isStudentModalOpen} onOpenChange={setIsStudentModalOpen} />
-      <AppointmentForm isOpen={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen} />
+      <AppointmentForm isOpen={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen} students={students} />
     </AppLayout>
   );
 }
