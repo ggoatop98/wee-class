@@ -93,17 +93,17 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
                 <TableCell>{student.contact || '-'}</TableCell>
                 <TableCell>{student.email || '-'}</TableCell>
                 <TableCell className="text-right">
-                   <Button variant="ghost" size="icon" onClick={() => onAddLog(student)}>
+                   <Button variant="ghost" size="icon" onClick={() => onAddLog(student)} title="상담 기록">
                     <FileText className="h-4 w-4" />
                     <span className="sr-only">상담 기록</span>
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(student)}>
+                  <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">수정</span>
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
+                      <Button variant="ghost" size="icon" title="삭제">
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">삭제</span>
                       </Button>
