@@ -23,7 +23,7 @@ export default function RecordsClient() {
   
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
+  const [allCounselingLogs, setAllCounselingLogs] = useState<CounselingLog[]>([]);
   const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,25 +39,25 @@ export default function RecordsClient() {
       setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
       setLoading(false);
     });
-    return () => unsubStudents();
+
+    const qLogs = query(collection(db, "counselingLogs"));
+    const unsubLogs = onSnapshot(qLogs, (snapshot) => {
+      setAllCounselingLogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog)));
+    });
+
+    return () => {
+      unsubStudents();
+      unsubLogs();
+    }
   }, []);
 
-  useEffect(() => {
-    if (!selectedStudentId) {
-        setCounselingLogs([]);
-        return;
-    };
+  const counselingLogs = useMemo(() => {
+    if (!selectedStudentId) return [];
+    return allCounselingLogs
+      .filter(log => log.studentId === selectedStudentId)
+      .sort((a, b) => new Date(b.counselingDate).getTime() - new Date(a.counselingDate).getTime());
+  }, [selectedStudentId, allCounselingLogs]);
 
-    const q = query(
-        collection(db, "counselingLogs"), 
-        where("studentId", "==", selectedStudentId),
-        orderBy("counselingDate", "desc")
-    );
-    const unsubLogs = onSnapshot(q, (snapshot) => {
-      setCounselingLogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog)));
-    });
-    return () => unsubLogs();
-  }, [selectedStudentId]);
 
   const selectedStudent = useMemo(() => {
     return students.find(s => s.id === selectedStudentId) || null;
