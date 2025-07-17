@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, FileText } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -20,10 +20,11 @@ interface StudentListProps {
   students: Student[];
   onEdit: (student: Student) => void;
   onDelete: (id: string) => void;
+  onAddLog: (student: Student) => void;
   loading: boolean;
 }
 
-export default function StudentList({ students, onEdit, onDelete, loading }: StudentListProps) {
+export default function StudentList({ students, onEdit, onDelete, onAddLog, loading }: StudentListProps) {
   if (loading) {
     return (
       <div className="rounded-lg border">
@@ -68,7 +69,7 @@ export default function StudentList({ students, onEdit, onDelete, loading }: Stu
             <TableHead>성별</TableHead>
             <TableHead>연락처</TableHead>
             <TableHead>이메일</TableHead>
-            <TableHead className="text-right w-[120px]">작업</TableHead>
+            <TableHead className="text-right w-[160px]">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -92,6 +93,10 @@ export default function StudentList({ students, onEdit, onDelete, loading }: Stu
                 <TableCell>{student.contact || '-'}</TableCell>
                 <TableCell>{student.email || '-'}</TableCell>
                 <TableCell className="text-right">
+                   <Button variant="ghost" size="icon" onClick={() => onAddLog(student)}>
+                    <FileText className="h-4 w-4" />
+                    <span className="sr-only">상담 기록</span>
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => onEdit(student)}>
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">수정</span>

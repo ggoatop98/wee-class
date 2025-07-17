@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
@@ -11,11 +11,14 @@ import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
 import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import CounselingLogForm from "../records/CounselingLogForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function StudentsClient() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [logStudent, setLogStudent] = useState<Student | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -31,12 +34,12 @@ export default function StudentsClient() {
 
   const handleAddStudent = () => {
     setSelectedStudent(null);
-    setIsModalOpen(true);
+    setIsStudentModalOpen(true);
   };
 
   const handleEditStudent = (student: Student) => {
     setSelectedStudent(student);
-    setIsModalOpen(true);
+    setIsStudentModalOpen(true);
   };
 
   const handleDeleteStudent = async (studentId: string) => {
@@ -56,6 +59,16 @@ export default function StudentsClient() {
     }
   };
 
+  const handleAddLog = (student: Student) => {
+    setLogStudent(student);
+    setIsLogModalOpen(true);
+  };
+
+  const handleLogSaved = () => {
+    setIsLogModalOpen(false);
+    setLogStudent(null);
+  }
+
   return (
     <>
       <PageHeader title="내담자 목록">
@@ -68,13 +81,25 @@ export default function StudentsClient() {
         students={students}
         onEdit={handleEditStudent}
         onDelete={handleDeleteStudent}
+        onAddLog={handleAddLog}
         loading={loading}
       />
       <StudentForm
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        isOpen={isStudentModalOpen}
+        onOpenChange={setIsStudentModalOpen}
         student={selectedStudent}
       />
+      <Dialog open={isLogModalOpen} onOpenChange={setIsLogModalOpen}>
+        <DialogContent className="sm:max-w-[800px]">
+          <DialogHeader>
+            <DialogTitle>새 상담일지 작성</DialogTitle>
+            <DialogDescription>{logStudent?.name} 학생의 상담 내용을 기록합니다.</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+             <CounselingLogForm student={logStudent} onSave={handleLogSaved} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

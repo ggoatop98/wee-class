@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 
 const logSchema = z.object({
   counselingDate: z.string().min(1, '상담 날짜를 입력해주세요.'),
@@ -28,9 +29,10 @@ interface CounselingLogFormProps {
   student: Student | null;
   log?: CounselingLog | null;
   onSave: () => void;
+  className?: string;
 }
 
-export default function CounselingLogForm({ student, log, onSave }: CounselingLogFormProps) {
+export default function CounselingLogForm({ student, log, onSave, className }: CounselingLogFormProps) {
   const { toast } = useToast();
   const form = useForm<LogFormValues>({
     resolver: zodResolver(logSchema),
@@ -110,7 +112,7 @@ export default function CounselingLogForm({ student, log, onSave }: CounselingLo
   if (!student) return null;
 
   return (
-    <Card>
+    <Card className={cn(className)}>
       <CardHeader>
         <CardTitle>{log ? '상담 내용 수정' : '새 상담 내용'}</CardTitle>
         <CardDescription>
