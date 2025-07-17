@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -8,6 +9,8 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Appointment, Student } from '@/types';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -15,19 +18,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const appointmentSchema = z.object({
-  type: z.enum(['상담', '검사', '자문', '교육', '연구', '의뢰']),
-  title: z.string().min(1, '제목을 입력해주세요.'),
-  studentId: z.string().min(1, '내담자를 선택해주세요.'),
-  date: z.string().min(1, '날짜를 선택해주세요.'),
-  startTime: z.string().min(1, '시작 시간을 선택해주세요.'),
-  endTime: z.string().min(1, '종료 시간을 선택해주세요.'),
+  studentName: z.string().min(1, '내담자 이름을 입력해주세요.'),
+  date: z.date({ required_error: '날짜를 선택해주세요.' }),
+  startHour: z.string().min(1, '시간을 선택해주세요.'),
+  startMinute: z.string().min(1, '분을 선택해주세요.'),
   repeatSetting: z.string().optional(),
   memo: z.string().optional(),
 });
@@ -38,56 +38,60 @@ interface AppointmentFormProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   appointment?: Appointment | null;
-  students: Student[];
+  students: Student[]; // Keep for compatibility, but not used for selection
 }
 
-export default function AppointmentForm({ isOpen, onOpenChange, appointment, students }: AppointmentFormProps) {
+export default function AppointmentForm({ isOpen, onOpenChange, appointment }: AppointmentFormProps) {
   const { toast } = useToast();
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
-      type: '상담',
-      title: '',
-      studentId: '',
-      date: '',
-      startTime: '',
-      endTime: '',
+      studentName: '',
+      date: new Date(),
+      startHour: '09',
+      startMinute: '00',
       repeatSetting: '해당 없음',
       memo: '',
     },
   });
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
     if (appointment) {
-      form.reset({ ...appointment });
+        const [hour, minute] = appointment.startTime.split(':');
+        form.reset({
+            studentName: appointment.studentName,
+            date: new Date(appointment.date),
+            startHour: hour,
+            startMinute: minute,
+            repeatSetting: appointment.repeatSetting,
+            memo: appointment.memo || '',
+        });
     } else {
-      form.reset({
-        type: '상담',
-        title: '',
-        studentId: '',
-        date: today,
-        startTime: '09:00',
-        endTime: '10:00',
-        repeatSetting: '해당 없음',
-        memo: '',
-      });
+        form.reset({
+            studentName: '',
+            date: new Date(),
+            startHour: '09',
+            startMinute: '00',
+            repeatSetting: '해당 없음',
+            memo: '',
+        });
     }
   }, [appointment, form, isOpen]);
 
   const onSubmit = async (data: AppointmentFormValues) => {
-    const selectedStudent = students.find(s => s.id === data.studentId);
-    if (!selectedStudent) {
-        toast({ variant: 'destructive', title: '오류', description: '선택된 내담자 정보를 찾을 수 없습니다.' });
-        return;
-    }
-
     const submissionData = {
-        ...data,
-        studentName: selectedStudent.name,
-        counselingLogExists: appointment?.counselingLogExists || false,
+      title: `${data.studentName} 학생 상담`, // Auto-generated title
+      studentName: data.studentName,
+      studentId: '', // No longer linked to a specific student record
+      date: format(data.date, 'yyyy-MM-dd'),
+      startTime: `${data.startHour}:${data.startMinute}`,
+      endTime: '', // Removed
+      type: '상담', // Default type
+      repeatSetting: data.repeatSetting,
+      memo: data.memo,
+      counselingLogExists: appointment?.counselingLogExists || false,
     };
 
     try {
@@ -105,59 +109,89 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment, stu
     }
   };
 
+  const handleDateSelect = (selectedDate?: Date) => {
+    if (selectedDate) {
+      form.setValue('date', selectedDate, { shouldValidate: true });
+      setIsCalendarOpen(false);
+    }
+  };
+
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>{appointment ? '일정 수정' : '일정 추가'}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <Tabs defaultValue="상담" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-                {['상담', '검사', '자문', '교육', '연구', '의뢰'].map(tab => (
-                  <TabsTrigger key={tab} value={tab} onClick={() => form.setValue('type', tab as AppointmentFormValues['type'])}>
-                    {tab}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-
-            <FormField control={form.control} name="title" render={({ field }) => (
-                <FormItem><FormLabel>제목</FormLabel><FormControl><Input placeholder="예: 학교 생활 적응 상담" {...field} /></FormControl><FormMessage /></FormItem>
-            )}/>
-
-            <FormField control={form.control} name="studentId" render={({ field }) => (
-              <FormItem className="flex flex-col"><FormLabel>내담자 검색</FormLabel>
-                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}><PopoverTrigger asChild>
-                    <FormControl><Button variant="outline" role="combobox" className={cn("w-full justify-between", !field.value && "text-muted-foreground")}>
-                        {field.value ? (students || []).find((s) => s.id === field.value)?.name : "내담자 선택"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button></FormControl>
-                </PopoverTrigger><PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                    <Command><CommandInput placeholder="이름으로 검색..." /><CommandList><CommandEmpty>내담자를 찾을 수 없습니다.</CommandEmpty><CommandGroup>
-                        {(students || []).map((s) => (
-                          <CommandItem value={s.name} key={s.id} onSelect={() => { form.setValue('studentId', s.id); setPopoverOpen(false); }}>
-                            <Check className={cn("mr-2 h-4 w-4", s.id === field.value ? "opacity-100" : "opacity-0")} />
-                            {s.name} ({s.class})
-                          </CommandItem>
-                        ))}
-                    </CommandGroup></CommandList></Command>
-                </PopoverContent></Popover>
+            
+            <FormField control={form.control} name="date" render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>날짜</FormLabel>
+                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP", { locale: ko })
+                          ) : (
+                            <span>날짜 선택</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={handleDateSelect}
+                            disabled={(date) =>
+                            date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                            locale={ko}
+                        />
+                    </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}/>
+
+            <FormField control={form.control} name="studentName" render={({ field }) => (
+                <FormItem><FormLabel>내담자명</FormLabel><FormControl><Input placeholder="예: 홍길동" {...field} /></FormControl><FormMessage /></FormItem>
+            )}/>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField control={form.control} name="date" render={({ field }) => (
-                  <FormItem><FormLabel>날짜</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-              )}/>
-              <FormField control={form.control} name="startTime" render={({ field }) => (
-                  <FormItem><FormLabel>시작 시간</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
-              )}/>
-              <FormField control={form.control} name="endTime" render={({ field }) => (
-                  <FormItem><FormLabel>종료 시간</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage /></FormItem>
-              )}/>
+            <div className="grid grid-cols-2 gap-4">
+                <FormField control={form.control} name="startHour" render={({ field }) => (
+                    <FormItem><FormLabel>시간</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                        <SelectValue placeholder="시간" />
+                    </SelectTrigger></FormControl><SelectContent>
+                        {Array.from({ length: 10 }, (_, i) => String(8 + i).padStart(2, '0')).map(hour => (
+                            <SelectItem key={hour} value={hour}>{hour}</SelectItem>
+                        ))}
+                    </SelectContent></Select>
+                    <FormMessage /></FormItem>
+                )}/>
+                <FormField control={form.control} name="startMinute" render={({ field }) => (
+                    <FormItem><FormLabel>분</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                        <SelectValue placeholder="분" />
+                    </SelectTrigger></FormControl><SelectContent>
+                        {['00', '10', '20', '30', '40', '50'].map(min => (
+                             <SelectItem key={min} value={min}>{min}</SelectItem>
+                        ))}
+                    </SelectContent></Select>
+                    <FormMessage /></FormItem>
+                )}/>
             </div>
 
             <FormField control={form.control} name="repeatSetting" render={({ field }) => (
@@ -179,7 +213,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment, stu
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>닫기</Button>
-              <Button type="submit">저장</Button>
+              <Button type="submit">확인</Button>
             </DialogFooter>
           </form>
         </Form>
