@@ -154,6 +154,14 @@ export default function RecordsClient() {
     return students.find(s => s.id === studentId);
   }
 
+  const handleViewLog = (log: CounselingLog) => {
+    const student = getStudentInfo(log.studentId);
+    if (student) {
+      handleStudentSelect(student);
+      setSelectedLog(log);
+    }
+  }
+
   return (
     <>
       <PageHeader title="상담 일지" centered>
@@ -199,6 +207,7 @@ export default function RecordsClient() {
                             <TableHead className="text-base font-semibold">상담일자</TableHead>
                             <TableHead className="text-base font-semibold">내담자</TableHead>
                             <TableHead className="text-base font-semibold">학반</TableHead>
+                            <TableHead className="w-[100px]"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -208,20 +217,24 @@ export default function RecordsClient() {
                                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                                     <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                                     <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+                                    <TableCell><Skeleton className="h-8 w-16" /></TableCell>
                                 </TableRow>
                             ))
                         ) : allLogs.length > 0 ? allLogs.map(log => {
                             const student = getStudentInfo(log.studentId);
                             return (
-                                <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50" onClick={() => student && handleStudentSelect(student)}>
+                                <TableRow key={log.id}>
                                     <TableCell className="text-base font-medium">{log.counselingDate} {log.counselingTime}</TableCell>
                                     <TableCell className="text-base font-medium">{student?.name || "알 수 없음"}</TableCell>
                                     <TableCell className="text-base font-medium">{student?.class || "-"}</TableCell>
+                                    <TableCell>
+                                        <Button variant="outline" size="sm" onClick={() => handleViewLog(log)}>조회</Button>
+                                    </TableCell>
                                 </TableRow>
                             )
                         }) : (
                             <TableRow>
-                                <TableCell colSpan={3} className="h-24 text-center text-base font-medium">
+                                <TableCell colSpan={4} className="h-24 text-center text-base font-medium">
                                     상담 기록이 없습니다.
                                 </TableCell>
                             </TableRow>
