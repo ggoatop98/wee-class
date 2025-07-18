@@ -38,7 +38,7 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
               <TableHead>연락처</TableHead>
               <TableHead>이메일</TableHead>
               <TableHead>상담분야</TableHead>
-              <TableHead>상담기록</TableHead>
+              <TableHead>상담일지</TableHead>
               <TableHead className="text-right">작업</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,7 +72,7 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
             <TableHead>연락처</TableHead>
             <TableHead>이메일</TableHead>
             <TableHead>상담분야</TableHead>
-            <TableHead>상담기록</TableHead>
+            <TableHead>상담일지</TableHead>
             <TableHead className="text-right w-[120px]">작업</TableHead>
           </TableRow>
         </TableHeader>
