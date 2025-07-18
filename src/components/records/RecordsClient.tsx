@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -160,8 +161,7 @@ export default function RecordsClient() {
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                  <p className="font-semibold text-sm">{log.counselingSubject}</p>
-                                                  <p className="text-xs text-muted-foreground">{new Date(log.counselingDate).toLocaleDateString()} {log.counselingTime}</p>
+                                                  <p className="text-sm font-semibold text-muted-foreground">{new Date(log.counselingDate).toLocaleDateString()} {log.counselingTime}</p>
                                                 </div>
                                                 <AlertDialog>
                                                   <AlertDialogTrigger asChild>
