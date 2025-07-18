@@ -200,7 +200,7 @@ export default function RecordsClient() {
                             <TableHead className="text-base font-semibold">상담일자</TableHead>
                             <TableHead className="text-base font-semibold">내담자</TableHead>
                             <TableHead className="text-base font-semibold">학반</TableHead>
-                            <TableHead className="w-[100px]"></TableHead>
+                            <TableHead className="w-[100px] text-base font-semibold">상담일지</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
