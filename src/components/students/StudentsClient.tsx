@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
 import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -13,6 +13,7 @@ import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
 import CounselingLogForm from "../records/CounselingLogForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 export default function StudentsClient() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -21,6 +22,7 @@ export default function StudentsClient() {
   const [logStudent, setLogStudent] = useState<Student | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,6 +33,15 @@ export default function StudentsClient() {
     });
     return () => unsubscribe();
   }, []);
+
+  const filteredStudents = useMemo(() => {
+    if (!searchTerm) {
+      return students;
+    }
+    return students.filter(student =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [students, searchTerm]);
 
   const handleAddStudent = () => {
     setSelectedStudent(null);
@@ -72,13 +83,20 @@ export default function StudentsClient() {
   return (
     <>
       <PageHeader title="내담자 목록">
+        <Input
+          type="search"
+          placeholder="이름으로 검색..."
+          className="w-64"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
         <Button onClick={handleAddStudent}>
           <PlusCircle className="mr-2 h-4 w-4" />
           추가
         </Button>
       </PageHeader>
       <StudentList
-        students={students}
+        students={filteredStudents}
         onEdit={handleEditStudent}
         onDelete={handleDeleteStudent}
         onAddLog={handleAddLog}
