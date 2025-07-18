@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -33,10 +34,10 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
             <TableRow>
               <TableHead>이름</TableHead>
               <TableHead>학반</TableHead>
-              <TableHead>생년월일</TableHead>
               <TableHead>성별</TableHead>
               <TableHead>연락처</TableHead>
               <TableHead>이메일</TableHead>
+              <TableHead>상담분야</TableHead>
               <TableHead>상담기록</TableHead>
               <TableHead className="text-right">작업</TableHead>
             </TableRow>
@@ -46,10 +47,10 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
               <TableRow key={i}>
                 <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-8" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-8 w-24" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
               </TableRow>
@@ -67,10 +68,10 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
           <TableRow>
             <TableHead className="w-[120px]">이름</TableHead>
             <TableHead>학반</TableHead>
-            <TableHead>생년월일</TableHead>
             <TableHead>성별</TableHead>
             <TableHead>연락처</TableHead>
             <TableHead>이메일</TableHead>
+            <TableHead>상담분야</TableHead>
             <TableHead>상담기록</TableHead>
             <TableHead className="text-right w-[120px]">작업</TableHead>
           </TableRow>
@@ -91,10 +92,10 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
                   </Link>
                 </TableCell>
                 <TableCell>{student.class}</TableCell>
-                <TableCell>{student.birthdate}</TableCell>
                 <TableCell>{student.gender}</TableCell>
                 <TableCell>{student.contact || '-'}</TableCell>
                 <TableCell>{student.email || '-'}</TableCell>
+                <TableCell>{student.counselingField || '-'}</TableCell>
                 <TableCell>
                   <Button variant="outline" size="sm" onClick={() => onAddLog(student)}>
                     <FileText className="mr-2 h-4 w-4" />

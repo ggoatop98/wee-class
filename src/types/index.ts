@@ -1,14 +1,14 @@
+
 import type { Timestamp } from 'firebase/firestore';
 
 export interface Student {
   id: string;
   name: string;
   class: string;
-  birthdate: string;
   gender: '남' | '여';
   contact?: string;
   email?: string;
-  eacTestResult?: string;
+  counselingField?: string;
   memo?: string;
 }
 
@@ -32,6 +32,5 @@ export interface CounselingLog {
   appointmentId?: string;
   counselingDate: string; // ISO string for date
   counselingTime: string; // HH:mm
-  counselingSubject: string;
   counselingDetails: string;
 }

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect } from 'react';
@@ -33,11 +34,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const studentSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
   class: z.string().min(1, { message: '학반을 입력해주세요.' }),
-  birthdate: z.string().optional(),
   gender: z.enum(['남', '여']),
   contact: z.string().optional(),
   email: z.string().email({ message: '유효한 이메일 주소를 입력해주세요.' }).optional().or(z.literal('')),
-  eacTestResult: z.string().optional(),
+  counselingField: z.string().optional(),
   memo: z.string().optional(),
 });
 
@@ -56,11 +56,10 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
     defaultValues: {
       name: '',
       class: '',
-      birthdate: '',
       gender: '남',
       contact: '',
       email: '',
-      eacTestResult: '해당 없음',
+      counselingField: '기타',
       memo: '',
     },
   });
@@ -70,22 +69,20 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
       form.reset({
         name: student.name,
         class: student.class,
-        birthdate: student.birthdate,
         gender: student.gender,
         contact: student.contact || '',
         email: student.email || '',
-        eacTestResult: student.eacTestResult || '해당 없음',
+        counselingField: student.counselingField || '기타',
         memo: student.memo || '',
       });
     } else {
       form.reset({
         name: '',
         class: '',
-        birthdate: '',
         gender: '남',
         contact: '',
         email: '',
-        eacTestResult: '해당 없음',
+        counselingField: '기타',
         memo: '',
       });
     }
@@ -155,19 +152,6 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
               />
               <FormField
                 control={form.control}
-                name="birthdate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>생년월일</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
@@ -187,7 +171,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
                   </FormItem>
                 )}
               />
-              <FormField
+               <FormField
                 control={form.control}
                 name="contact"
                 render={({ field }) => (
@@ -204,7 +188,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel>이메일</FormLabel>
                     <FormControl>
                       <Input placeholder="student@example.com" {...field} />
@@ -216,21 +200,27 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
             </div>
              <FormField
                 control={form.control}
-                name="eacTestResult"
+                name="counselingField"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>정서행동특성검사</FormLabel>
+                    <FormLabel>상담분야</FormLabel>
                      <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="검사 결과 선택" />
+                          <SelectValue placeholder="상담분야 선택" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="해당 없음">해당 없음</SelectItem>
-                        <SelectItem value="정상">정상</SelectItem>
-                        <SelectItem value="관심군">관심군</SelectItem>
-                         <SelectItem value="주의군">주의군</SelectItem>
+                        <SelectItem value="친구관계">친구관계</SelectItem>
+                        <SelectItem value="충동성/과잉행동">충동성/과잉행동</SelectItem>
+                        <SelectItem value="주의력">주의력</SelectItem>
+                        <SelectItem value="분노조절">분노조절</SelectItem>
+                        <SelectItem value="우울/불안">우울/불안</SelectItem>
+                        <SelectItem value="가족">가족</SelectItem>
+                        <SelectItem value="학업">학업</SelectItem>
+                        <SelectItem value="진로">진로</SelectItem>
+                        <SelectItem value="지능">지능</SelectItem>
+                        <SelectItem value="기타">기타</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
