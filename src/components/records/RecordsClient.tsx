@@ -1,22 +1,22 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { collection, onSnapshot, doc, deleteDoc, query, where, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student, CounselingLog } from '@/types';
 
 import { PageHeader } from '../PageHeader';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { Trash2 } from 'lucide-react';
 import CounselingLogForm from './CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '../ui/separator';
+import { cn } from '@/lib/utils';
 
 export default function RecordsClient() {
   const searchParams = useSearchParams();
@@ -24,79 +24,85 @@ export default function RecordsClient() {
   
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [allCounselingLogs, setAllCounselingLogs] = useState<CounselingLog[]>([]);
+  const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
   const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     const initialStudentId = searchParams.get('studentId');
     if (initialStudentId) {
       setSelectedStudentId(initialStudentId);
+      const student = students.find(s => s.id === initialStudentId);
+      if (student) {
+        setSearchTerm(student.name);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, students]);
 
   useEffect(() => {
     const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
       setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
       setLoading(false);
     });
-
-    const unsubLogs = onSnapshot(collection(db, "counselingLogs"), (snapshot) => {
-      setAllCounselingLogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog)));
-    });
-
-    return () => {
-      unsubStudents();
-      unsubLogs();
-    }
+    return () => unsubStudents();
   }, []);
 
-  const sortedStudentsForDropdown = useMemo(() => {
-    const lastLogDateMap = new Map<string, string>();
-    allCounselingLogs.forEach(log => {
-      const existingDate = lastLogDateMap.get(log.studentId);
-      if (!existingDate || new Date(log.counselingDate) > new Date(existingDate)) {
-        lastLogDateMap.set(log.studentId, log.counselingDate);
-      }
+  useEffect(() => {
+    if (!selectedStudentId) {
+      setCounselingLogs([]);
+      return;
+    }
+    const unsubLogs = onSnapshot(collection(db, "counselingLogs"), (snapshot) => {
+      const allLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
+      const studentLogs = allLogs
+        .filter(log => log.studentId === selectedStudentId)
+        .sort((a, b) => {
+          const dateA = new Date(`${a.counselingDate}T${a.counselingTime}`).getTime();
+          const dateB = new Date(`${b.counselingDate}T${b.counselingTime}`).getTime();
+          return dateB - dateA;
+        });
+      setCounselingLogs(studentLogs);
     });
 
-    const sorted = [...students]
-      .sort((a, b) => {
-        const dateA = lastLogDateMap.get(a.id) ? new Date(lastLogDateMap.get(a.id)!).getTime() : 0;
-        const dateB = lastLogDateMap.get(b.id) ? new Date(lastLogDateMap.get(b.id)!).getTime() : 0;
-        return dateB - dateA;
-      });
+    return () => unsubLogs();
+  }, [selectedStudentId]);
 
-    return sorted.slice(0, 10);
-  }, [students, allCounselingLogs]);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setIsSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
-  const counselingLogs = useMemo(() => {
-    if (!selectedStudentId) return [];
-    return allCounselingLogs
-      .filter(log => log.studentId === selectedStudentId)
-      .sort((a, b) => {
-        const dateA = new Date(`${a.counselingDate}T${a.counselingTime}`).getTime();
-        const dateB = new Date(`${b.counselingDate}T${b.counselingTime}`).getTime();
-        return dateB - dateA;
-      });
-  }, [selectedStudentId, allCounselingLogs]);
-
+  const filteredStudents = useMemo(() => {
+    if (!searchTerm) return [];
+    return students.filter(student =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ).slice(0, 5);
+  }, [students, searchTerm]);
 
   const selectedStudent = useMemo(() => {
     return students.find(s => s.id === selectedStudentId) || null;
   }, [selectedStudentId, students]);
 
-  const handleStudentChange = (studentId: string) => {
-    setSelectedStudentId(studentId);
+  const handleStudentSelect = (student: Student) => {
+    setSelectedStudentId(student.id);
     setSelectedLog(null);
+    setSearchTerm(student.name);
+    setIsSearchFocused(false);
   };
   
   const handleLogSelect = (log: CounselingLog) => {
     setSelectedLog(log);
-  };
-  
-  const handleAddNewLog = () => {
-    setSelectedLog(null);
   };
 
   const handleDeleteLog = async (logId: string) => {
@@ -118,32 +124,54 @@ export default function RecordsClient() {
       });
     }
   };
+  
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    if (selectedStudentId && selectedStudent?.name !== e.target.value) {
+      setSelectedStudentId(null);
+    }
+  }
 
   return (
     <>
-      <PageHeader title="상담 일지 상세">
-        <div className="w-[250px]">
-          <Select onValueChange={handleStudentChange} value={selectedStudentId || ""}>
-            <SelectTrigger id="student-selector">
-              <SelectValue placeholder="내담자 선택..." />
-            </SelectTrigger>
-            <SelectContent>
-              {sortedStudentsForDropdown.map(student => (
-                <SelectItem key={student.id} value={student.id}>{student.name} ({student.class})</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <PageHeader title="상담 일지" centered>
+        <div className="relative w-full max-w-sm" ref={searchContainerRef}>
+          <Input
+            type="search"
+            placeholder="내담자 이름 검색..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onFocus={() => setIsSearchFocused(true)}
+            className="w-full"
+          />
+          {isSearchFocused && filteredStudents.length > 0 && (
+            <Card className="absolute z-10 mt-1 w-full bg-background shadow-lg">
+              <CardContent className="p-2">
+                <ul>
+                  {filteredStudents.map(student => (
+                    <li
+                      key={student.id}
+                      onClick={() => handleStudentSelect(student)}
+                      className="cursor-pointer rounded-md p-2 hover:bg-accent"
+                    >
+                      {student.name} ({student.class})
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </PageHeader>
       
       {!selectedStudentId ? (
         <Card className="flex items-center justify-center h-96">
             <CardContent className="text-center">
-                <p className="text-muted-foreground">상단에서 내담자를 선택해주세요.</p>
+                <p className="text-muted-foreground">상단에서 내담자를 검색하고 선택해주세요.</p>
             </CardContent>
         </Card>
       ) : (
-        <div className="grid md:grid-cols-12 gap-8">
+        <div className="grid md:grid-cols-12 gap-8 mt-8">
             <div className="md:col-span-4">
                 <Card>
                     <CardHeader>
@@ -156,7 +184,7 @@ export default function RecordsClient() {
                                     <li key={log.id}>
                                         <div 
                                           onClick={() => handleLogSelect(log)}
-                                          className={`group p-3 rounded-lg cursor-pointer transition-colors ${selectedLog?.id === log.id ? 'bg-primary/20' : 'hover:bg-muted/80'}`}
+                                          className={cn(`group p-3 rounded-lg cursor-pointer transition-colors`, selectedLog?.id === log.id ? 'bg-primary/20' : 'hover:bg-muted/80')}
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div>
