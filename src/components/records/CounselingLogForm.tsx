@@ -120,13 +120,7 @@ export default function CounselingLogForm({ student, log, onSave, className }: C
 
   return (
     <Card className={cn(className)}>
-      <CardHeader>
-        <CardTitle>{log ? '상담 내용 수정' : '새 상담 내용'}</CardTitle>
-        <CardDescription>
-          상담 내용을 상세히 기록하고 저장하세요.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
