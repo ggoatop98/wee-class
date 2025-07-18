@@ -156,8 +156,6 @@ export default function RecordsClient() {
     if (newSearchTerm === "") {
         setSelectedStudentId(null);
         setSelectedLog(null);
-    } else {
-        // Do not auto-select a student, just filter the list
     }
   }
 
@@ -189,11 +187,7 @@ export default function RecordsClient() {
       
       {!selectedStudentId ? (
          <Card>
-            <CardHeader>
-                <CardTitle>최근 상담 기록</CardTitle>
-                <CardDescription>모든 내담자의 최근 상담 기록입니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
                 <Table>
                     <TableHeader>
                         <TableRow>
