@@ -51,9 +51,18 @@ export default function RecordsClient() {
       setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
     });
 
-    const logsQuery = query(collection(db, "counselingLogs"), orderBy("counselingDate", "desc"), orderBy("counselingTime", "desc"));
+    const logsQuery = query(collection(db, "counselingLogs"), orderBy("counselingDate", "desc"));
     const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
         const allLogsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
+        
+        allLogsData.sort((a, b) => {
+            if (a.counselingDate > b.counselingDate) return -1;
+            if (a.counselingDate < b.counselingDate) return 1;
+            if (a.counselingTime > b.counselingTime) return -1;
+            if (a.counselingTime < b.counselingTime) return 1;
+            return 0;
+        });
+
         setAllLogs(allLogsData);
         setLoading(false);
     });
