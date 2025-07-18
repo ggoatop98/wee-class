@@ -150,8 +150,6 @@ export default function RecordsClient() {
                         <CardTitle>상담 이력</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <Button onClick={handleAddNewLog} className="w-full mb-4">새 상담 내용 작성</Button>
-                      <Separator />
                         <ScrollArea className="h-[500px] mt-4">
                             <ul className="space-y-2 pr-4">
                                 {counselingLogs.length > 0 ? counselingLogs.map(log => (
