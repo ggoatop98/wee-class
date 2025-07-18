@@ -100,12 +100,20 @@ export default function RecordsClient() {
     };
   }, []);
 
-  const filteredStudents = useMemo(() => {
-    if (!searchTerm) return [];
-    return students.filter(student =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ).slice(0, 5);
-  }, [students, searchTerm]);
+  const studentMap = useMemo(() => {
+    return new Map(students.map(s => [s.id, s]));
+  }, [students]);
+
+  const filteredLogs = useMemo(() => {
+    if (!searchTerm) {
+      return allLogs;
+    }
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    return allLogs.filter(log => {
+      const student = studentMap.get(log.studentId);
+      return student && student.name.toLowerCase().includes(lowercasedSearchTerm);
+    });
+  }, [allLogs, searchTerm, studentMap]);
 
   const selectedStudent = useMemo(() => {
     return students.find(s => s.id === selectedStudentId) || null;
@@ -143,15 +151,18 @@ export default function RecordsClient() {
   };
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-    if (e.target.value === "") {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    if (newSearchTerm === "") {
         setSelectedStudentId(null);
         setSelectedLog(null);
+    } else {
+        // Do not auto-select a student, just filter the list
     }
   }
 
   const getStudentInfo = (studentId: string) => {
-    return students.find(s => s.id === studentId);
+    return studentMap.get(studentId);
   }
 
   const handleViewLog = (log: CounselingLog) => {
@@ -171,26 +182,8 @@ export default function RecordsClient() {
             placeholder="내담자 이름 검색..."
             value={searchTerm}
             onChange={handleSearchChange}
-            onFocus={() => setIsSearchFocused(true)}
             className="w-full"
           />
-          {isSearchFocused && filteredStudents.length > 0 && (
-            <Card className="absolute z-10 mt-1 w-full bg-background shadow-lg">
-              <CardContent className="p-2">
-                <ul>
-                  {filteredStudents.map(student => (
-                    <li
-                      key={student.id}
-                      onClick={() => handleStudentSelect(student)}
-                      className="cursor-pointer rounded-md p-2 hover:bg-accent"
-                    >
-                      {student.name} ({student.class})
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </PageHeader>
       
@@ -220,7 +213,7 @@ export default function RecordsClient() {
                                     <TableCell><Skeleton className="h-8 w-16" /></TableCell>
                                 </TableRow>
                             ))
-                        ) : allLogs.length > 0 ? allLogs.map(log => {
+                        ) : filteredLogs.length > 0 ? filteredLogs.map(log => {
                             const student = getStudentInfo(log.studentId);
                             return (
                                 <TableRow key={log.id}>
