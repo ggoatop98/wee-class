@@ -196,9 +196,9 @@ export default function RecordsClient() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>상담일자</TableHead>
-                            <TableHead>내담자</TableHead>
-                            <TableHead>학반</TableHead>
+                            <TableHead className="text-base font-semibold">상담일자</TableHead>
+                            <TableHead className="text-base font-semibold">내담자</TableHead>
+                            <TableHead className="text-base font-semibold">학반</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -214,14 +214,14 @@ export default function RecordsClient() {
                             const student = getStudentInfo(log.studentId);
                             return (
                                 <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50" onClick={() => student && handleStudentSelect(student)}>
-                                    <TableCell>{log.counselingDate} {log.counselingTime}</TableCell>
-                                    <TableCell>{student?.name || "알 수 없음"}</TableCell>
-                                    <TableCell>{student?.class || "-"}</TableCell>
+                                    <TableCell className="text-base font-medium">{log.counselingDate} {log.counselingTime}</TableCell>
+                                    <TableCell className="text-base font-medium">{student?.name || "알 수 없음"}</TableCell>
+                                    <TableCell className="text-base font-medium">{student?.class || "-"}</TableCell>
                                 </TableRow>
                             )
                         }) : (
                             <TableRow>
-                                <TableCell colSpan={3} className="h-24 text-center">
+                                <TableCell colSpan={3} className="h-24 text-center text-base font-medium">
                                     상담 기록이 없습니다.
                                 </TableCell>
                             </TableRow>
