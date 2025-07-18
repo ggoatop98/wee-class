@@ -41,8 +41,7 @@ export default function RecordsClient() {
       setLoading(false);
     });
 
-    const qLogs = query(collection(db, "counselingLogs"));
-    const unsubLogs = onSnapshot(qLogs, (snapshot) => {
+    const unsubLogs = onSnapshot(collection(db, "counselingLogs"), (snapshot) => {
       setAllCounselingLogs(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog)));
     });
 
@@ -61,11 +60,10 @@ export default function RecordsClient() {
       }
     });
 
-    const sorted = students
-      .filter(student => lastLogDateMap.has(student.id))
+    const sorted = [...students]
       .sort((a, b) => {
-        const dateA = new Date(lastLogDateMap.get(a.id)!).getTime();
-        const dateB = new Date(lastLogDateMap.get(b.id)!).getTime();
+        const dateA = lastLogDateMap.get(a.id) ? new Date(lastLogDateMap.get(a.id)!).getTime() : 0;
+        const dateB = lastLogDateMap.get(b.id) ? new Date(lastLogDateMap.get(b.id)!).getTime() : 0;
         return dateB - dateA;
       });
 
@@ -76,7 +74,11 @@ export default function RecordsClient() {
     if (!selectedStudentId) return [];
     return allCounselingLogs
       .filter(log => log.studentId === selectedStudentId)
-      .sort((a, b) => new Date(b.counselingDate).getTime() - new Date(a.counselingDate).getTime());
+      .sort((a, b) => {
+        const dateA = new Date(`${a.counselingDate}T${a.counselingTime}`).getTime();
+        const dateB = new Date(`${b.counselingDate}T${b.counselingTime}`).getTime();
+        return dateB - dateA;
+      });
   }, [selectedStudentId, allCounselingLogs]);
 
 
@@ -161,7 +163,7 @@ export default function RecordsClient() {
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                  <p className="text-sm font-semibold text-muted-foreground">{new Date(log.counselingDate).toLocaleDateString()} {log.counselingTime}</p>
+                                                  <p className="text-base font-bold text-foreground">{new Date(log.counselingDate).toLocaleDateString()} {log.counselingTime}</p>
                                                 </div>
                                                 <AlertDialog>
                                                   <AlertDialogTrigger asChild>
