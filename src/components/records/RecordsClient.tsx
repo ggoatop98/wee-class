@@ -147,8 +147,7 @@ export default function RecordsClient() {
             <div className="md:col-span-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>과거 상담 이력</CardTitle>
-                        <CardDescription>{selectedStudent?.name} 학생의 상담 기록입니다.</CardDescription>
+                        <CardTitle>상담 이력</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <Button onClick={handleAddNewLog} className="w-full mb-4">새 상담 내용 작성</Button>
