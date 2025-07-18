@@ -3,13 +3,13 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { collection, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student, CounselingLog } from '@/types';
 
 import { PageHeader } from '../PageHeader';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { Trash2 } from 'lucide-react';
@@ -17,12 +17,15 @@ import CounselingLogForm from './CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Skeleton } from '../ui/skeleton';
 
 export default function RecordsClient() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   
   const [students, setStudents] = useState<Student[]>([]);
+  const [allLogs, setAllLogs] = useState<CounselingLog[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
   const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
@@ -46,9 +49,19 @@ export default function RecordsClient() {
   useEffect(() => {
     const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
       setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
-      setLoading(false);
     });
-    return () => unsubStudents();
+
+    const logsQuery = query(collection(db, "counselingLogs"), orderBy("counselingDate", "desc"), orderBy("counselingTime", "desc"));
+    const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
+        const allLogsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
+        setAllLogs(allLogsData);
+        setLoading(false);
+    });
+
+    return () => {
+        unsubStudents();
+        unsubLogs();
+    };
   }, []);
 
   useEffect(() => {
@@ -56,20 +69,15 @@ export default function RecordsClient() {
       setCounselingLogs([]);
       return;
     }
-    const unsubLogs = onSnapshot(collection(db, "counselingLogs"), (snapshot) => {
-      const allLogs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
-      const studentLogs = allLogs
-        .filter(log => log.studentId === selectedStudentId)
-        .sort((a, b) => {
-          const dateA = new Date(`${a.counselingDate}T${a.counselingTime}`).getTime();
-          const dateB = new Date(`${b.counselingDate}T${b.counselingTime}`).getTime();
-          return dateB - dateA;
-        });
-      setCounselingLogs(studentLogs);
-    });
-
-    return () => unsubLogs();
-  }, [selectedStudentId]);
+    const studentLogs = allLogs
+      .filter(log => log.studentId === selectedStudentId)
+      .sort((a, b) => {
+        const dateA = new Date(`${a.counselingDate}T${a.counselingTime}`).getTime();
+        const dateB = new Date(`${b.counselingDate}T${b.counselingTime}`).getTime();
+        return dateB - dateA;
+      });
+    setCounselingLogs(studentLogs);
+  }, [selectedStudentId, allLogs]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -127,9 +135,14 @@ export default function RecordsClient() {
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    if (selectedStudentId && selectedStudent?.name !== e.target.value) {
-      setSelectedStudentId(null);
+    if (e.target.value === "") {
+        setSelectedStudentId(null);
+        setSelectedLog(null);
     }
+  }
+
+  const getStudentInfo = (studentId: string) => {
+    return students.find(s => s.id === studentId);
   }
 
   return (
@@ -165,9 +178,47 @@ export default function RecordsClient() {
       </PageHeader>
       
       {!selectedStudentId ? (
-        <Card className="flex items-center justify-center h-96">
-            <CardContent className="text-center">
-                <p className="text-muted-foreground">상단에서 내담자를 검색하고 선택해주세요.</p>
+         <Card>
+            <CardHeader>
+                <CardTitle>최근 상담 기록</CardTitle>
+                <CardDescription>모든 내담자의 최근 상담 기록입니다.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>상담일자</TableHead>
+                            <TableHead>내담자</TableHead>
+                            <TableHead>학반</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? (
+                             [...Array(5)].map((_, i) => (
+                                <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-10" /></TableCell>
+                                </TableRow>
+                            ))
+                        ) : allLogs.length > 0 ? allLogs.map(log => {
+                            const student = getStudentInfo(log.studentId);
+                            return (
+                                <TableRow key={log.id} className="cursor-pointer hover:bg-muted/50" onClick={() => student && handleStudentSelect(student)}>
+                                    <TableCell>{log.counselingDate} {log.counselingTime}</TableCell>
+                                    <TableCell>{student?.name || "알 수 없음"}</TableCell>
+                                    <TableCell>{student?.class || "-"}</TableCell>
+                                </TableRow>
+                            )
+                        }) : (
+                            <TableRow>
+                                <TableCell colSpan={3} className="h-24 text-center">
+                                    상담 기록이 없습니다.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
             </CardContent>
         </Card>
       ) : (
