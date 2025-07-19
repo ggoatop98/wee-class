@@ -192,7 +192,7 @@ export default function RecordsClient() {
             onChange={handleSearchChange}
             className="w-full"
           />
-           <Button variant="outline" size="default" onClick={handleAddNewLog} disabled={!selectedStudentId}>
+           <Button variant="default" size="default" onClick={handleAddNewLog} disabled={!selectedStudentId}>
               <PlusCircle className="mr-2 h-4 w-4" />
               새 상담일지 추가
             </Button>
@@ -295,3 +295,5 @@ export default function RecordsClient() {
     </>
   );
 }
+
+    
