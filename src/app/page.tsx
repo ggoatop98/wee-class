@@ -1,15 +1,16 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { CalendarPlus, UserPlus, ArrowRight } from 'lucide-react';
 import StudentForm from '@/components/students/StudentForm';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { collection, onSnapshot, query, orderBy, limit, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ export default function Home() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
     const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
@@ -33,14 +34,12 @@ export default function Home() {
     const q = query(
       collection(db, "appointments"), 
       where("date", ">=", todayStr),
-      orderBy("date"),
-      limit(5)
+      orderBy("date")
     );
 
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       
-      // Sort by startTime on the client-side
       appointmentsData.sort((a, b) => {
         if (a.date < b.date) return -1;
         if (a.date > b.date) return 1;
@@ -49,7 +48,7 @@ export default function Home() {
         return 0;
       });
 
-      setAppointments(appointmentsData);
+      setAllAppointments(appointmentsData);
     });
 
 
@@ -58,6 +57,41 @@ export default function Home() {
       unsubAppointments();
     };
   }, []);
+
+  const appointmentsToShow = useMemo(() => {
+    if (allAppointments.length === 0) {
+      return [];
+    }
+  
+    const uniqueDates = [...new Set(allAppointments.map(app => app.date))];
+    
+    if (uniqueDates.length <= 1) {
+      return allAppointments;
+    }
+  
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    
+    const hasTodaysAppointments = uniqueDates.includes(todayStr);
+  
+    let datesToShow: string[] = [];
+
+    if (hasTodaysAppointments) {
+      // Find the next date after today
+      const nextDate = uniqueDates.find(d => d > todayStr);
+      datesToShow.push(todayStr);
+      if (nextDate) {
+        datesToShow.push(nextDate);
+      }
+    } else {
+      // If no appointments today, just show the next two appointment days
+      datesToShow = uniqueDates.slice(0, 1);
+    }
+  
+    return allAppointments.filter(app => datesToShow.includes(app.date));
+  }, [allAppointments]);
+
+  let lastDate: string | null = null;
 
 
   return (
@@ -89,20 +123,27 @@ export default function Home() {
               <CardDescription>다가오는 상담 및 기타 일정입니다.</CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-4">
-                {appointments.length > 0 ? appointments.map(app => (
-                  <li key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                    <div>
-                      <p className="font-semibold">{app.title}</p>
-                      <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString()} {app.startTime}</p>
-                    </div>
-                    <Link href="/schedule">
-                      <Button variant="ghost" size="sm">
-                        자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </li>
-                )) : (
+              <ul className="space-y-2">
+                {appointmentsToShow.length > 0 ? appointmentsToShow.map((app, index) => {
+                  const showSeparator = app.date !== lastDate && lastDate !== null;
+                  lastDate = app.date;
+                  return (
+                    <React.Fragment key={app.id}>
+                      {showSeparator && <Separator className="my-3" />}
+                      <li className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
+                        <div>
+                          <p className="font-semibold">{app.title}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
+                        </div>
+                        <Link href="/schedule">
+                          <Button variant="ghost" size="sm">
+                            자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </li>
+                    </React.Fragment>
+                  );
+                }) : (
                   <p className="text-muted-foreground text-center py-4">예정된 일정이 없습니다.</p>
                 )}
               </ul>
