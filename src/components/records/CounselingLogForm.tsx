@@ -41,8 +41,8 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
     resolver: zodResolver(logSchema),
     defaultValues: {
       counselingDate: new Date().toISOString().split('T')[0],
-      counselingHour: new Date().toTimeString().substring(0, 2),
-      counselingMinute: String(Math.floor(new Date().getMinutes()/10)*10).padStart(2,'0'),
+      counselingHour: '12',
+      counselingMinute: '00',
       counselingDetails: '',
     },
   });
@@ -60,8 +60,8 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
       const now = new Date();
       form.reset({
         counselingDate: now.toISOString().split('T')[0],
-        counselingHour: now.toTimeString().substring(0, 2),
-        counselingMinute: String(Math.floor(now.getMinutes()/10)*10).padStart(2,'0'),
+        counselingHour: '12',
+        counselingMinute: '00',
         counselingDetails: '',
       });
     }

@@ -50,7 +50,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
     defaultValues: {
       studentName: '',
       date: new Date(),
-      startHour: '09',
+      startHour: '12',
       startMinute: '00',
       repeatSetting: '해당 없음',
       memo: '',
@@ -72,7 +72,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
         form.reset({
             studentName: '',
             date: new Date(),
-            startHour: '09',
+            startHour: '12',
             startMinute: '00',
             repeatSetting: '해당 없음',
             memo: '',
