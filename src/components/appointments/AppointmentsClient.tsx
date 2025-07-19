@@ -1,8 +1,9 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, Student } from "@/types";
@@ -21,8 +22,19 @@ export default function AppointmentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubAppointments = onSnapshot(collection(db, "appointments"), (snapshot) => {
+    const q = query(collection(db, "appointments"), orderBy("date", "asc"), orderBy("startTime", "asc"));
+    const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+      
+      // Secondary sort in client-side just in case, primarily for robustness.
+      appointmentsData.sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        if (a.startTime < b.startTime) return -1;
+        if (a.startTime > b.startTime) return 1;
+        return 0;
+      });
+
       setAppointments(appointmentsData);
       if(loading) setLoading(false);
     });
@@ -36,7 +48,7 @@ export default function AppointmentsClient() {
       unsubAppointments();
       unsubStudents();
     };
-  }, []);
+  }, [loading]);
 
   const handleAddAppointment = () => {
     setSelectedAppointment(null);
