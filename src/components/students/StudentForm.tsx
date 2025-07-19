@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Student } from '@/types';
 
@@ -91,13 +91,17 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
   const onSubmit = async (data: StudentFormValues) => {
     try {
       if (student) {
-        await setDoc(doc(db, 'students', student.id), data);
+        await setDoc(doc(db, 'students', student.id), data, { merge: true });
         toast({
           title: '성공',
           description: '내담자 정보가 수정되었습니다.',
         });
       } else {
-        await addDoc(collection(db, 'students'), data);
+        const studentData = {
+          ...data,
+          createdAt: Timestamp.now(),
+        };
+        await addDoc(collection(db, 'students'), studentData);
         toast({
           title: '성공',
           description: '새로운 내담자가 추가되었습니다.',

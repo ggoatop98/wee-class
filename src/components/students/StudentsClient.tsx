@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Student } from "@/types";
@@ -27,7 +27,8 @@ export default function StudentsClient() {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "students"), async (snapshot) => {
+    const q = query(collection(db, "students"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
       setStudents(studentsData);
       setLoading(false);

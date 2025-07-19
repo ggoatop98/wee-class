@@ -10,6 +10,7 @@ export interface Student {
   email?: string;
   counselingField?: string;
   memo?: string;
+  createdAt: Timestamp;
 }
 
 export interface Appointment {
