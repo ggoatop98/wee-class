@@ -23,6 +23,7 @@ const logSchema = z.object({
   counselingHour: z.string().min(1, '시간을 선택해주세요.'),
   counselingMinute: z.string().min(1, '분을 선택해주세요.'),
   counselingDetails: z.string().min(1, '상담 내용을 입력해주세요.'),
+  counselingOpinion: z.string().optional(),
 });
 
 type LogFormValues = z.infer<typeof logSchema>;
@@ -44,6 +45,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
       counselingHour: '12',
       counselingMinute: '00',
       counselingDetails: '',
+      counselingOpinion: '',
     },
   });
 
@@ -55,6 +57,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
         counselingHour: hour,
         counselingMinute: minute,
         counselingDetails: log.counselingDetails,
+        counselingOpinion: log.counselingOpinion || '',
       });
     } else {
       const now = new Date();
@@ -63,6 +66,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
         counselingHour: '12',
         counselingMinute: '00',
         counselingDetails: '',
+        counselingOpinion: '',
       });
     }
   }, [log, form]);
@@ -77,6 +81,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
       counselingDate: data.counselingDate,
       counselingTime: `${data.counselingHour}:${data.counselingMinute}`,
       counselingDetails: data.counselingDetails,
+      counselingOpinion: data.counselingOpinion,
       studentId: student.id,
       appointmentId: log?.appointmentId || '', // This might need linking to an appointment
       counselingSubject: '', // Keep schema consistent, but empty
@@ -153,8 +158,13 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
             </div>
             
             <FormField control={form.control} name="counselingDetails" render={({ field }) => (
-              <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 상세하게 기록하세요." {...field} rows={10} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 상세하게 기록하세요." {...field} rows={8} /></FormControl><FormMessage /></FormItem>
             )}/>
+
+            <FormField control={form.control} name="counselingOpinion" render={({ field }) => (
+              <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담에 대한 전문적인 의견을 기록하세요." {...field} rows={5} /></FormControl><FormMessage /></FormItem>
+            )}/>
+
             <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={onCancel}>취소</Button>
                 <Button type="submit">저장</Button>

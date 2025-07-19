@@ -34,4 +34,5 @@ export interface CounselingLog {
   counselingDate: string; // ISO string for date
   counselingTime: string; // HH:mm
   counselingDetails: string;
+  counselingOpinion?: string;
 }
