@@ -65,10 +65,6 @@ export default function Home() {
   
     const uniqueDates = [...new Set(allAppointments.map(app => app.date))];
     
-    if (uniqueDates.length <= 1) {
-      return allAppointments;
-    }
-  
     const today = new Date();
     const todayStr = today.toISOString().split('T')[0];
     
@@ -82,10 +78,15 @@ export default function Home() {
       datesToShow.push(todayStr);
       if (nextDate) {
         datesToShow.push(nextDate);
+      } else if (uniqueDates.length === 1) {
+        // if only today's appointments exist, show them
+        datesToShow.push(todayStr);
       }
     } else {
-      // If no appointments today, just show the next two appointment days
-      datesToShow = uniqueDates.slice(0, 1);
+      // If no appointments today, just show the next appointment day
+      if (uniqueDates.length > 0) {
+          datesToShow = uniqueDates.slice(0, 1);
+      }
     }
   
     return allAppointments.filter(app => datesToShow.includes(app.date));

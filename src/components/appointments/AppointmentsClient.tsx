@@ -22,7 +22,7 @@ export default function AppointmentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const q = query(collection(db, "appointments"), orderBy("date", "asc"), orderBy("startTime", "asc"));
+    const q = query(collection(db, "appointments"), orderBy("date", "asc"));
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       
