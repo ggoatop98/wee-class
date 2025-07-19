@@ -1,299 +1,117 @@
-
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { collection, onSnapshot, doc, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import type { Student, CounselingLog } from '@/types';
+import React from 'react';
+import { Pencil, Trash2 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import type { Appointment } from '@/types';
+import { Badge } from '@/components/ui/badge';
 
-import { PageHeader } from '../PageHeader';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { ScrollArea } from '../ui/scroll-area';
-import { Button } from '../ui/button';
-import { PlusCircle, Trash2 } from 'lucide-react';
-import CounselingLogForm from './CounselingLogForm';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Skeleton } from '../ui/skeleton';
-
-export default function RecordsClient() {
-  const searchParams = useSearchParams();
-  const { toast } = useToast();
-  
-  const [students, setStudents] = useState<Student[]>([]);
-  const [allLogs, setAllLogs] = useState<CounselingLog[]>([]);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
-  const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
-
-
-  useEffect(() => {
-    const initialStudentId = searchParams.get('studentId');
-    if (initialStudentId) {
-      setSelectedStudentId(initialStudentId);
-      const student = students.find(s => s.id === initialStudentId);
-      if (student) {
-        setSearchTerm(student.name);
-      }
-    }
-  }, [searchParams, students]);
-
-  useEffect(() => {
-    const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
-      setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
-    });
-
-    const logsQuery = query(collection(db, "counselingLogs"), orderBy("counselingDate", "desc"));
-    const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
-        const allLogsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
-        
-        allLogsData.sort((a, b) => {
-            if (a.counselingDate > b.counselingDate) return -1;
-            if (a.counselingDate < b.counselingDate) return 1;
-            if (a.counselingTime > b.counselingTime) return -1;
-            if (a.counselingTime < b.counselingTime) return 1;
-            return 0;
-        });
-
-        setAllLogs(allLogsData);
-        setLoading(false);
-    });
-
-    return () => {
-        unsubStudents();
-        unsubLogs();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedStudentId) {
-      setCounselingLogs([]);
-      return;
-    }
-    const studentLogs = allLogs
-      .filter(log => log.studentId === selectedStudentId)
-      .sort((a, b) => {
-        const dateA = new Date(`${a.counselingDate}T${a.counselingTime}`).getTime();
-        const dateB = new Date(`${b.counselingDate}T${b.counselingTime}`).getTime();
-        return dateB - dateA;
-      });
-    setCounselingLogs(studentLogs);
-  }, [selectedStudentId, allLogs]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
-        setIsSearchFocused(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const studentMap = useMemo(() => {
-    return new Map(students.map(s => [s.id, s]));
-  }, [students]);
-
-  const filteredLogs = useMemo(() => {
-    if (!searchTerm) {
-      return allLogs;
-    }
-    const lowercasedSearchTerm = searchTerm.toLowerCase();
-    return allLogs.filter(log => {
-      const student = studentMap.get(log.studentId);
-      return student && student.name.toLowerCase().includes(lowercasedSearchTerm);
-    });
-  }, [allLogs, searchTerm, studentMap]);
-
-  const selectedStudent = useMemo(() => {
-    return students.find(s => s.id === selectedStudentId) || null;
-  }, [selectedStudentId, students]);
-
-  const handleStudentSelect = (student: Student) => {
-    setSelectedStudentId(student.id);
-    setSelectedLog(null);
-    setSearchTerm(student.name);
-    setIsSearchFocused(false);
-  };
-  
-  const handleLogSelect = (log: CounselingLog) => {
-    setSelectedLog(log);
-  };
-
-  const handleDeleteLog = async (logId: string) => {
-     try {
-      await deleteDoc(doc(db, "counselingLogs", logId));
-      toast({
-        title: "성공",
-        description: "상담일지가 삭제되었습니다.",
-      });
-      if(selectedLog?.id === logId) {
-        setSelectedLog(null);
-      }
-    } catch (error) {
-      console.error("Error deleting log: ", error);
-      toast({
-        variant: "destructive",
-        title: "오류",
-        description: "상담일지 삭제 중 오류가 발생했습니다.",
-      });
-    }
-  };
-  
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
-    if (newSearchTerm === "") {
-        setSelectedStudentId(null);
-        setSelectedLog(null);
-    }
-  }
-
-  const getStudentInfo = (studentId: string) => {
-    return studentMap.get(studentId);
-  }
-
-  const handleViewLog = (log: CounselingLog) => {
-    const student = getStudentInfo(log.studentId);
-    if (student) {
-      handleStudentSelect(student);
-      setSelectedLog(log);
-    }
-  }
-
-  const handleCancelForm = () => {
-    setSelectedLog(null);
-    setSelectedStudentId(null);
-    setSearchTerm("");
-  }
-
-  const handleAddNewLog = () => {
-    setSelectedLog(null);
-  };
-
-  return (
-    <>
-      <PageHeader title="상담 일지">
-        <div className="flex w-full max-w-sm items-center space-x-2" ref={searchContainerRef}>
-          <Input
-            type="search"
-            placeholder="내담자 이름 검색..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full"
-          />
-           <Button variant="default" size="default" onClick={handleAddNewLog} disabled={!selectedStudentId}>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              새 상담일지 추가
-            </Button>
-        </div>
-      </PageHeader>
-      
-      {!selectedStudentId ? (
-         <Card>
-            <CardContent className="pt-6">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="text-base font-semibold">상담일자</TableHead>
-                            <TableHead className="text-base font-semibold">내담자</TableHead>
-                            <TableHead className="text-base font-semibold">학반</TableHead>
-                            <TableHead className="w-[100px] text-base font-semibold">상담일지</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                             [...Array(5)].map((_, i) => (
-                                <TableRow key={i}>
-                                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                                    <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                                    <TableCell><Skeleton className="h-4 w-10" /></TableCell>
-                                    <TableCell><Skeleton className="h-8 w-16" /></TableCell>
-                                </TableRow>
-                            ))
-                        ) : filteredLogs.length > 0 ? filteredLogs.map(log => {
-                            const student = getStudentInfo(log.studentId);
-                            return (
-                                <TableRow key={log.id}>
-                                    <TableCell className="text-base font-medium">{log.counselingDate} {log.counselingTime}</TableCell>
-                                    <TableCell className="text-base font-medium">{student?.name || "알 수 없음"}</TableCell>
-                                    <TableCell className="text-base font-medium">{student?.class || "-"}</TableCell>
-                                    <TableCell>
-                                        <Button variant="outline" size="sm" onClick={() => handleViewLog(log)}>조회</Button>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        }) : (
-                            <TableRow>
-                                <TableCell colSpan={4} className="h-24 text-center text-base font-medium">
-                                    상담 기록이 없습니다.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
-      ) : (
-        <div className="grid md:grid-cols-12 gap-8 mt-8">
-            <div className="md:col-span-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>상담 이력</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ScrollArea className="h-[500px] mt-4">
-                            <ul className="space-y-2 pr-4">
-                                {counselingLogs.length > 0 ? counselingLogs.map((log, index) => (
-                                    <li key={log.id}>
-                                        <div 
-                                          onClick={() => handleLogSelect(log)}
-                                          className={cn(`group p-3 rounded-lg cursor-pointer transition-colors`, selectedLog?.id === log.id ? 'bg-primary/20' : 'hover:bg-muted/80')}
-                                        >
-                                            <div className="flex justify-between items-start">
-                                                <div>
-                                                  <p className="text-base font-bold text-foreground">{`${counselingLogs.length - index}회기 - ${new Date(log.counselingDate).toLocaleDateString()} ${log.counselingTime}`}</p>
-                                                </div>
-                                                <AlertDialog>
-                                                  <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                      <Trash2 className="h-3 w-3" />
-                                                    </Button>
-                                                  </AlertDialogTrigger>
-                                                  <AlertDialogContent>
-                                                    <AlertDialogHeader><AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle><AlertDialogDescription>이 작업은 되돌릴 수 없습니다.</AlertDialogDescription></AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                      <AlertDialogCancel>취소</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={(e) => { e.stopPropagation(); handleDeleteLog(log.id); }} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                  </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div>
-                                        </div>
-                                    </li>
-                                )) : <p className="text-center text-muted-foreground py-8">상담 기록이 없습니다.</p>}
-                            </ul>
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-            </div>
-            <div className="md:col-span-8">
-                <CounselingLogForm student={selectedStudent} log={selectedLog} onSave={() => setSelectedLog(null)} onCancel={handleCancelForm} />
-            </div>
-        </div>
-      )}
-    </>
-  );
+interface AppointmentListProps {
+  appointments: Appointment[];
+  onEdit: (appointment: Appointment) => void;
+  onDelete: (id: string) => void;
+  loading: boolean;
 }
 
-    
+export default function AppointmentList({ appointments, onEdit, onDelete, loading }: AppointmentListProps) {
+  if (loading) {
+    return (
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+             <TableRow>
+                <TableHead className="text-base">날짜</TableHead>
+                <TableHead className="text-base">시간</TableHead>
+                <TableHead className="text-base">제목 (내담자)</TableHead>
+                <TableHead className="text-base">구분</TableHead>
+                <TableHead className="text-right text-base">작업</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-28" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[150px] text-base">날짜</TableHead>
+            <TableHead className="w-[200px] text-base">시간</TableHead>
+            <TableHead className="text-base">제목 (내담자)</TableHead>
+            <TableHead className="text-base">구분</TableHead>
+            <TableHead className="text-right w-[120px] text-base">작업</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {appointments.length === 0 ? (
+             <TableRow>
+              <TableCell colSpan={5} className="h-24 text-center text-base">
+                등록된 일정이 없습니다.
+              </TableCell>
+            </TableRow>
+          ) : (
+            appointments.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="text-base">{new Date(item.date).toLocaleDateString()}</TableCell>
+                <TableCell className="text-base">{`${item.startTime}`}</TableCell>
+                <TableCell className="font-medium text-base">{`${item.title} (${item.studentName})`}</TableCell>
+                <TableCell className="text-base">
+                  <Badge variant="secondary" className="text-sm">{item.type}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                   <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">수정</span>
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">삭제</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          이 작업은 되돌릴 수 없습니다. 일정 정보가 영구적으로 삭제됩니다.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>취소</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(item.id)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

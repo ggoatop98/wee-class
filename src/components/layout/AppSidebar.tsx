@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePathname } from "next/navigation";
@@ -12,13 +13,12 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { House, Calendar, CalendarDays, List, Users, BarChart, File } from "lucide-react";
+import { House, Calendar, CalendarDays, Users, BarChart, File } from "lucide-react";
 
 const menuItems = [
   { href: "/", label: "Home", icon: House },
   { href: "/schedule", label: "일정", icon: Calendar },
   { href: "/calendar", label: "캘린더", icon: CalendarDays },
-  { href: "/records", label: "상담 목록", icon: List },
   { href: "/students", label: "내담자", icon: Users },
 ];
 

@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, FileText } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -21,11 +21,10 @@ interface StudentListProps {
   students: Student[];
   onEdit: (student: Student) => void;
   onDelete: (id: string) => void;
-  onAddLog: (student: Student) => void;
   loading: boolean;
 }
 
-export default function StudentList({ students, onEdit, onDelete, onAddLog, loading }: StudentListProps) {
+export default function StudentList({ students, onEdit, onDelete, loading }: StudentListProps) {
   if (loading) {
     return (
       <div className="rounded-lg border">
@@ -38,7 +37,6 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
               <TableHead>연락처</TableHead>
               <TableHead>이메일</TableHead>
               <TableHead>상담분야</TableHead>
-              <TableHead className="text-center">상담일지</TableHead>
               <TableHead className="text-center">작업</TableHead>
             </TableRow>
           </TableHeader>
@@ -51,7 +49,6 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
                 <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-8 w-24 mx-auto" /></TableCell>
                 <TableCell className="text-center"><Skeleton className="h-8 w-20 mx-auto" /></TableCell>
               </TableRow>
             ))}
@@ -72,14 +69,13 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
             <TableHead>연락처</TableHead>
             <TableHead>이메일</TableHead>
             <TableHead>상담분야</TableHead>
-            <TableHead className="text-center">상담일지</TableHead>
             <TableHead className="text-center w-[120px]">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {students.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-24 text-center">
+              <TableCell colSpan={7} className="h-24 text-center">
                 등록된 내담자가 없습니다.
               </TableCell>
             </TableRow>
@@ -87,21 +83,13 @@ export default function StudentList({ students, onEdit, onDelete, onAddLog, load
             students.map((student) => (
               <TableRow key={student.id}>
                 <TableCell className="font-medium">
-                  <Link href={`/records?studentId=${student.id}`} className="hover:underline">
-                    {student.name}
-                  </Link>
+                  {student.name}
                 </TableCell>
                 <TableCell>{student.class}</TableCell>
                 <TableCell>{student.gender}</TableCell>
                 <TableCell>{student.contact || '-'}</TableCell>
                 <TableCell>{student.email || '-'}</TableCell>
                 <TableCell>{student.counselingField || '-'}</TableCell>
-                <TableCell className="text-center">
-                  <Button variant="outline" size="sm" onClick={() => onAddLog(student)}>
-                    <FileText className="mr-2 h-4 w-4" />
-                    기록하기
-                  </Button>
-                </TableCell>
                 <TableCell className="text-center">
                   <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                     <Pencil className="h-4 w-4" />

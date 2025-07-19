@@ -24,16 +24,5 @@ export interface Appointment {
   type: '상담' | '검사' | '자문' | '교육' | '연구' | '의뢰';
   repeatSetting: string;
   repeatCount?: number;
-  counselingLogExists: boolean;
   memo?: string;
-}
-
-export interface CounselingLog {
-  id: string;
-  studentId: string;
-  appointmentId?: string;
-  counselingDate: string; // ISO string for date
-  counselingTime: string; // HH:mm
-  counselingDetails: string;
-  counselingOpinion?: string;
 }

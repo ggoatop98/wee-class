@@ -101,7 +101,6 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
       repeatSetting: data.repeatSetting,
       repeatCount: data.repeatSetting !== '해당 없음' ? data.repeatCount : undefined,
       memo: data.memo,
-      counselingLogExists: appointment?.counselingLogExists || false,
     };
 
     try {

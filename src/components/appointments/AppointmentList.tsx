@@ -1,7 +1,8 @@
+
 "use client";
 
 import React from 'react';
-import { Pencil, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -14,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import type { Appointment } from '@/types';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 
 interface AppointmentListProps {
   appointments: Appointment[];
@@ -34,7 +35,6 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
                 <TableHead className="text-base">시간</TableHead>
                 <TableHead className="text-base">제목 (내담자)</TableHead>
                 <TableHead className="text-base">구분</TableHead>
-                <TableHead className="text-base">상담일지</TableHead>
                 <TableHead className="text-right text-base">작업</TableHead>
             </TableRow>
           </TableHeader>
@@ -45,7 +45,6 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
                 <TableCell><Skeleton className="h-5 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-40" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-8" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
               </TableRow>
             ))}
@@ -64,32 +63,24 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
             <TableHead className="w-[200px] text-base">시간</TableHead>
             <TableHead className="text-base">제목 (내담자)</TableHead>
             <TableHead className="text-base">구분</TableHead>
-            <TableHead className="text-base">상담일지</TableHead>
             <TableHead className="text-right w-[120px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {appointments.length === 0 ? (
              <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center text-base">
+              <TableCell colSpan={5} className="h-24 text-center text-base">
                 등록된 일정이 없습니다.
               </TableCell>
             </TableRow>
           ) : (
-            appointments.map((item, index) => (
+            appointments.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="text-base">{new Date(item.date).toLocaleDateString()}</TableCell>
                 <TableCell className="text-base">{`${item.startTime}`}</TableCell>
                 <TableCell className="font-medium text-base">{`${item.title} (${item.studentName})`}</TableCell>
                 <TableCell className="text-base">
                   <Badge variant="secondary" className="text-sm">{item.type}</Badge>
-                </TableCell>
-                <TableCell>
-                  {item.counselingLogExists ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-muted-foreground" />
-                  )}
                 </TableCell>
                 <TableCell className="text-right">
                    <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
