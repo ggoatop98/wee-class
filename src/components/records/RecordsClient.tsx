@@ -183,8 +183,8 @@ export default function RecordsClient() {
 
   return (
     <>
-      <PageHeader title="상담 일지" centered>
-        <div className="relative w-full max-w-sm" ref={searchContainerRef}>
+      <PageHeader title="상담 일지">
+        <div className="flex w-full max-w-sm items-center space-x-2" ref={searchContainerRef}>
           <Input
             type="search"
             placeholder="내담자 이름 검색..."
@@ -192,6 +192,10 @@ export default function RecordsClient() {
             onChange={handleSearchChange}
             className="w-full"
           />
+           <Button variant="outline" size="default" onClick={handleAddNewLog} disabled={!selectedStudentId}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              새 상담일지 추가
+            </Button>
         </div>
       </PageHeader>
       
@@ -246,10 +250,6 @@ export default function RecordsClient() {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>상담 이력</CardTitle>
-                        <Button variant="outline" size="sm" onClick={handleAddNewLog}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            새 상담일지 추가
-                        </Button>
                     </CardHeader>
                     <CardContent>
                         <ScrollArea className="h-[500px] mt-4">
