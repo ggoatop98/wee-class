@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
-import { Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react';
 import CounselingLogForm from './CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -177,6 +177,10 @@ export default function RecordsClient() {
     setSearchTerm("");
   }
 
+  const handleAddNewLog = () => {
+    setSelectedLog(null);
+  };
+
   return (
     <>
       <PageHeader title="상담 일지" centered>
@@ -240,8 +244,12 @@ export default function RecordsClient() {
         <div className="grid md:grid-cols-12 gap-8 mt-8">
             <div className="md:col-span-4">
                 <Card>
-                    <CardHeader>
+                    <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle>상담 이력</CardTitle>
+                        <Button variant="outline" size="sm" onClick={handleAddNewLog}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            새 상담일지 추가
+                        </Button>
                     </CardHeader>
                     <CardContent>
                         <ScrollArea className="h-[500px] mt-4">
