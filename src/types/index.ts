@@ -22,6 +22,7 @@ export interface Appointment {
   endTime: string; // HH:mm
   type: '상담' | '검사' | '자문' | '교육' | '연구' | '의뢰';
   repeatSetting: string;
+  repeatCount?: number;
   counselingLogExists: boolean;
   memo?: string;
 }

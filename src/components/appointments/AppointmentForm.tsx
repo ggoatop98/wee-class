@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { db } from '@/lib/firebase';
@@ -29,6 +29,7 @@ const appointmentSchema = z.object({
   startHour: z.string().min(1, '시간을 선택해주세요.'),
   startMinute: z.string().min(1, '분을 선택해주세요.'),
   repeatSetting: z.string().optional(),
+  repeatCount: z.coerce.number().optional(),
   memo: z.string().optional(),
 });
 
@@ -53,8 +54,14 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
       startHour: '12',
       startMinute: '00',
       repeatSetting: '해당 없음',
+      repeatCount: 1,
       memo: '',
     },
+  });
+
+  const repeatSetting = useWatch({
+    control: form.control,
+    name: "repeatSetting"
   });
 
   useEffect(() => {
@@ -66,6 +73,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
             startHour: hour,
             startMinute: minute,
             repeatSetting: appointment.repeatSetting,
+            repeatCount: appointment.repeatCount || 1,
             memo: appointment.memo || '',
         });
     } else {
@@ -75,6 +83,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
             startHour: '12',
             startMinute: '00',
             repeatSetting: '해당 없음',
+            repeatCount: 1,
             memo: '',
         });
     }
@@ -90,6 +99,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
       endTime: '', // Removed
       type: '상담', // Default type
       repeatSetting: data.repeatSetting,
+      repeatCount: data.repeatSetting !== '해당 없음' ? data.repeatCount : undefined,
       memo: data.memo,
       counselingLogExists: appointment?.counselingLogExists || false,
     };
@@ -206,6 +216,20 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
                 </SelectContent></Select>
                 <FormMessage /></FormItem>
             )}/>
+            
+            {repeatSetting && repeatSetting !== '해당 없음' && (
+              <FormField control={form.control} name="repeatCount" render={({ field }) => (
+                  <FormItem><FormLabel>반복 횟수</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={String(field.value)}><FormControl><SelectTrigger>
+                      <SelectValue placeholder="반복 횟수 선택" />
+                  </SelectTrigger></FormControl><SelectContent>
+                      {Array.from({ length: 10 }, (_, i) => i + 1).map(count => (
+                          <SelectItem key={count} value={String(count)}>{count}회</SelectItem>
+                      ))}
+                  </SelectContent></Select>
+                  <FormMessage /></FormItem>
+              )}/>
+            )}
 
             <FormField control={form.control} name="memo" render={({ field }) => (
                 <FormItem><FormLabel>메모</FormLabel><FormControl><Textarea placeholder="일정에 대한 메모를 남기세요." {...field} /></FormControl><FormMessage /></FormItem>
