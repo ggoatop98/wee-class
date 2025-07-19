@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
 import { collection, onSnapshot, doc, deleteDoc, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -14,22 +13,24 @@ import { Button } from "@/components/ui/button";
 import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
 import { Input } from "@/components/ui/input";
+import CounselingLogForm from "../records/CounselingLogForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
 
 export default function StudentsClient() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [studentForLog, setStudentForLog] = useState<Student | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     const q = query(collection(db, "students"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
       
-      // Sort by createdAt on the client-side to handle existing documents without the field
       studentsData.sort((a, b) => {
         const timeA = a.createdAt?.toMillis() || 0;
         const timeB = b.createdAt?.toMillis() || 0;
@@ -79,8 +80,14 @@ export default function StudentsClient() {
   };
 
   const handleAddLog = (student: Student) => {
-    router.push(`/records?studentId=${student.id}`);
+    setStudentForLog(student);
+    setIsLogModalOpen(true);
   };
+
+  const handleLogFormClose = () => {
+    setIsLogModalOpen(false);
+    setStudentForLog(null);
+  }
 
   return (
     <>
@@ -109,6 +116,21 @@ export default function StudentsClient() {
         onOpenChange={setIsStudentModalOpen}
         student={selectedStudent}
       />
+       {isLogModalOpen && studentForLog && (
+        <Dialog open={isLogModalOpen} onOpenChange={setIsLogModalOpen}>
+            <DialogContent className="sm:max-w-[700px]">
+                 <DialogHeader>
+                    <DialogTitle>{studentForLog.name} 학생 상담일지 작성</DialogTitle>
+                    <DialogDescription>새로운 상담 내용을 기록하세요.</DialogDescription>
+                </DialogHeader>
+                <CounselingLogForm 
+                    student={studentForLog} 
+                    onSave={handleLogFormClose}
+                    onCancel={handleLogFormClose}
+                />
+            </DialogContent>
+        </Dialog>
+       )}
     </>
   );
 }

@@ -10,7 +10,6 @@ import { collection, addDoc, doc, setDoc, writeBatch } from 'firebase/firestore'
 import { useToast } from '@/hooks/use-toast';
 import type { CounselingLog, Student } from '@/types';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,8 +124,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
   if (!student) return null;
 
   return (
-    <Card className={cn(className)}>
-      <CardContent className="pt-6">
+    <div className={cn("pt-6", className)}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -171,7 +169,6 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
             </div>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+    </div>
   );
 }
