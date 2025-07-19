@@ -18,7 +18,7 @@ const menuItems = [
   { href: "/", label: "Home", icon: House },
   { href: "/schedule", label: "일정", icon: Calendar },
   { href: "/calendar", label: "캘린더", icon: CalendarDays },
-  { href: "/records", label: "목록", icon: List },
+  { href: "/records", label: "상담 목록", icon: List },
   { href: "/students", label: "내담자", icon: Users },
 ];
 
