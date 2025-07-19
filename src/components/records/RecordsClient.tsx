@@ -171,6 +171,12 @@ export default function RecordsClient() {
     }
   }
 
+  const handleCancelForm = () => {
+    setSelectedLog(null);
+    setSelectedStudentId(null);
+    setSearchTerm("");
+  }
+
   return (
     <>
       <PageHeader title="상담 일지" centered>
@@ -274,7 +280,7 @@ export default function RecordsClient() {
                 </Card>
             </div>
             <div className="md:col-span-8">
-                <CounselingLogForm student={selectedStudent} log={selectedLog} onSave={() => setSelectedLog(null)} />
+                <CounselingLogForm student={selectedStudent} log={selectedLog} onSave={() => setSelectedLog(null)} onCancel={handleCancelForm} />
             </div>
         </div>
       )}

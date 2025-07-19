@@ -31,10 +31,11 @@ interface CounselingLogFormProps {
   student: Student | null;
   log?: CounselingLog | null;
   onSave: () => void;
+  onCancel: () => void;
   className?: string;
 }
 
-export default function CounselingLogForm({ student, log, onSave, className }: CounselingLogFormProps) {
+export default function CounselingLogForm({ student, log, onSave, onCancel, className }: CounselingLogFormProps) {
   const { toast } = useToast();
   const form = useForm<LogFormValues>({
     resolver: zodResolver(logSchema),
@@ -155,7 +156,7 @@ export default function CounselingLogForm({ student, log, onSave, className }: C
               <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 상세하게 기록하세요." {...field} rows={10} /></FormControl><FormMessage /></FormItem>
             )}/>
             <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={onSave}>취소</Button>
+                <Button type="button" variant="outline" onClick={onCancel}>취소</Button>
                 <Button type="submit">저장</Button>
             </div>
           </form>
