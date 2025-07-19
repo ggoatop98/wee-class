@@ -42,7 +42,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
     resolver: zodResolver(logSchema),
     defaultValues: {
       counselingDate: new Date().toISOString().split('T')[0],
-      counselingHour: '12',
+      counselingHour: '08',
       counselingMinute: '00',
       counselingDetails: '',
       counselingOpinion: '',
@@ -51,7 +51,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
 
   useEffect(() => {
     if (log) {
-      const [hour, minute] = log.counselingTime ? log.counselingTime.split(':') : ['12', '00'];
+      const [hour, minute] = log.counselingTime ? log.counselingTime.split(':') : ['08', '00'];
       form.reset({
         counselingDate: log.counselingDate,
         counselingHour: hour,
@@ -63,7 +63,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
       const now = new Date();
       form.reset({
         counselingDate: now.toISOString().split('T')[0],
-        counselingHour: String(now.getHours()).padStart(2, '0'),
+        counselingHour: '08',
         counselingMinute: '00',
         counselingDetails: '',
         counselingOpinion: '',
