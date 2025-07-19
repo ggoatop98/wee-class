@@ -246,7 +246,7 @@ export default function RecordsClient() {
                     <CardContent>
                         <ScrollArea className="h-[500px] mt-4">
                             <ul className="space-y-2 pr-4">
-                                {counselingLogs.length > 0 ? counselingLogs.map(log => (
+                                {counselingLogs.length > 0 ? counselingLogs.map((log, index) => (
                                     <li key={log.id}>
                                         <div 
                                           onClick={() => handleLogSelect(log)}
@@ -254,7 +254,7 @@ export default function RecordsClient() {
                                         >
                                             <div className="flex justify-between items-start">
                                                 <div>
-                                                  <p className="text-base font-bold text-foreground">{new Date(log.counselingDate).toLocaleDateString()} {log.counselingTime}</p>
+                                                  <p className="text-base font-bold text-foreground">{`${counselingLogs.length - index}회기 - ${new Date(log.counselingDate).toLocaleDateString()} ${log.counselingTime}`}</p>
                                                 </div>
                                                 <AlertDialog>
                                                   <AlertDialogTrigger asChild>
