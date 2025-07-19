@@ -51,7 +51,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
 
   useEffect(() => {
     if (log) {
-      const [hour, minute] = log.counselingTime.split(':');
+      const [hour, minute] = log.counselingTime ? log.counselingTime.split(':') : ['12', '00'];
       form.reset({
         counselingDate: log.counselingDate,
         counselingHour: hour,
@@ -63,7 +63,7 @@ export default function CounselingLogForm({ student, log, onSave, onCancel, clas
       const now = new Date();
       form.reset({
         counselingDate: now.toISOString().split('T')[0],
-        counselingHour: '12',
+        counselingHour: String(now.getHours()).padStart(2, '0'),
         counselingMinute: '00',
         counselingDetails: '',
         counselingOpinion: '',
