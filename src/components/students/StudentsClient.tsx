@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Student } from "@/types";
@@ -13,8 +13,6 @@ import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
 import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
-import CounselingLogForm from "../records/CounselingLogForm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 export default function StudentsClient() {
@@ -27,9 +25,17 @@ export default function StudentsClient() {
   const router = useRouter();
 
   useEffect(() => {
-    const q = query(collection(db, "students"), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "students"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
+      
+      // Sort by createdAt on the client-side to handle existing documents without the field
+      studentsData.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis() || 0;
+        const timeB = b.createdAt?.toMillis() || 0;
+        return timeB - timeA;
+      });
+
       setStudents(studentsData);
       setLoading(false);
     });
