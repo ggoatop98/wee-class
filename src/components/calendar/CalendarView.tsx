@@ -1,8 +1,9 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay, addWeeks, addDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -44,15 +45,50 @@ export function CalendarView() {
 
   const appointmentsByDate = useMemo(() => {
     const grouped: { [key: string]: Appointment[] } = {};
+    
     appointments.forEach(app => {
-        const dateKey = format(new Date(app.date), 'yyyy-MM-dd');
-        if (!grouped[dateKey]) {
-            grouped[dateKey] = [];
+      const originalDate = new Date(app.date);
+      // Adjust for timezone offset if the date is parsed incorrectly
+      const tzOffset = originalDate.getTimezoneOffset() * 60000;
+      const baseDate = new Date(originalDate.valueOf() + tzOffset);
+
+      // Add the original appointment
+      const dateKey = format(baseDate, 'yyyy-MM-dd');
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(app);
+
+      // Handle recurring appointments
+      if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
+        for (let i = 1; i < app.repeatCount; i++) {
+          let nextDate: Date;
+          if (app.repeatSetting === '매주') {
+            nextDate = addWeeks(baseDate, i);
+          } else if (app.repeatSetting === '2주마다') {
+            nextDate = addWeeks(baseDate, i * 2);
+          } else if (app.repeatSetting === '매월') {
+            nextDate = addMonths(baseDate, i);
+          } else {
+            continue;
+          }
+          
+          const nextDateKey = format(nextDate, 'yyyy-MM-dd');
+          if (!grouped[nextDateKey]) {
+            grouped[nextDateKey] = [];
+          }
+          grouped[nextDateKey].push({
+            ...app,
+            date: nextDate.toISOString().split('T')[0],
+            // Create a unique-ish ID for the recurring instance for the key prop
+            id: `${app.id}-repeat-${i}` 
+          });
         }
-        grouped[dateKey].push(app);
+      }
     });
     return grouped;
   }, [appointments]);
+
 
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
