@@ -1,6 +1,8 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
 import { collection, onSnapshot, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -17,13 +19,12 @@ import { Input } from "@/components/ui/input";
 
 export default function StudentsClient() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [logStudent, setLogStudent] = useState<Student | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "students"), async (snapshot) => {
@@ -71,14 +72,8 @@ export default function StudentsClient() {
   };
 
   const handleAddLog = (student: Student) => {
-    setLogStudent(student);
-    setIsLogModalOpen(true);
+    router.push(`/records?studentId=${student.id}`);
   };
-
-  const handleLogSaved = () => {
-    setIsLogModalOpen(false);
-    setLogStudent(null);
-  }
 
   return (
     <>
@@ -107,17 +102,6 @@ export default function StudentsClient() {
         onOpenChange={setIsStudentModalOpen}
         student={selectedStudent}
       />
-      <Dialog open={isLogModalOpen} onOpenChange={setIsLogModalOpen}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>새 상담일지 작성</DialogTitle>
-            <DialogDescription>{logStudent?.name} 학생의 상담 내용을 기록합니다.</DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-             <CounselingLogForm student={logStudent} onSave={handleLogSaved} />
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
