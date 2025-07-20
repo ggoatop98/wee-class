@@ -99,68 +99,62 @@ export default function Home() {
     <AppLayout>
       <main className="p-8">
         <PageHeader title="Home" />
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 md:grid-cols-3">
           
-          <Card className="lg:col-span-3">
-            <CardHeader>
-              <CardTitle>빠른 실행</CardTitle>
-              <CardDescription>자주 사용하는 기능을 빠르게 실행하세요.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col sm:flex-row gap-4">
-              <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto">
-                <CalendarPlus className="mr-2 h-4 w-4" />
-                일정 추가
-              </Button>
-              <Button onClick={() => setIsStudentModalOpen(true)} className="w-full sm:w-auto">
-                <UserPlus className="mr-2 h-4 w-4" />
-                내담자 추가
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="md:col-span-3">
+             <Card>
+              <CardHeader>
+                <CardTitle>빠른 실행</CardTitle>
+                <CardDescription>자주 사용하는 기능을 빠르게 실행하세요.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto">
+                  <CalendarPlus className="mr-2 h-4 w-4" />
+                  일정 추가
+                </Button>
+                <Button onClick={() => setIsStudentModalOpen(true)} className="w-full sm:w-auto">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  내담자 추가
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>예정된 일정</CardTitle>
-              <CardDescription>다가오는 상담 및 기타 일정입니다.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {appointmentsToShow.length > 0 ? appointmentsToShow.map((app, index) => {
-                  const showSeparator = app.date !== lastDate && lastDate !== null;
-                  lastDate = app.date;
-                  return (
-                    <React.Fragment key={app.id}>
-                      {showSeparator && <Separator className="my-3" />}
-                      <li className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                        <div>
-                          <p className="font-semibold">{app.title}</p>
-                          <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
-                        </div>
-                        <Link href="/schedule">
-                          <Button variant="ghost" size="sm">
-                            자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </li>
-                    </React.Fragment>
-                  );
-                }) : (
-                  <p className="text-muted-foreground text-center py-4">예정된 일정이 없습니다.</p>
-                )}
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="md:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle>예정된 일정</CardTitle>
+                <CardDescription>다가오는 상담 및 기타 일정입니다.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {appointmentsToShow.length > 0 ? appointmentsToShow.map((app, index) => {
+                    const showSeparator = app.date !== lastDate && lastDate !== null;
+                    lastDate = app.date;
+                    return (
+                      <React.Fragment key={app.id}>
+                        {showSeparator && <Separator className="my-3" />}
+                        <li className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
+                          <div>
+                            <p className="font-semibold">{app.title}</p>
+                            <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
+                          </div>
+                          <Link href="/schedule">
+                            <Button variant="ghost" size="sm">
+                              자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </Link>
+                        </li>
+                      </React.Fragment>
+                    );
+                  }) : (
+                    <p className="text-muted-foreground text-center py-4">예정된 일정이 없습니다.</p>
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>공지사항</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                여름방학 중 상담실 운영 안내 및 2학기 상담 신청 기간에 대한 공지입니다. 자세한 내용은 내부 메신저를 확인해주세요.
-              </p>
-            </CardContent>
-          </Card>
         </div>
       </main>
       <StudentForm isOpen={isStudentModalOpen} onOpenChange={setIsStudentModalOpen} />
