@@ -6,6 +6,7 @@ export interface Student {
   name: string;
   class: string;
   gender: '남' | '여';
+  requester?: '학생' | '학부모' | '교사' | '기타';
   contact?: string;
   email?: string;
   counselingField?: string;
@@ -34,7 +35,7 @@ export interface Appointment {
 export interface CounselingLog {
   id: string;
   studentId: string;
-  studentName: string;
+  studentName:string;
   counselingDate: string; // yyyy-MM-dd
   counselingTime: string; // HH:mm
   mainIssues: string;

@@ -35,6 +35,7 @@ const studentSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
   class: z.string().min(1, { message: '학반을 입력해주세요.' }),
   gender: z.enum(['남', '여']),
+  requester: z.enum(['학생', '학부모', '교사', '기타']).optional(),
   contact: z.string().optional(),
   email: z.string().email({ message: '유효한 이메일 주소를 입력해주세요.' }).optional().or(z.literal('')),
   counselingField: z.string().optional(),
@@ -57,6 +58,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
       name: '',
       class: '',
       gender: '남',
+      requester: '학생',
       contact: '',
       email: '',
       counselingField: '기타',
@@ -70,6 +72,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
         name: student.name,
         class: student.class,
         gender: student.gender,
+        requester: student.requester || '학생',
         contact: student.contact || '',
         email: student.email || '',
         counselingField: student.counselingField || '기타',
@@ -80,6 +83,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
         name: '',
         class: '',
         gender: '남',
+        requester: '학생',
         contact: '',
         email: '',
         counselingField: '기타',
@@ -177,6 +181,29 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
               />
                <FormField
                 control={form.control}
+                name="requester"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>의뢰자</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="의뢰자 선택" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="학생">학생</SelectItem>
+                        <SelectItem value="학부모">학부모</SelectItem>
+                        <SelectItem value="교사">교사</SelectItem>
+                        <SelectItem value="기타">기타</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="contact"
                 render={({ field }) => (
                   <FormItem>
@@ -192,7 +219,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="md:col-span-2">
+                  <FormItem>
                     <FormLabel>이메일</FormLabel>
                     <FormControl>
                       <Input placeholder="student@example.com" {...field} />
