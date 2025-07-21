@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, BookUser } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -69,7 +69,7 @@ export default function StudentList({ students, onEdit, onDelete, loading }: Stu
             <TableHead>연락처</TableHead>
             <TableHead>이메일</TableHead>
             <TableHead>상담분야</TableHead>
-            <TableHead className="text-center w-[120px]">작업</TableHead>
+            <TableHead className="text-center w-[160px]">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -91,6 +91,12 @@ export default function StudentList({ students, onEdit, onDelete, loading }: Stu
                 <TableCell>{student.email || '-'}</TableCell>
                 <TableCell>{student.counselingField || '-'}</TableCell>
                 <TableCell className="text-center">
+                   <Link href={`/records/${student.id}?studentName=${encodeURIComponent(student.name)}`}>
+                    <Button variant="outline" size="sm" className="mr-2">
+                        <BookUser className="h-4 w-4 mr-1" />
+                        상담일지
+                    </Button>
+                  </Link>
                   <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">수정</span>

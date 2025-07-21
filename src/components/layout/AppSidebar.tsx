@@ -13,13 +13,14 @@ import {
   SidebarFooter,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { House, Calendar, CalendarDays, Users, BarChart, File } from "lucide-react";
+import { House, Calendar, CalendarDays, Users, BarChart, File, BookUser } from "lucide-react";
 
 const menuItems = [
   { href: "/", label: "Home", icon: House },
   { href: "/schedule", label: "일정", icon: Calendar },
   { href: "/calendar", label: "캘린더", icon: CalendarDays },
   { href: "/students", label: "내담자", icon: Users },
+  { href: "/records", label: "상담 목록", icon: BookUser },
 ];
 
 const disabledItems = [
@@ -29,6 +30,8 @@ const disabledItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+
+  const isRecordsPage = pathname.startsWith('/records');
 
   return (
     <Sidebar>
@@ -43,7 +46,7 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={item.href === "/records" ? isRecordsPage : pathname === item.href}
                 tooltip={{ children: item.label }}
               >
                 <Link href={item.href}>

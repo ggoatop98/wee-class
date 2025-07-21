@@ -26,3 +26,17 @@ export interface Appointment {
   repeatCount?: number;
   memo?: string;
 }
+
+export interface CounselingLog {
+  id: string;
+  studentId: string;
+  studentName: string;
+  counselingDate: string; // yyyy-MM-dd
+  counselingTime: string; // HH:mm
+  mainIssues: string;
+  counselingGoals?: string;
+  sessionContent?: string;
+  therapistComments?: string;
+  nextSessionGoals?: string;
+  createdAt: Timestamp;
+}

@@ -33,7 +33,8 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         const q = query(
             collection(db, "counselingLogs"),
             where("studentId", "==", studentId),
-            orderBy("counselingDate", "desc")
+            orderBy("counselingDate", "desc"),
+            orderBy("counselingTime", "desc")
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const logsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
@@ -112,7 +113,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                 <p className="text-muted-foreground text-center py-4">상담 기록이 없습니다.</p>
                             ) : (
                                 <ScrollArea className="h-[60vh]">
-                                    <ul className="space-y-4">
+                                    <ul className="space-y-2">
                                         {logs.map((log) => (
                                             <li key={log.id} >
                                                 <div
@@ -121,7 +122,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                 >
                                                     <div className="flex justify-between items-start">
                                                       <div>
-                                                        <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')}</p>
+                                                        <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
                                                         <p className="text-sm text-muted-foreground truncate max-w-[150px]">{log.mainIssues}</p>
                                                       </div>
                                                         <AlertDialog>

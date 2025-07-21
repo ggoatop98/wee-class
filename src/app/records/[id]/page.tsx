@@ -1,16 +1,16 @@
 
+"use client";
+
 import React from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AppLayout } from "@/components/layout/AppLayout";
 import RecordsClient from '@/components/records/RecordsClient';
 
-interface RecordDetailPageProps {
-  params: { id: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default function RecordDetailPage({ params, searchParams }: RecordDetailPageProps) {
+// Note: This component is a Client Component because it uses the `useSearchParams` hook.
+export default function RecordDetailPage({ params }: { params: { id: string } }) {
   const studentId = params.id;
-  const studentName = typeof searchParams.studentName === 'string' ? searchParams.studentName : '';
+  const searchParams = useSearchParams();
+  const studentName = searchParams.get('studentName') || '';
 
   return (
     <AppLayout>

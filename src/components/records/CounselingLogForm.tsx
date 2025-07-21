@@ -1,117 +1,170 @@
+
 "use client";
 
-import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import type { Appointment } from '@/types';
-import { Badge } from '@/components/ui/badge';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Timestamp } from 'firebase/firestore';
+import type { CounselingLog } from '@/types';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
-interface AppointmentListProps {
-  appointments: Appointment[];
-  onEdit: (appointment: Appointment) => void;
-  onDelete: (id: string) => void;
-  loading: boolean;
+import { Card, CardContent } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { PageHeader } from '../PageHeader';
+
+
+const logSchema = z.object({
+  counselingDate: z.date({ required_error: '날짜를 선택해주세요.' }),
+  counselingTime: z.string().min(1, '시간을 선택해주세요.'),
+  mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
+  counselingGoals: z.string().optional(),
+  sessionContent: z.string().optional(),
+  therapistComments: z.string().optional(),
+  nextSessionGoals: z.string().optional(),
+});
+
+type LogFormValues = z.infer<typeof logSchema>;
+
+interface CounselingLogFormProps {
+  studentId: string;
+  studentName: string;
+  log: CounselingLog | null;
+  onSave: (data: Omit<CounselingLog, 'id' | 'createdAt'>) => void;
+  onCancel: () => void;
 }
 
-export default function AppointmentList({ appointments, onEdit, onDelete, loading }: AppointmentListProps) {
-  if (loading) {
-    return (
-      <div className="rounded-lg border">
-        <Table>
-          <TableHeader>
-             <TableRow>
-                <TableHead className="text-base">날짜</TableHead>
-                <TableHead className="text-base">시간</TableHead>
-                <TableHead className="text-base">제목 (내담자)</TableHead>
-                <TableHead className="text-base">구분</TableHead>
-                <TableHead className="text-right text-base">작업</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {[...Array(5)].map((_, i) => (
-              <TableRow key={i}>
-                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-28" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-40" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    );
-  }
+export default function CounselingLogForm({ studentId, studentName, log, onSave, onCancel }: CounselingLogFormProps) {
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    
+    const form = useForm<LogFormValues>({
+        resolver: zodResolver(logSchema),
+        defaultValues: {
+            counselingDate: new Date(),
+            counselingTime: '12:00',
+            mainIssues: '',
+            counselingGoals: '',
+            sessionContent: '',
+            therapistComments: '',
+            nextSessionGoals: '',
+        },
+    });
 
-  return (
-    <div className="rounded-lg border bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[150px] text-base">날짜</TableHead>
-            <TableHead className="w-[200px] text-base">시간</TableHead>
-            <TableHead className="text-base">제목 (내담자)</TableHead>
-            <TableHead className="text-base">구분</TableHead>
-            <TableHead className="text-right w-[120px] text-base">작업</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {appointments.length === 0 ? (
-             <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-base">
-                등록된 일정이 없습니다.
-              </TableCell>
-            </TableRow>
-          ) : (
-            appointments.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="text-base">{new Date(item.date).toLocaleDateString()}</TableCell>
-                <TableCell className="text-base">{`${item.startTime}`}</TableCell>
-                <TableCell className="font-medium text-base">{`${item.title} (${item.studentName})`}</TableCell>
-                <TableCell className="text-base">
-                  <Badge variant="secondary" className="text-sm">{item.type}</Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                   <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">수정</span>
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">삭제</span>
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          이 작업은 되돌릴 수 없습니다. 일정 정보가 영구적으로 삭제됩니다.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>취소</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDelete(item.id)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  );
+    useEffect(() => {
+        if (log) {
+            form.reset({
+                counselingDate: new Date(log.counselingDate),
+                counselingTime: log.counselingTime,
+                mainIssues: log.mainIssues,
+                counselingGoals: log.counselingGoals,
+                sessionContent: log.sessionContent,
+                therapistComments: log.therapistComments,
+                nextSessionGoals: log.nextSessionGoals,
+            });
+        } else {
+            form.reset({
+                counselingDate: new Date(),
+                counselingTime: '12:00',
+                mainIssues: '',
+                counselingGoals: '',
+                sessionContent: '',
+                therapistComments: '',
+                nextSessionGoals: '',
+            });
+        }
+    }, [log, form]);
+
+    const onSubmit = (data: LogFormValues) => {
+        const submissionData = {
+            studentId,
+            studentName,
+            counselingDate: format(data.counselingDate, 'yyyy-MM-dd'),
+            counselingTime: data.counselingTime,
+            mainIssues: data.mainIssues,
+            counselingGoals: data.counselingGoals || '',
+            sessionContent: data.sessionContent || '',
+            therapistComments: data.therapistComments || '',
+            nextSessionGoals: data.nextSessionGoals || '',
+        };
+        onSave(submissionData);
+    };
+    
+    const handleDateSelect = (selectedDate?: Date) => {
+        if (selectedDate) {
+          form.setValue('counselingDate', selectedDate, { shouldValidate: true });
+          setIsCalendarOpen(false);
+        }
+    };
+
+
+    const timeOptions = Array.from({ length: 10 }, (_, i) => 8 + i).flatMap(hour => 
+        ['00', '10', '20', '30', '40', '50'].map(minute => `${String(hour).padStart(2, '0')}:${minute}`)
+    );
+
+
+    return (
+        <Card className="h-full">
+            <CardContent className="p-6 h-full flex flex-col">
+                <PageHeader title="상담 일지" centered>
+                    <Input readOnly value={studentName} className="text-center font-semibold text-lg" />
+                </PageHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex-grow flex flex-col">
+                        <div className="flex-grow space-y-4 overflow-auto pr-2">
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name="counselingDate" render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>상담 날짜</FormLabel>
+                                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                            >
+                                            {field.value ? format(field.value, "PPP", { locale: ko }) : <span>날짜 선택</span>}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar mode="single" selected={field.value} onSelect={handleDateSelect} initialFocus locale={ko} />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="counselingTime" render={({ field }) => (
+                                <FormItem><FormLabel>시간</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                        <SelectValue placeholder="시간" />
+                                    </SelectTrigger></FormControl><SelectContent>
+                                        {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
+                                    </SelectContent></Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}/>
+                            </div>
+                            <FormField control={form.control} name="mainIssues" render={({ field }) => (
+                                <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={5} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        </div>
+                        <div className="flex justify-end gap-2 pt-4">
+                            <Button type="button" variant="outline" onClick={onCancel}>취소</Button>
+                            <Button type="submit">저장</Button>
+                        </div>
+                    </form>
+                </Form>
+            </CardContent>
+        </Card>
+    );
 }
