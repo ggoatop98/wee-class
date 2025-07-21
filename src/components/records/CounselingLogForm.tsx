@@ -50,7 +50,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
         resolver: zodResolver(logSchema),
         defaultValues: {
             counselingDate: new Date(),
-            counselingHour: '12',
+            counselingHour: '13',
             counselingMinute: '00',
             mainIssues: '',
             therapistComments: '',
@@ -65,7 +65,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             const [hour, minute] = log.counselingTime.split(':');
             form.reset({
                 counselingDate: new Date(log.counselingDate),
-                counselingHour: hour || '12',
+                counselingHour: hour || '13',
                 counselingMinute: minute || '00',
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
@@ -76,7 +76,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
         } else {
             form.reset({
                 counselingDate: new Date(),
-                counselingHour: '12',
+                counselingHour: '13',
                 counselingMinute: '00',
                 mainIssues: '',
                 therapistComments: '',

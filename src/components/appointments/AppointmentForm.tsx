@@ -52,7 +52,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
     defaultValues: {
       studentName: '',
       date: new Date(),
-      startHour: '12',
+      startHour: '13',
       startMinute: '00',
       type: '개인상담',
       repeatSetting: '해당 없음',
@@ -83,7 +83,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
         form.reset({
             studentName: '',
             date: new Date(),
-            startHour: '12',
+            startHour: '13',
             startMinute: '00',
             type: '개인상담',
             repeatSetting: '해당 없음',
@@ -94,7 +94,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
   }, [appointment, form, isOpen]);
 
   const onSubmit = async (data: AppointmentFormValues) => {
-    const submissionData: Omit<Appointment, 'id'> = {
+    const submissionData: Omit<Appointment, 'id' | 'excludedDates'> = {
       title: `${data.studentName} 학생 ${data.type}`, // Auto-generated title
       studentName: data.studentName,
       studentId: '', // No longer linked to a specific student record
@@ -112,7 +112,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
 
     try {
       if (appointment) {
-        await setDoc(doc(db, 'appointments', appointment.id), submissionData);
+        await setDoc(doc(db, 'appointments', appointment.id), submissionData, { merge: true });
         toast({ title: '성공', description: '일정 정보가 수정되었습니다.' });
       } else {
         await addDoc(collection(db, 'appointments'), submissionData);
