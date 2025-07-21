@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Loader2, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { PlusCircle, Loader2, Trash2, ArrowLeft } from 'lucide-react';
 import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +27,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
 
     useEffect(() => {
         if (!studentId) return;
@@ -100,10 +102,16 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     return (
         <>
             <PageHeader title={`${studentName} 상담 기록`}>
-                <Button onClick={handleAddNewLog}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    새 상담일지 추가
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={handleAddNewLog}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        새 상담일지 추가
+                    </Button>
+                    <Button variant="outline" onClick={() => router.push('/students')}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        나가기
+                    </Button>
+                </div>
             </PageHeader>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-1">
