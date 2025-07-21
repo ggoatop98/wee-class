@@ -35,9 +35,9 @@ const studentSchema = z.object({
   name: z.string().min(1, { message: '이름을 입력해주세요.' }),
   class: z.string().min(1, { message: '학반을 입력해주세요.' }),
   gender: z.enum(['남', '여']),
+  status: z.enum(['상담중', '종결']),
   requester: z.enum(['학생', '학부모', '교사', '기타']).optional(),
   contact: z.string().optional(),
-  email: z.string().email({ message: '유효한 이메일 주소를 입력해주세요.' }).optional().or(z.literal('')),
   counselingField: z.string().optional(),
   memo: z.string().optional(),
 });
@@ -58,9 +58,9 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
       name: '',
       class: '',
       gender: '남',
+      status: '상담중',
       requester: '학생',
       contact: '',
-      email: '',
       counselingField: '기타',
       memo: '',
     },
@@ -72,9 +72,9 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
         name: student.name,
         class: student.class,
         gender: student.gender,
+        status: student.status || '상담중',
         requester: student.requester || '학생',
         contact: student.contact || '',
-        email: student.email || '',
         counselingField: student.counselingField || '기타',
         memo: student.memo || '',
       });
@@ -83,9 +83,9 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
         name: '',
         class: '',
         gender: '남',
+        status: '상담중',
         requester: '학생',
         contact: '',
-        email: '',
         counselingField: '기타',
         memo: '',
       });
@@ -181,6 +181,27 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
               />
                <FormField
                 control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>상태</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="상태 선택" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="상담중">상담중</SelectItem>
+                        <SelectItem value="종결">종결</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
                 name="requester"
                 render={({ field }) => (
                   <FormItem>
@@ -210,19 +231,6 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
                     <FormLabel>연락처</FormLabel>
                     <FormControl>
                       <Input placeholder="010-1234-5678" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>이메일</FormLabel>
-                    <FormControl>
-                      <Input placeholder="student@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

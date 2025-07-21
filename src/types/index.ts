@@ -1,14 +1,16 @@
 
 import type { Timestamp } from 'firebase/firestore';
 
+export type StudentStatus = '상담중' | '종결';
+
 export interface Student {
   id: string;
   name: string;
   class: string;
   gender: '남' | '여';
   requester?: '학생' | '학부모' | '교사' | '기타';
+  status: StudentStatus;
   contact?: string;
-  email?: string;
   counselingField?: string;
   memo?: string;
   createdAt: Timestamp;

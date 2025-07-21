@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import type { Student } from "@/types";
+import type { Student, StudentStatus } from "@/types";
 
 import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,24 @@ export default function StudentsClient() {
     setIsStudentModalOpen(true);
   };
 
+  const handleUpdateStatus = async (studentId: string, status: StudentStatus) => {
+    try {
+      const studentRef = doc(db, "students", studentId);
+      await updateDoc(studentRef, { status });
+      toast({
+        title: "성공",
+        description: "내담자 상태가 변경되었습니다.",
+      });
+    } catch (error) {
+       console.error("Error updating student status: ", error);
+       toast({
+        variant: "destructive",
+        title: "오류",
+        description: "상태 변경 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
   const handleDeleteStudent = async (studentId: string) => {
     try {
       await deleteDoc(doc(db, "students", studentId));
@@ -94,6 +112,7 @@ export default function StudentsClient() {
         students={filteredStudents}
         onEdit={handleEditStudent}
         onDelete={handleDeleteStudent}
+        onUpdateStatus={handleUpdateStatus}
         loading={loading}
       />
       <StudentForm
