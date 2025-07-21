@@ -1,12 +1,13 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, Student } from "@/types";
+import { addWeeks, addMonths, format } from 'date-fns';
 
 import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
@@ -22,19 +23,9 @@ export default function AppointmentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const q = query(collection(db, "appointments"), orderBy("date", "asc"));
+    const q = query(collection(db, "appointments"));
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
-      
-      // Secondary sort in client-side just in case, primarily for robustness.
-      appointmentsData.sort((a, b) => {
-        if (a.date < b.date) return -1;
-        if (a.date > b.date) return 1;
-        if (a.startTime < b.startTime) return -1;
-        if (a.startTime > b.startTime) return 1;
-        return 0;
-      });
-
       setAppointments(appointmentsData);
       if(loading) setLoading(false);
     });
@@ -49,6 +40,49 @@ export default function AppointmentsClient() {
       unsubStudents();
     };
   }, [loading]);
+  
+  const allAppointmentsWithRepeats = useMemo(() => {
+    const expandedAppointments: Appointment[] = [];
+    appointments.forEach(app => {
+      const originalDate = new Date(app.date);
+      const tzOffset = originalDate.getTimezoneOffset() * 60000;
+      const baseDate = new Date(originalDate.valueOf() + tzOffset);
+
+      expandedAppointments.push(app);
+
+      if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
+        for (let i = 1; i < app.repeatCount; i++) {
+          let nextDate: Date;
+          if (app.repeatSetting === '매주') {
+            nextDate = addWeeks(baseDate, i);
+          } else if (app.repeatSetting === '2주마다') {
+            nextDate = addWeeks(baseDate, i * 2);
+          } else if (app.repeatSetting === '매월') {
+            nextDate = addMonths(baseDate, i);
+          } else {
+            continue;
+          }
+          
+          expandedAppointments.push({
+            ...app,
+            date: nextDate.toISOString().split('T')[0],
+            id: `${app.id}-repeat-${i}`
+          });
+        }
+      }
+    });
+
+    expandedAppointments.sort((a, b) => {
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        if (a.startTime < b.startTime) return -1;
+        if (a.startTime > b.startTime) return 1;
+        return 0;
+      });
+
+    return expandedAppointments;
+  }, [appointments]);
+
 
   const handleAddAppointment = () => {
     setSelectedAppointment(null);
@@ -56,13 +90,20 @@ export default function AppointmentsClient() {
   };
 
   const handleEditAppointment = (appointment: Appointment) => {
-    setSelectedAppointment(appointment);
-    setIsModalOpen(true);
+    // Editing a recurring instance should edit the original appointment
+    const originalId = appointment.id.split('-repeat-')[0];
+    const originalAppointment = appointments.find(a => a.id === originalId);
+    if (originalAppointment) {
+      setSelectedAppointment(originalAppointment);
+      setIsModalOpen(true);
+    }
   };
 
   const handleDeleteAppointment = async (appointmentId: string) => {
+    // Deleting a recurring instance should delete the original appointment series
+    const originalId = appointmentId.split('-repeat-')[0];
     try {
-      await deleteDoc(doc(db, "appointments", appointmentId));
+      await deleteDoc(doc(db, "appointments", originalId));
       toast({
         title: "성공",
         description: "일정 정보가 삭제되었습니다.",
@@ -86,7 +127,7 @@ export default function AppointmentsClient() {
         </Button>
       </PageHeader>
       <AppointmentList
-        appointments={appointments}
+        appointments={allAppointmentsWithRepeats}
         onEdit={handleEditAppointment}
         onDelete={handleDeleteAppointment}
         loading={loading}
