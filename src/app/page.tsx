@@ -214,7 +214,7 @@ export default function Home() {
                   {appointmentsToShow.length > 0 ? appointmentsToShow.map((app) => (
                       <li key={app.id} className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
                         <div>
-                          <p className="font-semibold">{app.title}</p>
+                          <p className="font-semibold">{`${app.studentName} - ${app.title}`}</p>
                           <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
                         </div>
                       </li>
