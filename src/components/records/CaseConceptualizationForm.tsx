@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/RichTextEditor';
+import { PageHeader } from '../PageHeader';
 
 interface CaseConceptualizationFormProps {
     studentName: string;
@@ -22,24 +23,20 @@ export default function CaseConceptualizationForm({ studentName, initialContent,
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{studentName} 사례개념화 {initialContent ? '수정' : '작성'}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid w-full gap-1.5">
-                    <Label htmlFor="conceptualization-content">내용</Label>
-                    <RichTextEditor
-                        content={content}
-                        onChange={setContent}
-                        placeholder="사례개념화 내용을 입력하세요..."
-                    />
+        <div className="flex flex-col h-screen">
+             <PageHeader title={`${studentName} 사례개념화 ${initialContent ? '수정' : '작성'}`}>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={onCancel}>취소</Button>
+                    <Button onClick={handleSaveClick}>저장</Button>
                 </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-                <Button variant="outline" onClick={onCancel}>취소</Button>
-                <Button onClick={handleSaveClick}>저장</Button>
-            </CardFooter>
-        </Card>
+            </PageHeader>
+            <div className="flex-grow p-8 pt-0">
+                <RichTextEditor
+                    content={content}
+                    onChange={setContent}
+                    placeholder="사례개념화 내용을 입력하세요..."
+                />
+            </div>
+        </div>
     );
 }

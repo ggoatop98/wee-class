@@ -24,7 +24,7 @@ export default function CaseConceptualizationPage() {
 
   return (
     <AppLayout>
-      <main className="p-8">
+      <main>
         <CaseConceptualizationClient studentId={studentId} studentName={studentName} />
       </main>
     </AppLayout>

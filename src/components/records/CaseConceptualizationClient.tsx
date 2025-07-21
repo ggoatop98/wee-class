@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Pencil, Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
 import CaseConceptualizationForm from './CaseConceptualizationForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { cn } from '@/lib/utils';
 
 interface CaseConceptualizationClientProps {
     studentId: string;
@@ -85,7 +86,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
+            <div className="flex items-center justify-center h-64 p-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
@@ -103,7 +104,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
     }
 
     return (
-        <>
+        <div className="p-8">
             <PageHeader title={`${studentName} 사례개념화`}>
                 {conceptualization ? (
                     <div className="flex gap-2">
@@ -168,6 +169,6 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                     )}
                 </CardContent>
             </Card>
-        </>
+        </div>
     );
 }
