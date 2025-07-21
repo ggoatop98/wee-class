@@ -27,9 +27,9 @@ const logSchema = z.object({
   counselingHour: z.string().min(1, '시간을 선택해주세요.'),
   counselingMinute: z.string().min(1, '분을 선택해주세요.'),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
+  therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
   sessionContent: z.string().optional(),
-  therapistComments: z.string().optional(),
   nextSessionGoals: z.string().optional(),
 });
 
@@ -53,9 +53,9 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingHour: '12',
             counselingMinute: '00',
             mainIssues: '',
+            therapistComments: '',
             counselingGoals: '',
             sessionContent: '',
-            therapistComments: '',
             nextSessionGoals: '',
         },
     });
@@ -68,9 +68,9 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingHour: hour || '12',
                 counselingMinute: minute || '00',
                 mainIssues: log.mainIssues,
+                therapistComments: log.therapistComments || '',
                 counselingGoals: log.counselingGoals,
                 sessionContent: log.sessionContent,
-                therapistComments: log.therapistComments,
                 nextSessionGoals: log.nextSessionGoals,
             });
         } else {
@@ -79,9 +79,9 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingHour: '12',
                 counselingMinute: '00',
                 mainIssues: '',
+                therapistComments: '',
                 counselingGoals: '',
                 sessionContent: '',
-                therapistComments: '',
                 nextSessionGoals: '',
             });
         }
@@ -94,9 +94,9 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingDate: format(data.counselingDate, 'yyyy-MM-dd'),
             counselingTime: `${data.counselingHour}:${data.counselingMinute}`,
             mainIssues: data.mainIssues,
+            therapistComments: data.therapistComments || '',
             counselingGoals: data.counselingGoals || '',
             sessionContent: data.sessionContent || '',
-            therapistComments: data.therapistComments || '',
             nextSessionGoals: data.nextSessionGoals || '',
         };
         onSave(submissionData);
@@ -169,6 +169,9 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                             </div>
                             <FormField control={form.control} name="mainIssues" render={({ field }) => (
                                 <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={5} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                             <FormField control={form.control} name="therapistComments" render={({ field }) => (
+                                <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={5} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
