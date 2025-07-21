@@ -68,40 +68,40 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[120px]">이름</TableHead>
-            <TableHead>학반</TableHead>
-            <TableHead>성별</TableHead>
-            <TableHead>의뢰자</TableHead>
-            <TableHead>연락처</TableHead>
-            <TableHead>상담분야</TableHead>
-            <TableHead>상태</TableHead>
-            <TableHead className="text-center w-[160px]">작업</TableHead>
+            <TableHead className="w-[120px] text-base">이름</TableHead>
+            <TableHead className="text-base">학반</TableHead>
+            <TableHead className="text-base">성별</TableHead>
+            <TableHead className="text-base">의뢰자</TableHead>
+            <TableHead className="text-base">연락처</TableHead>
+            <TableHead className="text-base">상담분야</TableHead>
+            <TableHead className="text-base">상태</TableHead>
+            <TableHead className="text-center w-[160px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {students.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-24 text-center">
+              <TableCell colSpan={8} className="h-24 text-center text-base">
                 등록된 내담자가 없습니다.
               </TableCell>
             </TableRow>
           ) : (
             students.map((student) => (
               <TableRow key={student.id}>
-                <TableCell className="font-medium">
+                <TableCell className="font-medium text-base">
                   {student.name}
                 </TableCell>
-                <TableCell>{student.class}</TableCell>
-                <TableCell>{student.gender}</TableCell>
-                <TableCell>{student.requester || '-'}</TableCell>
-                <TableCell>{student.contact || '-'}</TableCell>
-                <TableCell>{student.counselingField || '-'}</TableCell>
+                <TableCell className="text-base">{student.class}</TableCell>
+                <TableCell className="text-base">{student.gender}</TableCell>
+                <TableCell className="text-base">{student.requester || '-'}</TableCell>
+                <TableCell className="text-base">{student.contact || '-'}</TableCell>
+                <TableCell className="text-base">{student.counselingField || '-'}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Badge 
                         variant={student.status === '종결' ? 'destructive' : 'secondary'}
-                        className="cursor-pointer"
+                        className="cursor-pointer text-base"
                       >
                         {student.status}
                       </Badge>
