@@ -13,6 +13,9 @@ export interface Student {
   createdAt: Timestamp;
 }
 
+export type AppointmentType = '개인상담' | '집단상담' | '학부모상담' | '교원자문' | '기타';
+
+
 export interface Appointment {
   id: string;
   title: string;
@@ -21,7 +24,7 @@ export interface Appointment {
   date: string; // ISO string for date
   startTime: string; // HH:mm
   endTime: string; // HH:mm
-  type: '상담' | '검사' | '자문' | '교육' | '연구' | '의뢰';
+  type: AppointmentType;
   repeatSetting: string;
   repeatCount?: number;
   memo?: string;

@@ -8,7 +8,7 @@ import * as z from 'zod';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import type { Appointment, Student } from '@/types';
+import type { Appointment, Student, AppointmentType } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -28,6 +28,7 @@ const appointmentSchema = z.object({
   date: z.date({ required_error: '날짜를 선택해주세요.' }),
   startHour: z.string().min(1, '시간을 선택해주세요.'),
   startMinute: z.string().min(1, '분을 선택해주세요.'),
+  type: z.enum(['개인상담', '집단상담', '학부모상담', '교원자문', '기타']),
   repeatSetting: z.string().optional(),
   repeatCount: z.coerce.number().optional(),
   memo: z.string().optional(),
@@ -53,6 +54,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
       date: new Date(),
       startHour: '12',
       startMinute: '00',
+      type: '개인상담',
       repeatSetting: '해당 없음',
       repeatCount: 1,
       memo: '',
@@ -72,6 +74,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
             date: new Date(appointment.date),
             startHour: hour,
             startMinute: minute,
+            type: appointment.type || '개인상담',
             repeatSetting: appointment.repeatSetting,
             repeatCount: appointment.repeatCount || 1,
             memo: appointment.memo || '',
@@ -82,6 +85,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
             date: new Date(),
             startHour: '12',
             startMinute: '00',
+            type: '개인상담',
             repeatSetting: '해당 없음',
             repeatCount: 1,
             memo: '',
@@ -91,13 +95,13 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
 
   const onSubmit = async (data: AppointmentFormValues) => {
     const submissionData = {
-      title: `${data.studentName} 학생 상담`, // Auto-generated title
+      title: `${data.studentName} 학생 ${data.type}`, // Auto-generated title
       studentName: data.studentName,
       studentId: '', // No longer linked to a specific student record
       date: format(data.date, 'yyyy-MM-dd'),
       startTime: `${data.startHour}:${data.startMinute}`,
       endTime: '', // Removed
-      type: '상담', // Default type
+      type: data.type,
       repeatSetting: data.repeatSetting,
       repeatCount: data.repeatSetting !== '해당 없음' ? data.repeatCount : undefined,
       memo: data.memo,
@@ -202,6 +206,27 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
                     <FormMessage /></FormItem>
                 )}/>
             </div>
+
+            <FormField control={form.control} name="type" render={({ field }) => (
+              <FormItem>
+                <FormLabel>상담 종류</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="상담 종류 선택" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="개인상담">개인상담</SelectItem>
+                    <SelectItem value="집단상담">집단상담</SelectItem>
+                    <SelectItem value="학부모상담">학부모상담</SelectItem>
+                    <SelectItem value="교원자문">교원자문</SelectItem>
+                    <SelectItem value="기타">기타</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )} />
 
             <FormField control={form.control} name="repeatSetting" render={({ field }) => (
                 <FormItem><FormLabel>반복 설정</FormLabel>
