@@ -41,8 +41,7 @@ function HomePageContent() {
     
     const q = query(
       collection(db, "appointments"), 
-      where("userId", "==", user.uid),
-      orderBy("date")
+      where("userId", "==", user.uid)
     );
 
     const unsubAppointments = onSnapshot(q, (snapshot) => {
