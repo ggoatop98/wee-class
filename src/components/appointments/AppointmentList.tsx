@@ -33,7 +33,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
              <TableRow>
                 <TableHead className="text-base">날짜</TableHead>
                 <TableHead className="text-base">시간</TableHead>
-                <TableHead className="text-base">제목</TableHead>
+                <TableHead className="text-base">상담 분야</TableHead>
                 <TableHead className="text-base">내담자</TableHead>
                 <TableHead className="text-base">구분</TableHead>
                 <TableHead className="text-right text-base">작업</TableHead>
@@ -63,7 +63,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
           <TableRow>
             <TableHead className="w-[150px] text-base">날짜</TableHead>
             <TableHead className="w-[120px] text-base">시간</TableHead>
-            <TableHead className="text-base">제목</TableHead>
+            <TableHead className="text-base">상담 분야</TableHead>
             <TableHead className="w-[150px] text-base">내담자</TableHead>
             <TableHead className="w-[150px] text-base">구분</TableHead>
             <TableHead className="text-right w-[120px] text-base">작업</TableHead>
