@@ -33,11 +33,20 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         const q = query(
             collection(db, "counselingLogs"),
             where("studentId", "==", studentId),
-            orderBy("counselingDate", "desc"),
-            orderBy("counselingTime", "desc")
+            orderBy("counselingDate", "desc")
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const logsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
+            
+            // Sort by time on the client-side
+            logsData.sort((a, b) => {
+                if (a.counselingDate > b.counselingDate) return -1;
+                if (a.counselingDate < b.counselingDate) return 1;
+                if (a.counselingTime > b.counselingTime) return -1;
+                if (a.counselingTime < b.counselingTime) return 1;
+                return 0;
+            });
+
             setLogs(logsData);
             setLoading(false);
         });
