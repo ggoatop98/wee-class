@@ -28,6 +28,7 @@ export interface Appointment {
   repeatSetting: string;
   repeatCount?: number;
   memo?: string;
+  excludedDates?: string[]; // Array of 'yyyy-MM-dd' strings
 }
 
 export interface CounselingLog {

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, Student } from "@/types";
@@ -52,7 +52,7 @@ export default function AppointmentsClient() {
       const tzOffset = originalDate.getTimezoneOffset() * 60000;
       const baseDate = new Date(originalDate.valueOf() + tzOffset);
 
-      if (baseDate >= today) {
+      if (baseDate >= today && !(app.excludedDates || []).includes(format(baseDate, 'yyyy-MM-dd'))) {
         expandedAppointments.push({
             ...app,
             date: format(baseDate, 'yyyy-MM-dd')
@@ -72,10 +72,11 @@ export default function AppointmentsClient() {
             continue;
           }
           
-          if (nextDate >= today) {
+          const nextDateKey = format(nextDate, 'yyyy-MM-dd');
+          if (nextDate >= today && !(app.excludedDates || []).includes(nextDateKey)) {
             expandedAppointments.push({
                 ...app,
-                date: format(nextDate, 'yyyy-MM-dd'),
+                date: nextDateKey,
                 id: `${app.id}-repeat-${i}`
             });
           }
@@ -109,14 +110,29 @@ export default function AppointmentsClient() {
     }
   };
 
-  const handleDeleteAppointment = async (appointmentId: string) => {
-    const originalId = appointmentId.split('-repeat-')[0];
+  const handleDeleteAppointment = async (appointment: Appointment) => {
+    const originalId = appointment.id.split('-repeat-')[0];
+    const isRecurringInstance = appointment.id.includes('-repeat-');
+    
     try {
-      await deleteDoc(doc(db, "appointments", originalId));
-      toast({
-        title: "성공",
-        description: "일정 정보가 삭제되었습니다.",
-      });
+      if (isRecurringInstance) {
+        // It's a recurring instance, so just add its date to the excludedDates array.
+        const appointmentRef = doc(db, "appointments", originalId);
+        await updateDoc(appointmentRef, {
+          excludedDates: arrayUnion(appointment.date)
+        });
+        toast({
+          title: "성공",
+          description: "선택한 반복 일정이 삭제되었습니다.",
+        });
+      } else {
+        // It's an original appointment, delete the whole document.
+        await deleteDoc(doc(db, "appointments", originalId));
+        toast({
+          title: "성공",
+          description: "일정 정보가 삭제되었습니다.",
+        });
+      }
     } catch (error) {
       console.error("Error deleting appointment: ", error);
       toast({

@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 interface AppointmentListProps {
   appointments: Appointment[];
   onEdit: (appointment: Appointment) => void;
-  onDelete: (id: string) => void;
+  onDelete: (appointment: Appointment) => void;
   loading: boolean;
 }
 
@@ -107,7 +107,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>취소</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDelete(item.id)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                        <AlertDialogAction onClick={() => onDelete(item)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
