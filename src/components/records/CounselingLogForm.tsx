@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Timestamp } from 'firebase/firestore';
 import type { CounselingLog } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
@@ -25,7 +24,8 @@ import { PageHeader } from '../PageHeader';
 
 const logSchema = z.object({
   counselingDate: z.date({ required_error: '날짜를 선택해주세요.' }),
-  counselingTime: z.string().min(1, '시간을 선택해주세요.'),
+  counselingHour: z.string().min(1, '시간을 선택해주세요.'),
+  counselingMinute: z.string().min(1, '분을 선택해주세요.'),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   counselingGoals: z.string().optional(),
   sessionContent: z.string().optional(),
@@ -50,7 +50,8 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
         resolver: zodResolver(logSchema),
         defaultValues: {
             counselingDate: new Date(),
-            counselingTime: '12:00',
+            counselingHour: '12',
+            counselingMinute: '00',
             mainIssues: '',
             counselingGoals: '',
             sessionContent: '',
@@ -61,9 +62,11 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
 
     useEffect(() => {
         if (log) {
+            const [hour, minute] = log.counselingTime.split(':');
             form.reset({
                 counselingDate: new Date(log.counselingDate),
-                counselingTime: log.counselingTime,
+                counselingHour: hour || '12',
+                counselingMinute: minute || '00',
                 mainIssues: log.mainIssues,
                 counselingGoals: log.counselingGoals,
                 sessionContent: log.sessionContent,
@@ -73,7 +76,8 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
         } else {
             form.reset({
                 counselingDate: new Date(),
-                counselingTime: '12:00',
+                counselingHour: '12',
+                counselingMinute: '00',
                 mainIssues: '',
                 counselingGoals: '',
                 sessionContent: '',
@@ -88,7 +92,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             studentId,
             studentName,
             counselingDate: format(data.counselingDate, 'yyyy-MM-dd'),
-            counselingTime: data.counselingTime,
+            counselingTime: `${data.counselingHour}:${data.counselingMinute}`,
             mainIssues: data.mainIssues,
             counselingGoals: data.counselingGoals || '',
             sessionContent: data.sessionContent || '',
@@ -104,12 +108,6 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
           setIsCalendarOpen(false);
         }
     };
-
-
-    const timeOptions = Array.from({ length: 10 }, (_, i) => 8 + i).flatMap(hour => 
-        ['00', '10', '20', '30', '40', '50'].map(minute => `${String(hour).padStart(2, '0')}:${minute}`)
-    );
-
 
     return (
         <Card className="h-full">
@@ -143,16 +141,31 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                     <FormMessage />
                                 </FormItem>
                                 )}/>
-                                <FormField control={form.control} name="counselingTime" render={({ field }) => (
-                                <FormItem><FormLabel>시간</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
-                                        <SelectValue placeholder="시간" />
-                                    </SelectTrigger></FormControl><SelectContent>
-                                        {timeOptions.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
-                                    </SelectContent></Select>
-                                    <FormMessage />
-                                </FormItem>
-                                )}/>
+                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="counselingHour" render={({ field }) => (
+                                        <FormItem><FormLabel>시간</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                            <SelectValue placeholder="시간" />
+                                        </SelectTrigger></FormControl><SelectContent>
+                                            {Array.from({ length: 10 }, (_, i) => String(8 + i).padStart(2, '0')).map(hour => (
+                                                <SelectItem key={hour} value={hour}>{hour}</SelectItem>
+                                            ))}
+                                        </SelectContent></Select>
+                                        <FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="counselingMinute" render={({ field }) => (
+                                        <FormItem><FormLabel>분</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                            <SelectValue placeholder="분" />
+                                        </SelectTrigger></FormControl><SelectContent>
+                                            {['00', '10', '20', '30', '40', '50'].map(min => (
+                                                <SelectItem key={min} value={min}>{min}</SelectItem>
+                                            ))}
+                                        </SelectContent></Select>
+                                        <FormMessage /></FormItem>
+                                    )}/>
+                                </div>
                             </div>
                             <FormField control={form.control} name="mainIssues" render={({ field }) => (
                                 <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={5} /></FormControl><FormMessage /></FormItem>
