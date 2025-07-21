@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PlusCircle, Loader2, Trash2 } from 'lucide-react';
-import { collection, onSnapshot, query, where, orderBy, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { CounselingLog } from '@/types';
@@ -32,13 +32,11 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         setLoading(true);
         const q = query(
             collection(db, "counselingLogs"),
-            where("studentId", "==", studentId),
-            orderBy("counselingDate", "desc")
+            where("studentId", "==", studentId)
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const logsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
             
-            // Sort by time on the client-side
             logsData.sort((a, b) => {
                 if (a.counselingDate > b.counselingDate) return -1;
                 if (a.counselingDate < b.counselingDate) return 1;
