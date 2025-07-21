@@ -3,11 +3,12 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, arrayUnion } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, arrayUnion, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, Student } from "@/types";
 import { addDays, addMonths, format } from 'date-fns';
+import { useAuth } from "@/contexts/AuthContext";
 
 import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import AppointmentList from "./AppointmentList";
 import AppointmentForm from "./AppointmentForm";
 
 export default function AppointmentsClient() {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -23,14 +25,17 @@ export default function AppointmentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const q = query(collection(db, "appointments"));
+    if (!user) return;
+    
+    const q = query(collection(db, "appointments"), where("userId", "==", user.uid));
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       setAppointments(appointmentsData);
       if(loading) setLoading(false);
     });
     
-    const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
+    const studentsQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+    const unsubStudents = onSnapshot(studentsQuery, (snapshot) => {
         const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
         setStudents(studentsData);
     });
@@ -39,7 +44,7 @@ export default function AppointmentsClient() {
       unsubAppointments();
       unsubStudents();
     };
-  }, [loading]);
+  }, [user, loading]);
   
   const allAppointmentsWithRepeats = useMemo(() => {
     const expandedAppointments: Appointment[] = [];

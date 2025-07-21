@@ -14,6 +14,7 @@ import { Loader2, Pencil, Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
 import CaseConceptualizationForm from './CaseConceptualizationForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface CaseConceptualizationClientProps {
     studentId: string;
@@ -21,6 +22,7 @@ interface CaseConceptualizationClientProps {
 }
 
 export default function CaseConceptualizationClient({ studentId, studentName }: CaseConceptualizationClientProps) {
+    const { user } = useAuth();
     const [conceptualization, setConceptualization] = useState<CaseConceptualization | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
@@ -28,11 +30,12 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
     const router = useRouter();
 
     useEffect(() => {
-        if (!studentId) return;
+        if (!studentId || !user) return;
         setLoading(true);
         const q = query(
             collection(db, "caseConceptualizations"),
-            where("studentId", "==", studentId)
+            where("studentId", "==", studentId),
+            where("userId", "==", user.uid)
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             if (!snapshot.empty) {
@@ -44,9 +47,14 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
             setLoading(false);
         });
         return () => unsubscribe();
-    }, [studentId]);
+    }, [studentId, user]);
 
     const handleSave = async (content: string) => {
+        if (!user) {
+            toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
+            return;
+        }
+
         try {
             if (conceptualization) {
                 // Update existing
@@ -56,6 +64,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
             } else {
                 // Create new
                 await addDoc(collection(db, 'caseConceptualizations'), {
+                    userId: user.uid,
                     studentId,
                     studentName,
                     content,
@@ -64,7 +73,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                 });
                 toast({ title: '성공', description: '사례개념화가 저장되었습니다.' });
             }
-            router.push('/students');
+            setIsEditing(false);
         } catch (error) {
             console.error('Error saving conceptualization: ', error);
             toast({ variant: 'destructive', title: '오류', description: '저장 중 오류가 발생했습니다.' });
@@ -106,49 +115,45 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
     return (
         <div className="p-8">
             <PageHeader title={`${studentName} 사례개념화`}>
-                {conceptualization ? (
-                    <div className="flex gap-2">
-                        <Button onClick={() => setIsEditing(true)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            수정
-                        </Button>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    삭제
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        이 작업은 되돌릴 수 없습니다. 사례개념화 내용이 영구적으로 삭제됩니다.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>취소</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                        <Button variant="outline" onClick={() => router.push('/students')}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            나가기
-                        </Button>
-                    </div>
-                ) : (
-                     <div className="flex gap-2">
-                        <Button onClick={() => setIsEditing(true)}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            새로 작성
-                        </Button>
-                        <Button variant="outline" onClick={() => router.push('/students')}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            나가기
-                        </Button>
-                    </div>
-                )}
+                 <div className="flex gap-2">
+                    {conceptualization ? (
+                         <>
+                             <Button onClick={() => setIsEditing(true)}>
+                                 <Pencil className="mr-2 h-4 w-4" />
+                                 수정
+                             </Button>
+                             <AlertDialog>
+                                 <AlertDialogTrigger asChild>
+                                     <Button variant="destructive">
+                                         <Trash2 className="mr-2 h-4 w-4" />
+                                         삭제
+                                     </Button>
+                                 </AlertDialogTrigger>
+                                 <AlertDialogContent>
+                                     <AlertDialogHeader>
+                                         <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                                         <AlertDialogDescription>
+                                             이 작업은 되돌릴 수 없습니다. 사례개념화 내용이 영구적으로 삭제됩니다.
+                                         </AlertDialogDescription>
+                                     </AlertDialogHeader>
+                                     <AlertDialogFooter>
+                                         <AlertDialogCancel>취소</AlertDialogCancel>
+                                         <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                                     </AlertDialogFooter>
+                                 </AlertDialogContent>
+                             </AlertDialog>
+                         </>
+                    ) : (
+                         <Button onClick={() => setIsEditing(true)}>
+                             <PlusCircle className="mr-2 h-4 w-4" />
+                             새로 작성
+                         </Button>
+                    )}
+                    <Button variant="outline" onClick={() => router.back()}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        뒤로가기
+                    </Button>
+                </div>
             </PageHeader>
             <Card className="min-h-[60vh]">
                 <CardContent className="p-6">

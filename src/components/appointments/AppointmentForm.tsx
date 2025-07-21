@@ -8,9 +8,10 @@ import * as z from 'zod';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import type { Appointment, Student, AppointmentType } from '@/types';
+import type { Appointment, Student } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -40,11 +41,12 @@ interface AppointmentFormProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   appointment?: Appointment | null;
-  students: Student[]; // Keep for compatibility, but not used for selection
+  students: Student[];
 }
 
 export default function AppointmentForm({ isOpen, onOpenChange, appointment }: AppointmentFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const form = useForm<AppointmentFormValues>({
@@ -94,13 +96,19 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
   }, [appointment, form, isOpen]);
 
   const onSubmit = async (data: AppointmentFormValues) => {
+    if (!user) {
+      toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
+      return;
+    }
+
     const submissionData: Omit<Appointment, 'id' | 'excludedDates'> = {
+      userId: user.uid,
       title: data.type,
       studentName: data.studentName,
-      studentId: '', // No longer linked to a specific student record
+      studentId: '', 
       date: format(data.date, 'yyyy-MM-dd'),
       startTime: `${data.startHour}:${data.startMinute}`,
-      endTime: '', // Removed
+      endTime: '',
       type: data.type,
       repeatSetting: data.repeatSetting ?? '해당 없음',
       memo: data.memo,

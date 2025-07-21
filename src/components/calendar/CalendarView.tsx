@@ -13,8 +13,10 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import AppointmentForm from '../appointments/AppointmentForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function CalendarView() {
+  const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -24,13 +26,16 @@ export function CalendarView() {
   const lastDayOfMonth = endOfMonth(currentDate);
 
   useEffect(() => {
-    const q = query(collection(db, "appointments"));
+    if (!user) return;
+    
+    const q = query(collection(db, "appointments"), where("userId", "==", user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       setAppointments(appointmentsData);
     });
 
-    const studentUnsubscribe = onSnapshot(collection(db, "students"), (snapshot) => {
+    const studentQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+    const studentUnsubscribe = onSnapshot(studentQuery, (snapshot) => {
         setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
     });
 
@@ -38,7 +43,7 @@ export function CalendarView() {
       unsubscribe();
       studentUnsubscribe();
     }
-  }, []);
+  }, [user]);
 
   const daysInMonth = eachDayOfInterval({ start: firstDayOfMonth, end: lastDayOfMonth });
   const startingDayIndex = getDay(firstDayOfMonth);

@@ -5,9 +5,9 @@ import React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { AppLayout } from "@/components/layout/AppLayout";
 import RecordsClient from '@/components/records/RecordsClient';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
-// Note: This component is a Client Component because it uses hooks.
-export default function RecordDetailPage() {
+function RecordDetailPageContent() {
   const params = useParams();
   const studentId = Array.isArray(params.id) ? params.id[0] : params.id;
   const searchParams = useSearchParams();
@@ -30,5 +30,13 @@ export default function RecordDetailPage() {
         <RecordsClient studentId={studentId} studentName={studentName} />
       </main>
     </AppLayout>
+  );
+}
+
+export default function RecordDetailPage() {
+  return (
+    <AuthGuard>
+        <RecordDetailPageContent />
+    </AuthGuard>
   );
 }

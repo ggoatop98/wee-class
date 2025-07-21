@@ -12,7 +12,9 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { House, Calendar, CalendarDays, Users, BookUser } from "lucide-react";
+import { House, Calendar, CalendarDays, Users, BookUser, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { href: "/", label: "Home", icon: House },
@@ -24,7 +26,7 @@ const menuItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
-
+  const { logout, user } = useAuth();
   const isRecordsPage = pathname.startsWith('/records');
 
   return (
@@ -53,7 +55,15 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
-        {/* Can add user profile or settings here later */}
+        <div className="p-2">
+            <div className="text-sm text-center text-sidebar-foreground/70 mb-2 truncate">
+                {user?.email}
+            </div>
+            <Button variant="outline" size="sm" className="w-full" onClick={logout}>
+                <LogOut className="mr-2 h-4 w-4" />
+                로그아웃
+            </Button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

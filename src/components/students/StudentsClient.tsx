@@ -3,10 +3,11 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Student, StudentStatus } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import StudentForm from "./StudentForm";
 import { Input } from "@/components/ui/input";
 
 export default function StudentsClient() {
+  const { user } = useAuth();
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
@@ -23,7 +25,11 @@ export default function StudentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const q = query(collection(db, "students"));
+    if (!user) {
+        setLoading(false);
+        return;
+    };
+    const q = query(collection(db, "students"), where("userId", "==", user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
       
@@ -37,7 +43,7 @@ export default function StudentsClient() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const filteredStudents = useMemo(() => {
     if (!searchTerm) {

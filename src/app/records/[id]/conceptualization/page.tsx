@@ -5,8 +5,10 @@ import React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import { AppLayout } from "@/components/layout/AppLayout";
 import CaseConceptualizationClient from '@/components/records/CaseConceptualizationClient';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
-export default function CaseConceptualizationPage() {
+
+function CaseConceptualizationPageContent() {
   const params = useParams();
   const studentId = Array.isArray(params.id) ? params.id[0] : params.id;
   const searchParams = useSearchParams();
@@ -28,5 +30,13 @@ export default function CaseConceptualizationPage() {
         <CaseConceptualizationClient studentId={studentId} studentName={studentName} />
       </main>
     </AppLayout>
+  );
+}
+
+export default function CaseConceptualizationPage() {
+  return (
+    <AuthGuard>
+      <CaseConceptualizationPageContent />
+    </AuthGuard>
   );
 }

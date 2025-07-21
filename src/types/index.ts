@@ -5,6 +5,7 @@ export type StudentStatus = '상담중' | '종결';
 
 export interface Student {
   id: string;
+  userId: string;
   name: string;
   class: string;
   gender: '남' | '여';
@@ -21,6 +22,7 @@ export type AppointmentType = '개인상담' | '집단상담' | '학부모상담
 
 export interface Appointment {
   id: string;
+  userId: string;
   title: string;
   studentId: string;
   studentName: string;
@@ -36,6 +38,7 @@ export interface Appointment {
 
 export interface CounselingLog {
   id: string;
+  userId: string;
   studentId: string;
   studentName:string;
   counselingDate: string; // yyyy-MM-dd
@@ -50,6 +53,7 @@ export interface CounselingLog {
 
 export interface CaseConceptualization {
     id: string;
+    userId: string;
     studentId: string;
     studentName: string;
     content: string;

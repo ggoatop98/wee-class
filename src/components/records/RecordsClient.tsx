@@ -8,6 +8,7 @@ import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, d
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { CounselingLog } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import CounselingLogForm from '@/components/records/CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import Link from 'next/link';
 
 interface RecordsClientProps {
     studentId: string;
@@ -22,6 +24,7 @@ interface RecordsClientProps {
 }
 
 export default function RecordsClient({ studentId, studentName }: RecordsClientProps) {
+    const { user } = useAuth();
     const [logs, setLogs] = useState<CounselingLog[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
@@ -30,11 +33,12 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     const router = useRouter();
 
     useEffect(() => {
-        if (!studentId) return;
+        if (!studentId || !user) return;
         setLoading(true);
         const q = query(
             collection(db, "counselingLogs"),
-            where("studentId", "==", studentId)
+            where("studentId", "==", studentId),
+            where("userId", "==", user.uid)
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const logsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
@@ -51,7 +55,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
             setLoading(false);
         });
         return () => unsubscribe();
-    }, [studentId]);
+    }, [studentId, user]);
 
     const handleAddNewLog = () => {
         setSelectedLog(null);
@@ -77,7 +81,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         }
     };
 
-    const handleSaveLog = async (data: Omit<CounselingLog, 'id' | 'createdAt'>) => {
+    const handleSaveLog = async (data: Omit<CounselingLog, 'id'>) => {
         try {
             if (selectedLog) {
                 await setDoc(doc(db, 'counselingLogs', selectedLog.id), data, { merge: true });
@@ -107,10 +111,12 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                         <PlusCircle className="mr-2 h-4 w-4" />
                         새 상담일지 추가
                     </Button>
-                    <Button variant="outline" onClick={() => router.push('/students')}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        나가기
-                    </Button>
+                    <Link href="/students">
+                        <Button variant="outline">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            나가기
+                        </Button>
+                    </Link>
                 </div>
             </PageHeader>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

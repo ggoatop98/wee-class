@@ -1,8 +1,9 @@
 import { AppLayout } from "@/components/layout/AppLayout";
 import AppointmentsClient from "@/components/appointments/AppointmentsClient";
 import React from "react";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 
-export default function SchedulePage() {
+function SchedulePageContent() {
   return (
     <AppLayout>
       <main className="p-8">
@@ -10,4 +11,12 @@ export default function SchedulePage() {
       </main>
     </AppLayout>
   );
+}
+
+export default function SchedulePage() {
+    return (
+        <AuthGuard>
+            <SchedulePageContent />
+        </AuthGuard>
+    )
 }

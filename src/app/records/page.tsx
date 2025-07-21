@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student } from '@/types';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -12,22 +12,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Loader2 } from 'lucide-react';
+import { AuthGuard } from '@/components/auth/AuthGuard';
+import { useAuth } from '@/contexts/AuthContext';
 
-export default function RecordsPage() {
+function RecordsPageContent() {
+    const { user } = useAuth();
     const [students, setStudents] = useState<Student[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const router = useRouter();
 
     useEffect(() => {
-        const q = query(collection(db, "students"), orderBy("name"));
+        if (!user) return;
+        const q = query(collection(db, "students"), where("userId", "==", user.uid));
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
+            // 클라이언트 측에서 정렬
+            studentsData.sort((a, b) => a.name.localeCompare(b.name));
             setStudents(studentsData);
             setLoading(false);
         });
         return () => unsubscribe();
-    }, []);
+    }, [user]);
 
     const filteredStudents = useMemo(() => {
         if (!searchTerm) {
@@ -90,4 +96,13 @@ export default function RecordsPage() {
             </main>
         </AppLayout>
     );
+}
+
+
+export default function RecordsPage() {
+    return (
+        <AuthGuard>
+            <RecordsPageContent />
+        </AuthGuard>
+    )
 }

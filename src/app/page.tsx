@@ -16,8 +16,11 @@ import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
 import { Calendar } from '@/components/ui/calendar';
 import { addDays, addMonths, format, isSameDay } from 'date-fns';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 
-export default function Home() {
+function HomePageContent() {
+  const { user } = useAuth();
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
@@ -26,17 +29,19 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
+    if (!user) return;
+
+    const unsubStudents = onSnapshot(query(collection(db, "students"), where("userId", "==", user.uid)), (snapshot) => {
         const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
         setStudents(studentsData);
     });
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0];
     
     const q = query(
       collection(db, "appointments"), 
+      where("userId", "==", user.uid),
       orderBy("date")
     );
 
@@ -54,12 +59,11 @@ export default function Home() {
       setAllAppointments(appointmentsData);
     });
 
-
     return () => {
       unsubStudents();
       unsubAppointments();
     };
-  }, []);
+  }, [user]);
 
   const appointmentsByDate = useMemo(() => {
     const grouped: { [key: string]: Appointment[] } = {};
@@ -261,5 +265,13 @@ export default function Home() {
       <StudentForm isOpen={isStudentModalOpen} onOpenChange={setIsStudentModalOpen} />
       <AppointmentForm isOpen={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen} students={students} />
     </AppLayout>
+  );
+}
+
+export default function Home() {
+  return (
+    <AuthGuard>
+      <HomePageContent />
+    </AuthGuard>
   );
 }

@@ -8,6 +8,7 @@ import * as z from 'zod';
 import type { CounselingLog } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -39,11 +40,12 @@ interface CounselingLogFormProps {
   studentId: string;
   studentName: string;
   log: CounselingLog | null;
-  onSave: (data: Omit<CounselingLog, 'id' | 'createdAt'>) => void;
+  onSave: (data: Omit<CounselingLog, 'id'>) => void;
   onCancel: () => void;
 }
 
 export default function CounselingLogForm({ studentId, studentName, log, onSave, onCancel }: CounselingLogFormProps) {
+    const { user } = useAuth();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     
     const form = useForm<LogFormValues>({
@@ -88,7 +90,10 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
     }, [log, form]);
 
     const onSubmit = (data: LogFormValues) => {
+        if (!user) return;
+
         const submissionData = {
+            userId: user.uid,
             studentId,
             studentName,
             counselingDate: format(data.counselingDate, 'yyyy-MM-dd'),
@@ -98,6 +103,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingGoals: data.counselingGoals || '',
             sessionContent: data.sessionContent || '',
             nextSessionGoals: data.nextSessionGoals || '',
+            createdAt: log?.createdAt || new Date()
         };
         onSave(submissionData);
     };

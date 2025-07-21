@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Alegreya, Belleza } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const belleza = Belleza({
   subsets: ['latin'],
@@ -33,8 +34,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Belleza&display=swap" rel="stylesheet" />
       </head>
       <body className={`font-body antialiased ${belleza.variable} ${alegreya.variable}`}>
-        {children}
-        <Toaster />
+        <AuthProvider>
+            {children}
+            <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -9,6 +9,7 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, doc, setDoc, Timestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import type { Student } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 import {
   Dialog,
@@ -52,6 +53,7 @@ interface StudentFormProps {
 
 export default function StudentForm({ isOpen, onOpenChange, student }: StudentFormProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
   const form = useForm<StudentFormValues>({
     resolver: zodResolver(studentSchema),
     defaultValues: {
@@ -93,19 +95,29 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
   }, [student, form, isOpen]);
   
   const onSubmit = async (data: StudentFormValues) => {
+    if (!user) {
+        toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
+        return;
+    }
+
     try {
       if (student) {
-        await setDoc(doc(db, 'students', student.id), data, { merge: true });
+        const studentDataToUpdate = { 
+            ...data, 
+            userId: user.uid // Ensure userId is included on update
+        };
+        await setDoc(doc(db, 'students', student.id), studentDataToUpdate, { merge: true });
         toast({
           title: '성공',
           description: '내담자 정보가 수정되었습니다.',
         });
       } else {
-        const studentData = {
+        const studentDataToAdd = {
           ...data,
+          userId: user.uid,
           createdAt: Timestamp.now(),
         };
-        await addDoc(collection(db, 'students'), studentData);
+        await addDoc(collection(db, 'students'), studentDataToAdd);
         toast({
           title: '성공',
           description: '새로운 내담자가 추가되었습니다.',
