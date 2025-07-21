@@ -95,7 +95,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
 
   const onSubmit = async (data: AppointmentFormValues) => {
     const submissionData: Omit<Appointment, 'id' | 'excludedDates'> = {
-      title: `${data.studentName} 학생 ${data.type}`, // Auto-generated title
+      title: data.type,
       studentName: data.studentName,
       studentId: '', // No longer linked to a specific student record
       date: format(data.date, 'yyyy-MM-dd'),
