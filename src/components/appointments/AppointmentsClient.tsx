@@ -43,15 +43,21 @@ export default function AppointmentsClient() {
   
   const allAppointmentsWithRepeats = useMemo(() => {
     const expandedAppointments: Appointment[] = [];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     appointments.forEach(app => {
       const originalDate = new Date(app.date);
       const tzOffset = originalDate.getTimezoneOffset() * 60000;
       const baseDate = new Date(originalDate.valueOf() + tzOffset);
 
-      expandedAppointments.push({
-        ...app,
-        date: format(baseDate, 'yyyy-MM-dd')
-      });
+      if (baseDate >= today) {
+        expandedAppointments.push({
+            ...app,
+            date: format(baseDate, 'yyyy-MM-dd')
+        });
+      }
 
       if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
         for (let i = 1; i < app.repeatCount; i++) {
@@ -66,11 +72,13 @@ export default function AppointmentsClient() {
             continue;
           }
           
-          expandedAppointments.push({
-            ...app,
-            date: addDays(new Date(nextDate.toISOString().split('T')[0]), 1).toISOString().split('T')[0],
-            id: `${app.id}-repeat-${i}`
-          });
+          if (nextDate >= today) {
+            expandedAppointments.push({
+                ...app,
+                date: format(nextDate, 'yyyy-MM-dd'),
+                id: `${app.id}-repeat-${i}`
+            });
+          }
         }
       }
     });
@@ -93,7 +101,6 @@ export default function AppointmentsClient() {
   };
 
   const handleEditAppointment = (appointment: Appointment) => {
-    // Editing a recurring instance should edit the original appointment
     const originalId = appointment.id.split('-repeat-')[0];
     const originalAppointment = appointments.find(a => a.id === originalId);
     if (originalAppointment) {
@@ -103,7 +110,6 @@ export default function AppointmentsClient() {
   };
 
   const handleDeleteAppointment = async (appointmentId: string) => {
-    // Deleting a recurring instance should delete the original appointment series
     const originalId = appointmentId.split('-repeat-')[0];
     try {
       await deleteDoc(doc(db, "appointments", originalId));
