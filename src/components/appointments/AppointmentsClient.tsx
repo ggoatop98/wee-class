@@ -68,7 +68,7 @@ export default function AppointmentsClient() {
           
           expandedAppointments.push({
             ...app,
-            date: nextDate.toISOString().split('T')[0],
+            date: addDays(new Date(nextDate.toISOString().split('T')[0]), 1).toISOString().split('T')[0],
             id: `${app.id}-repeat-${i}`
           });
         }
