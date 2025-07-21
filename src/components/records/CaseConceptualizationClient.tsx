@@ -10,7 +10,7 @@ import type { CaseConceptualization } from '@/types';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Pencil, Trash2, PlusCircle } from 'lucide-react';
+import { Loader2, Pencil, Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
 import CaseConceptualizationForm from './CaseConceptualizationForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -131,12 +131,22 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
+                        <Button variant="outline" onClick={() => router.push('/students')}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            나가기
+                        </Button>
                     </div>
                 ) : (
-                    <Button onClick={() => setIsEditing(true)}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        새로 작성
-                    </Button>
+                     <div className="flex gap-2">
+                        <Button onClick={() => setIsEditing(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            새로 작성
+                        </Button>
+                        <Button variant="outline" onClick={() => router.push('/students')}>
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            나가기
+                        </Button>
+                    </div>
                 )}
             </PageHeader>
             <Card className="min-h-[60vh]">
