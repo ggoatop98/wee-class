@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, MoreVertical } from 'lucide-react';
+import { Pencil, Trash2, BookUser, BrainCircuit } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -54,7 +54,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                 <TableCell><Skeleton className="h-4 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                <TableCell className="text-center"><Skeleton className="h-8 w-20 mx-auto" /></TableCell>
+                <TableCell className="text-center"><Skeleton className="h-8 w-48 mx-auto" /></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -75,7 +75,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
             <TableHead className="text-base">연락처</TableHead>
             <TableHead className="text-base">상담분야</TableHead>
             <TableHead className="text-base">상태</TableHead>
-            <TableHead className="text-center w-[160px] text-base">작업</TableHead>
+            <TableHead className="text-center w-[280px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -113,6 +113,12 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                   </DropdownMenu>
                 </TableCell>
                 <TableCell className="text-center">
+                   <Link href={`/records/${student.id}/conceptualization?studentName=${encodeURIComponent(student.name)}`}>
+                    <Button variant="outline" size="sm" className="mr-2">
+                        <BrainCircuit className="h-4 w-4 mr-1" />
+                        사례개념화
+                    </Button>
+                  </Link>
                    <Link href={`/records/${student.id}?studentName=${encodeURIComponent(student.name)}`}>
                     <Button variant="outline" size="sm" className="mr-2">
                         <BookUser className="h-4 w-4 mr-1" />

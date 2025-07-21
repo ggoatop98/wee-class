@@ -47,3 +47,12 @@ export interface CounselingLog {
   nextSessionGoals?: string;
   createdAt: Timestamp;
 }
+
+export interface CaseConceptualization {
+    id: string;
+    studentId: string;
+    studentName: string;
+    content: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
