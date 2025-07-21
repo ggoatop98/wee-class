@@ -11,9 +11,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { House, Calendar, CalendarDays, Users, BarChart, File, BookUser } from "lucide-react";
+import { House, Calendar, CalendarDays, Users, BookUser } from "lucide-react";
 
 const menuItems = [
   { href: "/", label: "Home", icon: House },
@@ -22,10 +21,6 @@ const menuItems = [
   { href: "/students", label: "내담자", icon: Users },
   { href: "/records", label: "상담 목록", icon: BookUser },
 ];
-
-const disabledItems = [
-    { label: "통계", icon: BarChart },
-]
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -55,17 +50,6 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
-        </SidebarMenu>
-        <SidebarSeparator/>
-         <SidebarMenu>
-            {disabledItems.map((item) => (
-                <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton disabled tooltip={{ children: item.label }}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            ))}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter>
