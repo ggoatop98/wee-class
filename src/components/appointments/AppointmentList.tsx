@@ -81,7 +81,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
               <TableRow key={item.id}>
                 <TableCell className="text-base">{new Date(item.date).toLocaleDateString('ko-KR', { timeZone: 'UTC' })}</TableCell>
                 <TableCell className="text-base">{`${item.startTime}`}</TableCell>
-                <TableCell className="font-medium text-base">{item.title}</TableCell>
+                <TableCell className="font-medium text-base">{item.type}</TableCell>
                 <TableCell className="text-base">{item.studentName}</TableCell>
                 <TableCell className="text-base">
                   <Badge variant="secondary" className="text-sm">{item.type}</Badge>
