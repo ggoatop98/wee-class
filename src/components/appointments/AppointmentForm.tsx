@@ -94,7 +94,7 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
   }, [appointment, form, isOpen]);
 
   const onSubmit = async (data: AppointmentFormValues) => {
-    const submissionData = {
+    const submissionData: Omit<Appointment, 'id'> = {
       title: `${data.studentName} 학생 ${data.type}`, // Auto-generated title
       studentName: data.studentName,
       studentId: '', // No longer linked to a specific student record
@@ -102,10 +102,13 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
       startTime: `${data.startHour}:${data.startMinute}`,
       endTime: '', // Removed
       type: data.type,
-      repeatSetting: data.repeatSetting,
-      repeatCount: data.repeatSetting !== '해당 없음' ? data.repeatCount : undefined,
+      repeatSetting: data.repeatSetting ?? '해당 없음',
       memo: data.memo,
     };
+
+    if (data.repeatSetting && data.repeatSetting !== '해당 없음') {
+      submissionData.repeatCount = data.repeatCount;
+    }
 
     try {
       if (appointment) {
