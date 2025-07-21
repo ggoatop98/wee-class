@@ -15,7 +15,7 @@ import { db } from '@/lib/firebase';
 import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
 import { Calendar } from '@/components/ui/calendar';
-import { addWeeks, addMonths, format, isSameDay } from 'date-fns';
+import { addDays, addMonths, format, isSameDay } from 'date-fns';
 
 export default function Home() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -79,9 +79,9 @@ export default function Home() {
         for (let i = 1; i < app.repeatCount; i++) {
           let nextDate: Date;
           if (app.repeatSetting === '매주') {
-            nextDate = addWeeks(baseDate, i);
+            nextDate = addDays(baseDate, i * 7);
           } else if (app.repeatSetting === '2주마다') {
-            nextDate = addWeeks(baseDate, i * 2);
+            nextDate = addDays(baseDate, i * 14);
           } else if (app.repeatSetting === '매월') {
             nextDate = addMonths(baseDate, i);
           } else {

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay, addWeeks, addDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay, addDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -64,9 +64,9 @@ export function CalendarView() {
         for (let i = 1; i < app.repeatCount; i++) {
           let nextDate: Date;
           if (app.repeatSetting === '매주') {
-            nextDate = addWeeks(baseDate, i);
+            nextDate = addDays(baseDate, i * 7);
           } else if (app.repeatSetting === '2주마다') {
-            nextDate = addWeeks(baseDate, i * 2);
+            nextDate = addDays(baseDate, i * 14);
           } else if (app.repeatSetting === '매월') {
             nextDate = addMonths(baseDate, i);
           } else {

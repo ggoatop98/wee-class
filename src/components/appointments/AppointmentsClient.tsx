@@ -7,7 +7,7 @@ import { collection, onSnapshot, doc, deleteDoc, query } from "firebase/firestor
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Appointment, Student } from "@/types";
-import { addWeeks, addMonths, format } from 'date-fns';
+import { addDays, addMonths, format } from 'date-fns';
 
 import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
@@ -54,9 +54,9 @@ export default function AppointmentsClient() {
         for (let i = 1; i < app.repeatCount; i++) {
           let nextDate: Date;
           if (app.repeatSetting === '매주') {
-            nextDate = addWeeks(baseDate, i);
+            nextDate = addDays(baseDate, i * 7);
           } else if (app.repeatSetting === '2주마다') {
-            nextDate = addWeeks(baseDate, i * 2);
+            nextDate = addDays(baseDate, i * 14);
           } else if (app.repeatSetting === '매월') {
             nextDate = addMonths(baseDate, i);
           } else {
