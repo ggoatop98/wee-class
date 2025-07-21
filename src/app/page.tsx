@@ -180,7 +180,7 @@ export default function Home() {
   return (
     <AppLayout>
       <main className="p-8">
-        <PageHeader title="Home" />
+        <PageHeader title="Student Counseling" />
         <div className="grid gap-8 md:grid-cols-3">
           
           <div className="md:col-span-3">
