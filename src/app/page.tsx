@@ -187,7 +187,6 @@ export default function Home() {
              <Card>
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
-                <CardDescription>자주 사용하는 기능을 빠르게 실행하세요.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col sm:flex-row gap-4">
                 <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto">
