@@ -159,7 +159,7 @@ export function CalendarView() {
             <div className="mt-8 space-y-1">
                 {(appointmentsByDate[format(day, 'yyyy-MM-dd')] || []).map(app => (
                     <div key={app.id} className="text-xs p-1 rounded-md bg-primary/20 hover:bg-primary/30 cursor-pointer overflow-hidden truncate">
-                        <Badge variant="default" className="text-white bg-primary/80">{app.startTime}</Badge> {app.title}
+                        <Badge variant="default" className="text-white bg-primary/80">{app.startTime}</Badge> {app.studentName}
                     </div>
                 ))}
             </div>
