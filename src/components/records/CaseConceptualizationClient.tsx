@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
@@ -23,6 +24,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const { toast } = useToast();
+    const router = useRouter();
 
     useEffect(() => {
         if (!studentId) return;
@@ -61,7 +63,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                 });
                 toast({ title: '성공', description: '사례개념화가 저장되었습니다.' });
             }
-            setIsEditing(false);
+            router.push('/students');
         } catch (error) {
             console.error('Error saving conceptualization: ', error);
             toast({ variant: 'destructive', title: '오류', description: '저장 중 오류가 발생했습니다.' });
