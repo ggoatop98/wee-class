@@ -7,19 +7,22 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { CalendarPlus, UserPlus, ArrowRight } from 'lucide-react';
+import { CalendarPlus, UserPlus } from 'lucide-react';
 import StudentForm from '@/components/students/StudentForm';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
 import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
+import { Calendar } from '@/components/ui/calendar';
+import { addWeeks, addMonths, format } from 'date-fns';
 
 export default function Home() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
+  const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
 
   useEffect(() => {
     const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
@@ -58,6 +61,53 @@ export default function Home() {
     };
   }, []);
 
+  const appointmentsByDate = useMemo(() => {
+    const grouped: { [key: string]: Appointment[] } = {};
+    
+    allAppointments.forEach(app => {
+      const originalDate = new Date(app.date);
+      const tzOffset = originalDate.getTimezoneOffset() * 60000;
+      const baseDate = new Date(originalDate.valueOf() + tzOffset);
+
+      const dateKey = format(baseDate, 'yyyy-MM-dd');
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(app);
+
+      if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
+        for (let i = 1; i < app.repeatCount; i++) {
+          let nextDate: Date;
+          if (app.repeatSetting === '매주') {
+            nextDate = addWeeks(baseDate, i);
+          } else if (app.repeatSetting === '2주마다') {
+            nextDate = addWeeks(baseDate, i * 2);
+          } else if (app.repeatSetting === '매월') {
+            nextDate = addMonths(baseDate, i);
+          } else {
+            continue;
+          }
+          
+          const nextDateKey = format(nextDate, 'yyyy-MM-dd');
+          if (!grouped[nextDateKey]) {
+            grouped[nextDateKey] = [];
+          }
+          grouped[nextDateKey].push({
+            ...app,
+            date: nextDate.toISOString().split('T')[0],
+            id: `${app.id}-repeat-${i}` 
+          });
+        }
+      }
+    });
+    return grouped;
+  }, [allAppointments]);
+
+  const appointmentDates = useMemo(() => {
+    return Object.keys(appointmentsByDate).map(dateStr => new Date(dateStr));
+  }, [appointmentsByDate]);
+
+
   const appointmentsToShow = useMemo(() => {
     if (allAppointments.length === 0) {
       return [];
@@ -73,17 +123,14 @@ export default function Home() {
     let datesToShow: string[] = [];
 
     if (hasTodaysAppointments) {
-      // Find the next date after today
       const nextDate = uniqueDates.find(d => d > todayStr);
       datesToShow.push(todayStr);
       if (nextDate) {
         datesToShow.push(nextDate);
       } else if (uniqueDates.length === 1) {
-        // if only today's appointments exist, show them
         datesToShow.push(todayStr);
       }
     } else {
-      // If no appointments today, just show the next appointment day
       if (uniqueDates.length > 0) {
           datesToShow = uniqueDates.slice(0, 1);
       }
@@ -119,8 +166,8 @@ export default function Home() {
               </CardContent>
             </Card>
           </div>
-
-          <div className="md:col-span-3">
+          
+          <div className="md:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>예정된 일정</CardTitle>
@@ -146,6 +193,34 @@ export default function Home() {
                     <p className="text-muted-foreground text-center py-4">예정된 일정이 없습니다.</p>
                   )}
                 </ul>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="md:col-span-1">
+            <Card>
+              <CardHeader>
+                <CardTitle>캘린더</CardTitle>
+                <CardDescription>이번 달 일정을 확인하세요.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <Calendar
+                  mode="single"
+                  selected={calendarDate}
+                  onSelect={setCalendarDate}
+                  className="p-0"
+                  month={calendarDate}
+                  onMonthChange={setCalendarDate}
+                  modifiers={{
+                    scheduled: appointmentDates
+                  }}
+                  modifiersStyles={{
+                    scheduled: { 
+                      fontWeight: 'bold',
+                      textDecoration: 'underline'
+                    }
+                  }}
+                />
               </CardContent>
             </Card>
           </div>
