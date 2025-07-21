@@ -152,9 +152,10 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
             <Card className="min-h-[60vh]">
                 <CardContent className="p-6">
                     {conceptualization ? (
-                        <div className="prose max-w-none whitespace-pre-wrap text-base">
-                            {conceptualization.content}
-                        </div>
+                        <div
+                          className="prose max-w-none prose-sm sm:prose-base focus:outline-none"
+                          dangerouslySetInnerHTML={{ __html: conceptualization.content }}
+                        />
                     ) : (
                          <div className="flex items-center justify-center h-[60vh]">
                             <div className="text-center">

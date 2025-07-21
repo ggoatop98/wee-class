@@ -80,4 +80,11 @@ body {
   h1, h2, h3, h4, h5, h6 {
     @apply font-headline;
   }
+  
+  /* Tiptap prose overrides */
+  .prose {
+    p { @apply my-2; }
+    ul, ol { @apply my-2; }
+    li p { @apply my-0; }
+  }
 }

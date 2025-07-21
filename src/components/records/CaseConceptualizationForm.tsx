@@ -4,8 +4,8 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface CaseConceptualizationFormProps {
     studentName: string;
@@ -29,12 +29,10 @@ export default function CaseConceptualizationForm({ studentName, initialContent,
             <CardContent>
                 <div className="grid w-full gap-1.5">
                     <Label htmlFor="conceptualization-content">내용</Label>
-                    <Textarea
-                        id="conceptualization-content"
+                    <RichTextEditor
+                        content={content}
+                        onChange={setContent}
                         placeholder="사례개념화 내용을 입력하세요..."
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="min-h-[50vh] text-base"
                     />
                 </div>
             </CardContent>
