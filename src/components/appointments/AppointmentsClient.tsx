@@ -48,7 +48,10 @@ export default function AppointmentsClient() {
       const tzOffset = originalDate.getTimezoneOffset() * 60000;
       const baseDate = new Date(originalDate.valueOf() + tzOffset);
 
-      expandedAppointments.push(app);
+      expandedAppointments.push({
+        ...app,
+        date: format(baseDate, 'yyyy-MM-dd')
+      });
 
       if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
         for (let i = 1; i < app.repeatCount; i++) {
