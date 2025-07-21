@@ -139,11 +139,6 @@ export default function Home() {
                             <p className="font-semibold">{app.title}</p>
                             <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
                           </div>
-                          <Link href="/schedule">
-                            <Button variant="ghost" size="sm">
-                              자세히 보기 <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                          </Link>
                         </li>
                       </React.Fragment>
                     );
