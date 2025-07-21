@@ -15,7 +15,7 @@ import { db } from '@/lib/firebase';
 import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
 import { Calendar } from '@/components/ui/calendar';
-import { addWeeks, addMonths, format } from 'date-fns';
+import { addWeeks, addMonths, format, isSameDay } from 'date-fns';
 
 export default function Home() {
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -23,6 +23,7 @@ export default function Home() {
   const [students, setStudents] = useState<Student[]>([]);
   const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
     const unsubStudents = onSnapshot(collection(db, "students"), (snapshot) => {
@@ -36,7 +37,6 @@ export default function Home() {
     
     const q = query(
       collection(db, "appointments"), 
-      where("date", ">=", todayStr),
       orderBy("date")
     );
 
@@ -104,42 +104,71 @@ export default function Home() {
   }, [allAppointments]);
 
   const appointmentDates = useMemo(() => {
-    return Object.keys(appointmentsByDate).map(dateStr => new Date(dateStr));
+    return Object.keys(appointmentsByDate).map(dateStr => {
+        const date = new Date(dateStr);
+        const tzOffset = date.getTimezoneOffset() * 60000;
+        return new Date(date.valueOf() + tzOffset);
+    });
   }, [appointmentsByDate]);
 
 
   const appointmentsToShow = useMemo(() => {
+    if (selectedDate) {
+        const dateKey = format(selectedDate, 'yyyy-MM-dd');
+        return appointmentsByDate[dateKey] || [];
+    }
+
     if (allAppointments.length === 0) {
       return [];
     }
   
-    const uniqueDates = [...new Set(allAppointments.map(app => app.date))];
-    
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    
-    const hasTodaysAppointments = uniqueDates.includes(todayStr);
-  
-    let datesToShow: string[] = [];
+    today.setHours(0,0,0,0);
 
-    if (hasTodaysAppointments) {
-      const nextDate = uniqueDates.find(d => d > todayStr);
-      datesToShow.push(todayStr);
-      if (nextDate) {
-        datesToShow.push(nextDate);
-      } else if (uniqueDates.length === 1) {
-        datesToShow.push(todayStr);
-      }
-    } else {
-      if (uniqueDates.length > 0) {
-          datesToShow = uniqueDates.slice(0, 1);
+    const upcomingAppointments = allAppointments.filter(app => {
+        const appDate = new Date(app.date);
+        const tzOffset = appDate.getTimezoneOffset() * 60000;
+        return new Date(appDate.valueOf() + tzOffset) >= today;
+    });
+
+    if (upcomingAppointments.length > 0) {
+        const firstDate = upcomingAppointments[0].date;
+        return upcomingAppointments.filter(app => app.date === firstDate);
+    }
+    
+    return [];
+
+  }, [allAppointments, selectedDate, appointmentsByDate]);
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    if(date) {
+      setCalendarDate(date);
+    }
+  };
+
+  const getTitleForAppointmentsCard = () => {
+    if (selectedDate) {
+      return `${format(selectedDate, 'M월 d일')} 일정`;
+    }
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const upcomingAppointments = allAppointments.filter(app => {
+        const appDate = new Date(app.date);
+        const tzOffset = appDate.getTimezoneOffset() * 60000;
+        return new Date(appDate.valueOf() + tzOffset) >= today;
+    });
+
+    if (upcomingAppointments.length > 0) {
+      const firstDate = new Date(upcomingAppointments[0].date);
+       const tzOffset = firstDate.getTimezoneOffset() * 60000;
+      if (isSameDay(new Date(firstDate.valueOf() + tzOffset), today)) {
+        return "오늘의 일정";
       }
     }
-  
-    return allAppointments.filter(app => datesToShow.includes(app.date));
-  }, [allAppointments]);
-
-  let lastDate: string | null = null;
+    return "예정된 일정";
+  };
 
 
   return (
@@ -170,27 +199,24 @@ export default function Home() {
           <div className="md:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>예정된 일정</CardTitle>
-                <CardDescription>다가오는 상담 및 기타 일정입니다.</CardDescription>
+                <CardTitle>{getTitleForAppointmentsCard()}</CardTitle>
+                <CardDescription>
+                    {selectedDate ? `선택한 날짜의 일정입니다.` : `다가오는 상담 및 기타 일정입니다.`}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {appointmentsToShow.length > 0 ? appointmentsToShow.map((app, index) => {
-                    const showSeparator = app.date !== lastDate && lastDate !== null;
-                    lastDate = app.date;
-                    return (
-                      <React.Fragment key={app.id}>
-                        {showSeparator && <Separator className="my-3" />}
-                        <li className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                          <div>
-                            <p className="font-semibold">{app.title}</p>
-                            <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
-                          </div>
-                        </li>
-                      </React.Fragment>
-                    );
-                  }) : (
-                    <p className="text-muted-foreground text-center py-4">예정된 일정이 없습니다.</p>
+                  {appointmentsToShow.length > 0 ? appointmentsToShow.map((app) => (
+                      <li key={app.id} className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
+                        <div>
+                          <p className="font-semibold">{app.title}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
+                        </div>
+                      </li>
+                  )) : (
+                    <p className="text-muted-foreground text-center py-4">
+                        {selectedDate ? '선택한 날짜에 일정이 없습니다.' : '예정된 일정이 없습니다.'}
+                    </p>
                   )}
                 </ul>
               </CardContent>
@@ -206,8 +232,8 @@ export default function Home() {
               <CardContent className="flex justify-center">
                 <Calendar
                   mode="single"
-                  selected={calendarDate}
-                  onSelect={setCalendarDate}
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
                   className="p-0"
                   month={calendarDate}
                   onMonthChange={setCalendarDate}
