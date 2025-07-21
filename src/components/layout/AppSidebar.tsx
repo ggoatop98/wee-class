@@ -25,7 +25,6 @@ const menuItems = [
 
 const disabledItems = [
     { label: "통계", icon: BarChart },
-    { label: "파일", icon: File },
 ]
 
 export function AppSidebar() {
