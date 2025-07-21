@@ -54,10 +54,13 @@ export function CalendarView() {
 
       // Add the original appointment
       const dateKey = format(baseDate, 'yyyy-MM-dd');
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = [];
+      if (!(app.excludedDates || []).includes(dateKey)) {
+        if (!grouped[dateKey]) {
+            grouped[dateKey] = [];
+        }
+        grouped[dateKey].push(app);
       }
-      grouped[dateKey].push(app);
+
 
       // Handle recurring appointments
       if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
@@ -74,15 +77,17 @@ export function CalendarView() {
           }
           
           const nextDateKey = format(nextDate, 'yyyy-MM-dd');
-          if (!grouped[nextDateKey]) {
-            grouped[nextDateKey] = [];
+          if (!(app.excludedDates || []).includes(nextDateKey)) {
+            if (!grouped[nextDateKey]) {
+                grouped[nextDateKey] = [];
+            }
+            grouped[nextDateKey].push({
+                ...app,
+                date: nextDate.toISOString().split('T')[0],
+                // Create a unique-ish ID for the recurring instance for the key prop
+                id: `${app.id}-repeat-${i}` 
+            });
           }
-          grouped[nextDateKey].push({
-            ...app,
-            date: nextDate.toISOString().split('T')[0],
-            // Create a unique-ish ID for the recurring instance for the key prop
-            id: `${app.id}-repeat-${i}` 
-          });
         }
       }
     });

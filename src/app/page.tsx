@@ -70,10 +70,13 @@ export default function Home() {
       const baseDate = new Date(originalDate.valueOf() + tzOffset);
 
       const dateKey = format(baseDate, 'yyyy-MM-dd');
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = [];
+      if (!(app.excludedDates || []).includes(dateKey)) {
+        if (!grouped[dateKey]) {
+          grouped[dateKey] = [];
+        }
+        grouped[dateKey].push(app);
       }
-      grouped[dateKey].push(app);
+
 
       if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
         for (let i = 1; i < app.repeatCount; i++) {
@@ -89,14 +92,16 @@ export default function Home() {
           }
           
           const nextDateKey = format(nextDate, 'yyyy-MM-dd');
-          if (!grouped[nextDateKey]) {
-            grouped[nextDateKey] = [];
+          if (!(app.excludedDates || []).includes(nextDateKey)) {
+            if (!grouped[nextDateKey]) {
+              grouped[nextDateKey] = [];
+            }
+            grouped[nextDateKey].push({
+              ...app,
+              date: nextDate.toISOString().split('T')[0],
+              id: `${app.id}-repeat-${i}` 
+            });
           }
-          grouped[nextDateKey].push({
-            ...app,
-            date: nextDate.toISOString().split('T')[0],
-            id: `${app.id}-repeat-${i}` 
-          });
         }
       }
     });
@@ -128,12 +133,13 @@ export default function Home() {
     const upcomingAppointments = allAppointments.filter(app => {
         const appDate = new Date(app.date);
         const tzOffset = appDate.getTimezoneOffset() * 60000;
-        return new Date(appDate.valueOf() + tzOffset) >= today;
+        return new Date(appDate.valueOf() + tzOffset) >= today && !(app.excludedDates || []).includes(format(new Date(appDate.valueOf() + tzOffset), 'yyyy-MM-dd'));
     });
 
     if (upcomingAppointments.length > 0) {
         const firstDate = upcomingAppointments[0].date;
-        return upcomingAppointments.filter(app => app.date === firstDate);
+        const dateKey = format(new Date(firstDate), 'yyyy-MM-dd');
+        return appointmentsByDate[dateKey] || [];
     }
     
     return [];
