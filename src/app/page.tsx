@@ -191,12 +191,12 @@ function HomePageContent() {
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col sm:flex-row gap-2">
-                <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto">
+              <CardContent className="flex flex-col sm:flex-row gap-4 p-6">
+                <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto flex-grow">
                   <CalendarPlus className="mr-2 h-4 w-4" />
                   일정 추가
                 </Button>
-                <Button onClick={() => setIsStudentModalOpen(true)} className="w-full sm:w-auto">
+                <Button onClick={() => setIsStudentModalOpen(true)} className="w-full sm:w-auto flex-grow">
                   <UserPlus className="mr-2 h-4 w-4" />
                   내담자 추가
                 </Button>
@@ -256,7 +256,7 @@ function HomePageContent() {
           </div>
 
         </div>
-        <div className="mt-12 text-center text-muted-foreground text-sm">
+        <div className="mt-12 text-center text-foreground font-bold font-headline text-sm">
           <p>여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
         </div>
       </main>
