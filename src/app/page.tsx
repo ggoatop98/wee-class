@@ -191,7 +191,7 @@ function HomePageContent() {
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col sm:flex-row gap-2 items-center p-4 pt-0">
+              <CardContent className="flex flex-col sm:flex-row gap-2 p-4 pt-0">
                 <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto">
                   <CalendarPlus className="mr-2 h-4 w-4" />
                   일정 추가
@@ -231,7 +231,7 @@ function HomePageContent() {
           <div className="md:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>캘린더</CardTitle>
+                <CardTitle className="text-center">캘린더</CardTitle>
               </CardHeader>
               <CardContent className="flex justify-center">
                 <Calendar
