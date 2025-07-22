@@ -186,7 +186,7 @@ function HomePageContent() {
         <PageHeader title="Student Counseling" />
         <div className="grid gap-8 md:grid-cols-3">
           
-          <div className="md:col-span-1 space-y-8">
+          <div className="space-y-8">
              <Card>
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
@@ -255,6 +255,9 @@ function HomePageContent() {
             </Card>
           </div>
 
+        </div>
+        <div className="mt-12 text-center text-muted-foreground text-sm">
+          <p>여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
         </div>
       </main>
       <StudentForm isOpen={isStudentModalOpen} onOpenChange={setIsStudentModalOpen} />
