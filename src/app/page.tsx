@@ -200,9 +200,6 @@ function HomePageContent() {
                   <UserPlus className="mr-2 h-4 w-4" />
                   내담자 추가
                 </Button>
-                <div className="text-2xl font-bold ml-auto pr-4">
-                  (^_^)
-                </div>
               </CardContent>
             </Card>
           </div>
