@@ -191,7 +191,7 @@ function HomePageContent() {
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col sm:flex-row gap-4 p-6">
+              <CardContent className="flex flex-col sm:flex-row gap-4 p-4">
                 <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto flex-grow">
                   <CalendarPlus className="mr-2 h-4 w-4" />
                   일정 추가
@@ -228,7 +228,7 @@ function HomePageContent() {
             </Card>
           </div>
           
-          <div className="md:col-span-1">
+          <div className="md:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle className="text-center">캘린더</CardTitle>
@@ -255,11 +255,7 @@ function HomePageContent() {
             </Card>
           </div>
           <div className="md:col-span-3 mt-8">
-            <Card>
-                <CardContent className="p-4">
-                    <p className="text-center text-foreground font-bold font-headline text-sm">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
-                </CardContent>
-            </Card>
+            <p className="text-center text-foreground font-bold font-headline text-2xl">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
           </div>
 
         </div>
