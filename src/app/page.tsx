@@ -186,8 +186,8 @@ function HomePageContent() {
         <PageHeader title="Student Counseling" />
         <div className="grid gap-8 md:grid-cols-3">
           
-          <div className="md:col-span-3">
-             <Card className="inline-block">
+          <div className="md:col-span-1">
+             <Card>
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
@@ -204,7 +204,7 @@ function HomePageContent() {
             </Card>
           </div>
           
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <Card>
               <CardHeader>
                 <CardTitle>{getTitleForAppointmentsCard()}</CardTitle>
