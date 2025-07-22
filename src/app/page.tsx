@@ -187,11 +187,11 @@ function HomePageContent() {
         <div className="grid gap-8 md:grid-cols-3">
           
           <div className="md:col-span-1 space-y-8">
-             <Card className="inline-block">
+             <Card>
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col sm:flex-row gap-2 p-4 pt-0">
+              <CardContent className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto">
                   <CalendarPlus className="mr-2 h-4 w-4" />
                   일정 추가
