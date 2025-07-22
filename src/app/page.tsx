@@ -232,7 +232,6 @@ function HomePageContent() {
             <Card>
               <CardHeader>
                 <CardTitle>캘린더</CardTitle>
-                <CardDescription>이번 달 일정을 확인하세요.</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center">
                 <Calendar
