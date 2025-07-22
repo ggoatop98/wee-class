@@ -186,7 +186,7 @@ function HomePageContent() {
         <PageHeader title="Student Counseling" />
         <div className="grid gap-8 md:grid-cols-3">
           
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 space-y-8">
              <Card>
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
@@ -202,9 +202,6 @@ function HomePageContent() {
                 </Button>
               </CardContent>
             </Card>
-          </div>
-          
-          <div className="md:col-span-1">
             <Card>
               <CardHeader>
                 <CardTitle>{getTitleForAppointmentsCard()}</CardTitle>
@@ -231,7 +228,7 @@ function HomePageContent() {
             </Card>
           </div>
           
-          <div className="md:col-span-1">
+          <div className="md:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>캘린더</CardTitle>
