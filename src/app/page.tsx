@@ -228,7 +228,7 @@ function HomePageContent() {
             </Card>
           </div>
           
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <Card>
               <CardHeader>
                 <CardTitle className="text-center">캘린더</CardTitle>
