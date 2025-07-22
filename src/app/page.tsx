@@ -187,7 +187,7 @@ function HomePageContent() {
         <div className="grid gap-8 md:grid-cols-3">
           
           <div className="md:col-span-3">
-             <Card>
+             <Card className="inline-block">
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
