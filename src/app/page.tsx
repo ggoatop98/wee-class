@@ -187,7 +187,7 @@ function HomePageContent() {
         <div className="grid gap-8 md:grid-cols-3">
           
           <div className="md:col-span-1 space-y-8">
-             <Card>
+             <Card className="inline-block">
               <CardHeader>
                 <CardTitle>빠른 실행</CardTitle>
               </CardHeader>
@@ -228,7 +228,7 @@ function HomePageContent() {
             </Card>
           </div>
           
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <Card>
               <CardHeader>
                 <CardTitle className="text-center">캘린더</CardTitle>
