@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format, parseISO } from 'date-fns';
@@ -12,7 +12,7 @@ import { PageHeader } from '../PageHeader';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import RichTextEditor from '@/components/ui/RichTextEditor';
+import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Calendar as CalendarIcon } from 'lucide-react';
@@ -53,6 +53,12 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                 testName: initialData.testName || '',
                 testDate: initialData.testDate ? parseISO(initialData.testDate) : new Date(),
                 results: initialData.results || '',
+            });
+        } else {
+            form.reset({
+                testName: '',
+                testDate: new Date(),
+                results: '',
             });
         }
     }, [initialData, form]);
@@ -109,20 +115,20 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                         </FormItem>
                         )}/>
                     </div>
-                     <Controller
+                     <FormField
                         control={form.control}
                         name="results"
-                        render={({ field, fieldState }) => (
+                        render={({ field }) => (
                             <FormItem className="flex-grow flex flex-col">
                                 <FormLabel>검사 결과</FormLabel>
                                 <FormControl className="flex-grow">
-                                    <RichTextEditor
-                                        content={field.value}
-                                        onChange={field.onChange}
+                                    <Textarea
                                         placeholder="검사 결과를 입력하세요..."
+                                        className="min-h-[40vh]"
+                                        {...field}
                                     />
                                 </FormControl>
-                                 {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
