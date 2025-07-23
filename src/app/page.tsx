@@ -19,6 +19,7 @@ import { addDays, addMonths, format, isSameDay } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import TodoList from '@/components/dashboard/TodoList';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 function HomePageContent() {
   const { user } = useAuth();
@@ -211,20 +212,24 @@ function HomePageContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {appointmentsToShow.length > 0 ? appointmentsToShow.map((app) => (
-                      <li key={app.id} className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                        <div>
-                          <p className="font-semibold">{`${app.studentName} - ${app.title}`}</p>
-                          <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
-                        </div>
-                      </li>
-                  )) : (
-                    <p className="text-muted-foreground text-center py-4">
-                        {selectedDate ? '선택한 날짜에 일정이 없습니다.' : '예정된 일정이 없습니다.'}
-                    </p>
-                  )}
-                </ul>
+                <ScrollArea className="h-[240px] pr-4">
+                  <ul className="space-y-2">
+                    {appointmentsToShow.length > 0 ? appointmentsToShow.map((app) => (
+                        <li key={app.id} className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
+                          <div>
+                            <p className="font-semibold">{`${app.studentName} - ${app.title}`}</p>
+                            <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
+                          </div>
+                        </li>
+                    )) : (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-muted-foreground text-center py-4">
+                            {selectedDate ? '선택한 날짜에 일정이 없습니다.' : '예정된 일정이 없습니다.'}
+                        </p>
+                      </div>
+                    )}
+                  </ul>
+                </ScrollArea>
               </CardContent>
             </Card>
           </div>
@@ -260,7 +265,7 @@ function HomePageContent() {
              <TodoList />
           </div>
 
-          <div className="md:col-start-2 md:col-span-2 mt-8">
+          <div className="md:col-start-1 md:col-span-3 mt-8">
             <p className="text-center text-muted-foreground font-headline text-2xl">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
           </div>
 
