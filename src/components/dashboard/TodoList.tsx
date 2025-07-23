@@ -24,12 +24,12 @@ export default function TodoList() {
     const q = query(
       collection(db, 'todos'),
       where('userId', '==', user.uid),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'asc')
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const todosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Todo));
-      setTodos(todosData);
+      setTodos(todosData.reverse()); // Keep the newest on top visually
     });
 
     return () => unsubscribe();
