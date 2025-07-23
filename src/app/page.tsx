@@ -255,7 +255,7 @@ function HomePageContent() {
             </Card>
           </div>
           <div className="md:col-start-2 md:col-span-2 mt-8">
-            <p className="text-center text-foreground font-bold font-headline text-2xl">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
+            <p className="text-center text-muted-foreground font-headline text-2xl">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
           </div>
 
         </div>
