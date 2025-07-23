@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { Student, StudentStatus } from "@/types";
@@ -84,18 +84,35 @@ export default function StudentsClient() {
 
   const handleDeleteStudent = async (studentId: string) => {
     try {
-      await deleteDoc(doc(db, "students", studentId));
-      toast({
-        title: "성공",
-        description: "내담자 정보가 삭제되었습니다.",
-      });
+        const batch = writeBatch(db);
+
+        // Find and delete related documents in other collections
+        const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests"];
+        for (const coll of collectionsToDeleteFrom) {
+            const q = query(collection(db, coll), where("studentId", "==", studentId));
+            const snapshot = await getDocs(q);
+            snapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+        }
+
+        // Delete the student document itself
+        const studentRef = doc(db, "students", studentId);
+        batch.delete(studentRef);
+
+        await batch.commit();
+
+        toast({
+            title: "성공",
+            description: "내담자 정보와 모든 관련 기록이 삭제되었습니다.",
+        });
     } catch (error) {
-      console.error("Error deleting student: ", error);
-      toast({
-        variant: "destructive",
-        title: "오류",
-        description: "내담자 정보 삭제 중 오류가 발생했습니다.",
-      });
+        console.error("Error deleting student and related data: ", error);
+        toast({
+            variant: "destructive",
+            title: "오류",
+            description: "내담자 정보 삭제 중 오류가 발생했습니다.",
+        });
     }
   };
 
