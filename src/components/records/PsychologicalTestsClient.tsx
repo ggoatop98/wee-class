@@ -37,11 +37,11 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
         const q = query(
             collection(db, "psychologicalTests"),
             where("studentId", "==", studentId),
-            where("userId", "==", user.uid),
-            orderBy("testDate", "desc")
+            where("userId", "==", user.uid)
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const testsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PsychologicalTest));
+            testsData.sort((a, b) => new Date(b.testDate).getTime() - new Date(a.testDate).getTime());
             setTests(testsData);
             setLoading(false);
         });
