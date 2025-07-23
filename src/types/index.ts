@@ -61,6 +61,18 @@ export interface CaseConceptualization {
     updatedAt: Timestamp;
 }
 
+export interface PsychologicalTest {
+    id: string;
+    userId: string;
+    studentId: string;
+    studentName: string;
+    testName: string;
+    testDate: string; // yyyy-MM-dd
+    results: string; // Can be rich text
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
 export interface Todo {
   id: string;
   userId: string;
