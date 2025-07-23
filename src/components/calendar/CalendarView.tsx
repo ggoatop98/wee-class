@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlusCircle, Trash2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isToday, addMonths, subMonths, isSameDay, addDays } from 'date-fns';
 import { ko } from 'date-fns/locale';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Appointment, Student } from '@/types';
 import { cn } from '@/lib/utils';
@@ -14,9 +14,12 @@ import { PageHeader } from '@/components/PageHeader';
 import { Badge } from '@/components/ui/badge';
 import AppointmentForm from '../appointments/AppointmentForm';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export function CalendarView() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
@@ -53,21 +56,20 @@ export function CalendarView() {
     
     appointments.forEach(app => {
       const originalDate = new Date(app.date);
-      // Adjust for timezone offset if the date is parsed incorrectly
       const tzOffset = originalDate.getTimezoneOffset() * 60000;
       const baseDate = new Date(originalDate.valueOf() + tzOffset);
 
-      // Add the original appointment
       const dateKey = format(baseDate, 'yyyy-MM-dd');
       if (!(app.excludedDates || []).includes(dateKey)) {
         if (!grouped[dateKey]) {
             grouped[dateKey] = [];
         }
-        grouped[dateKey].push(app);
+        grouped[dateKey].push({
+          ...app,
+          date: format(baseDate, 'yyyy-MM-dd')
+        });
       }
 
-
-      // Handle recurring appointments
       if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
         for (let i = 1; i < app.repeatCount; i++) {
           let nextDate: Date;
@@ -88,8 +90,7 @@ export function CalendarView() {
             }
             grouped[nextDateKey].push({
                 ...app,
-                date: nextDate.toISOString().split('T')[0],
-                // Create a unique-ish ID for the recurring instance for the key prop
+                date: nextDateKey,
                 id: `${app.id}-repeat-${i}` 
             });
           }
@@ -100,19 +101,40 @@ export function CalendarView() {
   }, [appointments]);
 
 
+  const handleDeleteAppointment = async (appointment: Appointment) => {
+    const originalId = appointment.id.split('-repeat-')[0];
+    const isRecurringInstance = appointment.id.includes('-repeat-');
+    
+    try {
+      if (isRecurringInstance) {
+        const appointmentRef = doc(db, "appointments", originalId);
+        await updateDoc(appointmentRef, {
+          excludedDates: arrayUnion(appointment.date)
+        });
+        toast({
+          title: "성공",
+          description: "선택한 반복 일정이 삭제되었습니다.",
+        });
+      } else {
+        await deleteDoc(doc(db, "appointments", originalId));
+        toast({
+          title: "성공",
+          description: "일정 정보가 삭제되었습니다.",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting appointment: ", error);
+      toast({
+        variant: "destructive",
+        title: "오류",
+        description: "일정 삭제 중 오류가 발생했습니다.",
+      });
+    }
+  };
+
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   
-  const colStartClasses = [
-    '',
-    'col-start-2',
-    'col-start-3',
-    'col-start-4',
-    'col-start-5',
-    'col-start-6',
-    'col-start-7',
-  ];
-
   return (
     <>
       <PageHeader title="캘린더">
@@ -144,7 +166,7 @@ export function CalendarView() {
         {[...Array(startingDayIndex)].map((_, i) => (
           <div key={`empty-${i}`} className="bg-muted/50"></div>
         ))}
-        {daysInMonth.map((day, dayIdx) => (
+        {daysInMonth.map((day) => (
           <div
             key={day.toString()}
             className={cn(
@@ -163,8 +185,30 @@ export function CalendarView() {
             </time>
             <div className="mt-8 space-y-1">
                 {(appointmentsByDate[format(day, 'yyyy-MM-dd')] || []).map(app => (
-                    <div key={app.id} className="text-xs p-1 rounded-md bg-primary/20 hover:bg-primary/30 cursor-pointer overflow-hidden truncate">
-                        <Badge variant="default" className="text-white bg-primary/80">{app.startTime}</Badge> {app.studentName}
+                    <div key={app.id} className="group text-xs p-1 rounded-md bg-primary/20 hover:bg-primary/30 cursor-pointer overflow-hidden flex justify-between items-center">
+                        <span className="truncate">
+                          <Badge variant="default" className="text-white bg-primary/80 mr-1">{app.startTime}</Badge> 
+                          {app.studentName}
+                        </span>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                이 작업은 되돌릴 수 없습니다. 일정 정보가 영구적으로 삭제됩니다.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>취소</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteAppointment(app)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                 ))}
             </div>
