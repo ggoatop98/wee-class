@@ -89,7 +89,7 @@ export default function StudentsClient() {
         // Find and delete related documents in other collections
         const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests"];
         for (const coll of collectionsToDeleteFrom) {
-            const q = query(collection(db, coll), where("studentId", "==", studentId));
+            const q = query(collection(db, coll), where("studentId", "==", studentId), where("userId", "==", user?.uid));
             const snapshot = await getDocs(q);
             snapshot.forEach(doc => {
                 batch.delete(doc.ref);
