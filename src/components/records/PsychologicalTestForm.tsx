@@ -54,6 +54,12 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                 testDate: initialData.testDate ? parseISO(initialData.testDate) : new Date(),
                 results: initialData.results || '',
             });
+        } else {
+             form.reset({
+                testName: '',
+                testDate: new Date(),
+                results: '',
+            });
         }
     }, [initialData, form]);
 
