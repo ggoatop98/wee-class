@@ -32,8 +32,8 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="px-2 py-4">
-            <h1 className="text-3xl font-headline text-primary-foreground/90">Wee-Couns</h1>
+        <div className="px-4 py-5 border-b border-sidebar-border">
+            <h1 className="text-2xl font-bold font-headline text-sidebar-foreground">Wee-Couns</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
