@@ -92,7 +92,7 @@ export default function TodoList() {
             <PlusCircle className="h-4 w-4" />
           </Button>
         </form>
-        <ScrollArea className="h-[280px]">
+        <ScrollArea className="h-[284px]">
           <div className="space-y-4">
             {todos.length > 0 ? (
               todos.map(todo => (
