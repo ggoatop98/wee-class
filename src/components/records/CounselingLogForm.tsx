@@ -126,7 +126,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                         <div className="flex-grow space-y-4 overflow-auto p-1">
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField control={form.control} name="counselingDate" render={({ field }) => (
-                                <FormItem className="flex flex-col">
+                                <FormItem className="flex flex-col justify-end">
                                     <FormLabel>상담 날짜</FormLabel>
                                     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                                         <PopoverTrigger asChild>
