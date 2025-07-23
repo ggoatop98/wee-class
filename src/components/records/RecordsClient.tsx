@@ -134,7 +134,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                             ) : logs.length === 0 ? (
                                 <p className="text-muted-foreground text-center py-4">상담 기록이 없습니다.</p>
                             ) : (
-                                <ScrollArea className="h-[60vh]">
+                                <ScrollArea className="h-[70vh]">
                                     <ul className="space-y-2">
                                         {logs.map((log) => (
                                             <li key={log.id} >
@@ -186,7 +186,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                             log={selectedLog}
                         />
                     ) : (
-                        <Card className="h-full flex items-center justify-center">
+                        <Card className="h-full flex items-center justify-center min-h-[70vh]">
                             <CardContent className="text-center">
                                 <h3 className="text-lg font-medium text-muted-foreground">상담일지를 선택하거나 새 일지를 추가하세요.</h3>
                             </CardContent>
