@@ -60,3 +60,11 @@ export interface CaseConceptualization {
     createdAt: Timestamp;
     updatedAt: Timestamp;
 }
+
+export interface Todo {
+  id: string;
+  userId: string;
+  task: string;
+  isCompleted: boolean;
+  createdAt: Timestamp;
+}
