@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import type { Todo } from '@/types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,15 +21,21 @@ export default function TodoList() {
   useEffect(() => {
     if (!user) return;
 
+    // Remove orderBy from the query
     const q = query(
       collection(db, 'todos'),
-      where('userId', '==', user.uid),
-      orderBy('createdAt', 'asc')
+      where('userId', '==', user.uid)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const todosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Todo));
-      setTodos(todosData.reverse()); // Keep the newest on top visually
+      // Sort on the client-side
+      todosData.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis() || 0;
+        const timeB = b.createdAt?.toMillis() || 0;
+        return timeB - timeA; // Newest first
+      });
+      setTodos(todosData);
     });
 
     return () => unsubscribe();
