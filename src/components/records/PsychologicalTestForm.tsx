@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format, parseISO } from 'date-fns';
@@ -115,19 +115,23 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                         </FormItem>
                         )}/>
                     </div>
-                    <FormField control={form.control} name="results" render={({ field }) => (
-                        <FormItem className="flex-grow flex flex-col">
-                            <FormLabel>검사 결과</FormLabel>
-                            <FormControl className="flex-grow">
-                                <RichTextEditor
-                                    content={field.value}
-                                    onChange={field.onChange}
-                                    placeholder="검사 결과를 입력하세요..."
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
+                     <Controller
+                        control={form.control}
+                        name="results"
+                        render={({ field }) => (
+                            <FormItem className="flex-grow flex flex-col">
+                                <FormLabel>검사 결과</FormLabel>
+                                <FormControl className="flex-grow">
+                                    <RichTextEditor
+                                        content={field.value}
+                                        onChange={field.onChange}
+                                        placeholder="검사 결과를 입력하세요..."
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </form>
             </Form>
         </div>
