@@ -93,7 +93,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                             </FormItem>
                         )}/>
                         <FormField control={form.control} name="testDate" render={({ field }) => (
-                        <FormItem className="flex flex-col">
+                        <FormItem className="flex flex-col justify-end">
                             <FormLabel>검사일</FormLabel>
                             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                                 <PopoverTrigger asChild>
