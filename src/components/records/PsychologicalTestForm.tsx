@@ -79,11 +79,11 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
              <PageHeader title={`${studentName} 심리검사 ${initialData?.id ? '수정' : '작성'}`}>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={onCancel}>취소</Button>
-                    <Button onClick={form.handleSubmit(handleSaveClick)}>저장</Button>
+                    <Button type="submit" form="psychological-test-form">저장</Button>
                 </div>
             </PageHeader>
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSaveClick)} className="space-y-4 flex-grow flex flex-col">
+                <form id="psychological-test-form" onSubmit={form.handleSubmit(handleSaveClick)} className="space-y-4 flex-grow flex flex-col">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="testName" render={({ field }) => (
                             <FormItem>
@@ -118,7 +118,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                      <Controller
                         control={form.control}
                         name="results"
-                        render={({ field }) => (
+                        render={({ field, fieldState }) => (
                             <FormItem className="flex-grow flex flex-col">
                                 <FormLabel>검사 결과</FormLabel>
                                 <FormControl className="flex-grow">
@@ -128,7 +128,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                         placeholder="검사 결과를 입력하세요..."
                                     />
                                 </FormControl>
-                                <FormMessage />
+                                 {fieldState.error && <FormMessage>{fieldState.error.message}</FormMessage>}
                             </FormItem>
                         )}
                     />
