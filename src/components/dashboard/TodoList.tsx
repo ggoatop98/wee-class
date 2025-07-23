@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc, doc, Timestamp, orderBy } from 'firebase/firestore';
 import type { Todo } from '@/types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -92,7 +92,7 @@ export default function TodoList() {
             <PlusCircle className="h-4 w-4" />
           </Button>
         </form>
-        <ScrollArea className="h-[240px]">
+        <ScrollArea className="h-[310px]">
           <div className="space-y-4">
             {todos.length > 0 ? (
               todos.map(todo => (
