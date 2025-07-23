@@ -9,6 +9,7 @@ import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { CounselingLog } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import truncate from 'truncate';
 
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -144,7 +145,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                     <div className="flex justify-between items-start">
                                                       <div>
                                                         <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
-                                                        <p className="text-sm text-muted-foreground truncate max-w-[150px]">{log.mainIssues}</p>
+                                                        <p className="text-sm text-muted-foreground">{truncate(log.mainIssues, 20)}</p>
                                                       </div>
                                                         <AlertDialog>
                                                             <AlertDialogTrigger asChild>
@@ -162,7 +163,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>취소</AlertDialogCancel>
                                                                 <AlertDialogAction onClick={(e) =>{ e.stopPropagation(); handleDeleteLog(log.id)}} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
-                                                            </AlertDialogFooter>
+                                                            </Footer>
                                                             </AlertDialogContent>
                                                         </AlertDialog>
                                                     </div>
