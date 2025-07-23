@@ -33,7 +33,7 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader>
         <div className="px-2 py-4">
-            <h1 className="text-3xl font-headline text-primary-foreground/90">WeeClass</h1>
+            <h1 className="text-3xl font-headline text-primary-foreground/90">Wee-Couns</h1>
         </div>
       </SidebarHeader>
       <SidebarContent>
