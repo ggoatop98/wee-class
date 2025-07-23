@@ -116,6 +116,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
     if (isFormVisible) {
         return (
              <PsychologicalTestForm
+                key={selectedTest ? selectedTest.id : 'new-test'}
                 studentName={studentName}
                 initialData={selectedTest}
                 onSave={handleSave}
