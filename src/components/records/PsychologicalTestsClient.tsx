@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { PsychologicalTest } from '@/types';
@@ -13,9 +13,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Pencil, Trash2, PlusCircle, ArrowLeft } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useAuth } from '@/contexts/AuthContext';
-import { format as formatDate } from 'date-fns';
 import PsychologicalTestForm from './PsychologicalTestForm';
 import { ScrollArea } from '../ui/scroll-area';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
 interface PsychologicalTestsClientProps {
     studentId: string;
@@ -74,7 +74,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
             studentId,
             studentName,
             testName: data.testName,
-            testDate: formatDate(data.testDate, 'yyyy-MM-dd'),
+            testDate: data.testDate.toISOString().split('T')[0],
             results: data.results,
             updatedAt: Timestamp.now(),
         };
@@ -158,15 +158,21 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
                         </div>
                     ) : (
                          <ScrollArea className="h-[65vh]">
-                            <div className="space-y-4">
-                                {tests.map((test) => (
-                                    <Card key={test.id} className="overflow-hidden">
-                                        <CardHeader className="flex flex-row items-center justify-between bg-muted/50 p-4">
-                                            <div>
-                                                <CardTitle className="text-lg">{test.testName}</CardTitle>
-                                                <p className="text-sm text-muted-foreground">{new Date(test.testDate).toLocaleDateString('ko-KR')}</p>
-                                            </div>
-                                            <div className="flex gap-2">
+                            <div className="rounded-lg border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>검사명</TableHead>
+                                            <TableHead>검사일</TableHead>
+                                            <TableHead className="text-right">작업</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                    {tests.map((test) => (
+                                        <TableRow key={test.id}>
+                                            <TableCell className="font-medium">{test.testName}</TableCell>
+                                            <TableCell>{new Date(test.testDate).toLocaleDateString('ko-KR')}</TableCell>
+                                            <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleSelectTest(test)}>
                                                     <Pencil className="h-4 w-4" />
                                                 </Button>
@@ -189,16 +195,11 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-6">
-                                            <div
-                                                className="prose max-w-none prose-sm sm:prose-base focus:outline-none"
-                                                dangerouslySetInnerHTML={{ __html: test.results }}
-                                            />
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    </TableBody>
+                                </Table>
                             </div>
                         </ScrollArea>
                     )}
