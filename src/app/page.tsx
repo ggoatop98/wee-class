@@ -234,41 +234,42 @@ function HomePageContent() {
             </Card>
           </div>
           
-          <div className="space-y-8 md:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-center">캘린더</CardTitle>
-              </CardHeader>
-              <CardContent className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
-                  className="p-0"
-                  month={calendarDate}
-                  onMonthChange={setCalendarDate}
-                  modifiers={{
-                    scheduled: appointmentDates
-                  }}
-                  modifiersStyles={{
-                    scheduled: { 
-                      fontWeight: 'bold',
-                      textDecoration: 'underline'
-                    }
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          <div className="md:col-span-2 grid md:grid-cols-2 gap-8 items-start">
+            <div className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-center">캘린더</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={handleDateSelect}
+                    className="p-0"
+                    month={calendarDate}
+                    onMonthChange={setCalendarDate}
+                    modifiers={{
+                      scheduled: appointmentDates
+                    }}
+                    modifiersStyles={{
+                      scheduled: { 
+                        fontWeight: 'bold',
+                        textDecoration: 'underline'
+                      }
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
 
-          <div className="space-y-8 md:col-span-1">
-             <TodoList />
+            <div className="space-y-8">
+              <TodoList />
+            </div>
+            
+            <div className="md:col-span-2 pt-4">
+              <p className="text-center text-muted-foreground font-headline text-2xl">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
+            </div>
           </div>
-
-          <div className="md:col-start-2 md:col-span-2">
-            <p className="text-center text-muted-foreground font-headline text-2xl">여호와의 친밀하심이 그를 경외하는 자들에게 있음이여. 그의 언약을 그들에게 보이시리로다. (시25:14)</p>
-          </div>
-
         </div>
       </main>
       <StudentForm isOpen={isStudentModalOpen} onOpenChange={setIsStudentModalOpen} />
