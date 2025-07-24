@@ -137,9 +137,9 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                       </Link>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => onOpenFileUploadModal(student)}>
-                        <FolderArchive className="h-4 w-4 mr-1"/>
-                        파일
+                      <Button variant="ghost" size="icon" onClick={() => onOpenFileUploadModal(student)} title="파일">
+                        <FolderArchive className="h-4 w-4"/>
+                        <span className="sr-only">파일</span>
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                         <Pencil className="h-4 w-4" />
