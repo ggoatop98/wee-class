@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, BrainCircuit, Beaker } from 'lucide-react';
+import { Pencil, Trash2, BookUser, ClipboardList, Beaker } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -115,7 +115,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                 <TableCell className="text-center">
                    <Link href={`/records/${student.id}/conceptualization?studentName=${encodeURIComponent(student.name)}`}>
                     <Button variant="outline" size="sm" className="mr-2">
-                        <BrainCircuit className="h-4 w-4 mr-1" />
+                        <ClipboardList className="h-4 w-4 mr-1" />
                         사례개념화
                     </Button>
                   </Link>
