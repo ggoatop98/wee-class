@@ -1,9 +1,9 @@
 
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, ClipboardList, Beaker } from 'lucide-react';
+import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,10 +24,26 @@ interface StudentListProps {
   onEdit: (student: Student) => void;
   onDelete: (id: string) => void;
   onUpdateStatus: (id: string, status: StudentStatus) => void;
+  onFileUpload: (studentId: string, file: File) => void;
   loading: boolean;
 }
 
-export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, loading }: StudentListProps) {
+export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onFileUpload, loading }: StudentListProps) {
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  
+  const handleUploadClick = (studentId: string) => {
+    fileInputRefs.current[studentId]?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, studentId: string) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onFileUpload(studentId, file);
+    }
+    // Reset file input value to allow uploading the same file again
+    e.target.value = '';
+  };
+
   if (loading) {
     return (
       <div className="rounded-lg border">
@@ -131,6 +147,16 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                         심리검사
                     </Button>
                   </Link>
+                  <input
+                    type="file"
+                    ref={(el) => (fileInputRefs.current[student.id] = el)}
+                    style={{ display: 'none' }}
+                    onChange={(e) => handleFileChange(e, student.id)}
+                  />
+                  <Button variant="ghost" size="icon" onClick={() => handleUploadClick(student.id)} title="파일 업로드">
+                    <Upload className="h-4 w-4" />
+                    <span className="sr-only">파일 업로드</span>
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">수정</span>

@@ -4,7 +4,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { PlusCircle } from "lucide-react";
 import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDocs, writeBatch } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useToast } from "@/hooks/use-toast";
 import type { Student, StudentStatus } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -115,6 +116,40 @@ export default function StudentsClient() {
         });
     }
   };
+  
+  const handleFileUpload = async (studentId: string, file: File) => {
+    if (!user) {
+        toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
+        return;
+    }
+    if (!file) return;
+
+    const storageRef = ref(storage, `student_files/${studentId}/${file.name}`);
+    
+    toast({
+        title: "업로드 중...",
+        description: `${file.name} 파일을 업로드하고 있습니다.`,
+    });
+
+    try {
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+        console.log('File available at', downloadURL);
+        
+        toast({
+            title: "업로드 성공",
+            description: `${file.name} 파일이 성공적으로 업로드되었습니다.`,
+        });
+
+    } catch (error) {
+        console.error("Error uploading file: ", error);
+        toast({
+            variant: "destructive",
+            title: "업로드 오류",
+            description: "파일 업로드 중 오류가 발생했습니다.",
+        });
+    }
+  };
 
   return (
     <>
@@ -136,6 +171,7 @@ export default function StudentsClient() {
         onEdit={handleEditStudent}
         onDelete={handleDeleteStudent}
         onUpdateStatus={handleUpdateStatus}
+        onFileUpload={handleFileUpload}
         loading={loading}
       />
       <StudentForm
