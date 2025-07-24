@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '../PageHeader';
 
@@ -115,12 +115,18 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
         }
     };
 
+    const handlePrint = () => {
+        window.print();
+    }
+
     return (
-        <Card className="h-full">
+        <Card className="h-full printable-area">
             <CardContent className="p-6 h-full flex flex-col">
-                <PageHeader title="상담 일지" centered>
-                    <Input readOnly value={studentName} className="text-center font-semibold text-lg" />
-                </PageHeader>
+                <div className="printable-header">
+                    <PageHeader title="상담 일지" centered>
+                        <Input readOnly value={studentName} className="text-center font-semibold text-lg" />
+                    </PageHeader>
+                </div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex-grow flex flex-col">
                         <div className="flex-grow space-y-4 overflow-auto p-1">
@@ -180,7 +186,11 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
-                        <div className="flex justify-end gap-2 pt-4">
+                        <div className="flex justify-end gap-2 pt-4 no-print">
+                            <Button type="button" variant="ghost" onClick={handlePrint}>
+                                <Printer className="mr-2 h-4 w-4" />
+                                인쇄
+                            </Button>
                             <Button type="button" variant="outline" onClick={onCancel}>취소</Button>
                             <Button type="submit">저장</Button>
                         </div>

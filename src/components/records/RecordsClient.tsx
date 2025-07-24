@@ -18,6 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import CounselingLogForm from '@/components/records/CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface RecordsClientProps {
     studentId: string;
@@ -107,7 +108,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     return (
         <>
             <PageHeader title={`${studentName} 상담 기록`}>
-                <div className="flex gap-2">
+                <div className="flex gap-2 no-print">
                     <Button onClick={handleAddNewLog}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         새 상담일지 추가
@@ -121,7 +122,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                 </div>
             </PageHeader>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-1">
+                <div className="md:col-span-1 no-print">
                     <Card>
                         <CardHeader>
                             <CardTitle>상담 이력</CardTitle>
@@ -176,7 +177,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                         </CardContent>
                     </Card>
                 </div>
-                <div className="md:col-span-2">
+                <div className={cn("md:col-span-2", isFormVisible ? 'printable-content' : '')}>
                     {isFormVisible ? (
                         <CounselingLogForm
                             studentId={studentId}
@@ -186,7 +187,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                             log={selectedLog}
                         />
                     ) : (
-                        <Card className="h-full flex items-center justify-center min-h-[70vh]">
+                        <Card className="h-full flex items-center justify-center min-h-[70vh] no-print">
                             <CardContent className="text-center">
                                 <h3 className="text-lg font-medium text-muted-foreground">상담일지를 선택하거나 새 일지를 추가하세요.</h3>
                             </CardContent>
