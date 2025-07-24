@@ -16,7 +16,6 @@ import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
 import FileUploadModal from "./FileUploadModal";
 import { Input } from "@/components/ui/input";
-import SecurityTest from "./SecurityTest";
 
 export default function StudentsClient() {
   const { user } = useAuth();
@@ -241,9 +240,6 @@ export default function StudentsClient() {
         onOpenFileUploadModal={handleOpenFileUploadModal}
         loading={loading}
       />
-      <div className="mt-8">
-        <SecurityTest />
-      </div>
       <StudentForm
         isOpen={isStudentModalOpen}
         onOpenChange={setIsStudentModalOpen}
