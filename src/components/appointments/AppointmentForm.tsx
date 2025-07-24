@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -146,6 +146,9 @@ export default function AppointmentForm({ isOpen, onOpenChange, appointment }: A
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>{appointment ? '일정 수정' : '일정 추가'}</DialogTitle>
+          <DialogDescription>
+            새로운 상담이나 기타 일정을 등록합니다.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
