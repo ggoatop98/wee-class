@@ -14,7 +14,6 @@ import { PageHeader } from "../PageHeader";
 import { Button } from "@/components/ui/button";
 import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
-import StudentFilesModal from "./StudentFilesModal";
 import FileUploadModal from "./FileUploadModal";
 import { Input } from "@/components/ui/input";
 
@@ -27,11 +26,8 @@ export default function StudentsClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
 
-  const [isFilesModalOpen, setIsFilesModalOpen] = useState(false);
   const [isFileUploadModalOpen, setIsFileUploadModalOpen] = useState(false);
   const [selectedStudentForFiles, setSelectedStudentForFiles] = useState<Student | null>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
-  const [isFileListLoading, setIsFileListLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -53,40 +49,6 @@ export default function StudentsClient() {
     });
     return () => unsubscribe();
   }, [user]);
-
-  useEffect(() => {
-    if (!selectedStudentForFiles || !user) {
-      setUploadedFiles([]);
-      return;
-    }
-
-    setIsFileListLoading(true);
-    const q = query(
-      collection(db, "studentFiles"),
-      where("studentId", "==", selectedStudentForFiles.id),
-      where("userId", "==", user.uid)
-      // orderBy("uploadedAt", "desc") // This causes permission issues if index is not created.
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const filesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UploadedFile));
-      // Sort client-side
-      filesData.sort((a, b) => b.uploadedAt.toMillis() - a.uploadedAt.toMillis());
-      setUploadedFiles(filesData);
-      setIsFileListLoading(false);
-    }, (error) => {
-      console.error("Error fetching files:", error);
-      toast({
-        variant: "destructive",
-        title: "오류",
-        description: "파일 목록을 불러오는 중 오류가 발생했습니다.",
-      });
-      setIsFileListLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [selectedStudentForFiles, user, toast]);
-
 
   const filteredStudents = useMemo(() => {
     if (!searchTerm) {
@@ -157,11 +119,6 @@ export default function StudentsClient() {
     }
   };
   
-  const handleOpenFilesModal = (student: Student) => {
-    setSelectedStudentForFiles(student);
-    setIsFilesModalOpen(true);
-  };
-  
   const handleOpenFileUploadModal = (student: Student) => {
     setSelectedStudentForFiles(student);
     setIsFileUploadModalOpen(true);
@@ -174,7 +131,6 @@ export default function StudentsClient() {
     }
 
     const storageRef = ref(storage, `student_files/${selectedStudentForFiles.id}/${file.name}`);
-    const fileCollectionRef = collection(db, "studentFiles");
     
     toast({
         title: "업로드 중...",
@@ -185,16 +141,8 @@ export default function StudentsClient() {
         const snapshot = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
         
-        await addDoc(fileCollectionRef, {
-            userId: user.uid,
-            studentId: selectedStudentForFiles.id,
-            fileName: file.name,
-            fileType: file.type,
-            fileSize: file.size,
-            downloadURL: downloadURL,
-            storagePath: snapshot.ref.fullPath,
-            uploadedAt: Timestamp.now(),
-        });
+        // Note: We are not saving file metadata to Firestore in this flow yet.
+        // This will be added in the next step.
 
         toast({
             title: "업로드 성공",
@@ -211,28 +159,6 @@ export default function StudentsClient() {
     }
   };
 
-  const handleDeleteFile = async (file: UploadedFile) => {
-     try {
-        // Delete file from Storage
-        const fileRef = ref(storage, file.storagePath);
-        await deleteObject(fileRef);
-
-        // Delete file metadata from Firestore
-        await deleteDoc(doc(db, "studentFiles", file.id));
-        
-        toast({
-            title: "삭제 성공",
-            description: `${file.fileName} 파일이 삭제되었습니다.`,
-        });
-     } catch(error) {
-        console.error("Error deleting file: ", error);
-        toast({
-            variant: "destructive",
-            title: "삭제 오류",
-            description: "파일 삭제 중 오류가 발생했습니다.",
-        });
-     }
-  };
 
   return (
     <>
@@ -254,7 +180,6 @@ export default function StudentsClient() {
         onEdit={handleEditStudent}
         onDelete={handleDeleteStudent}
         onUpdateStatus={handleUpdateStatus}
-        onOpenFiles={handleOpenFilesModal}
         onOpenFileUploadModal={handleOpenFileUploadModal}
         loading={loading}
       />
@@ -263,16 +188,6 @@ export default function StudentsClient() {
         onOpenChange={setIsStudentModalOpen}
         student={selectedStudent}
       />
-       {selectedStudentForFiles && (
-        <StudentFilesModal
-            isOpen={isFilesModalOpen}
-            onOpenChange={setIsFilesModalOpen}
-            student={selectedStudentForFiles}
-            files={uploadedFiles}
-            onDelete={handleDeleteFile}
-            loading={isFileListLoading}
-        />
-       )}
        {selectedStudentForFiles && (
          <FileUploadModal
             isOpen={isFileUploadModalOpen}
