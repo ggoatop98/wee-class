@@ -77,7 +77,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
             <TableHead className="text-base">연락처</TableHead>
             <TableHead className="text-base">상담분야</TableHead>
             <TableHead className="text-base">상태</TableHead>
-            <TableHead className="text-center w-[450px] text-base">작업</TableHead>
+            <TableHead className="text-center w-[380px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -115,51 +115,58 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                   </DropdownMenu>
                 </TableCell>
                 <TableCell className="text-center">
-                   <Link href={`/records/${student.id}/conceptualization?studentName=${encodeURIComponent(student.name)}`}>
-                    <Button variant="outline" size="sm" className="mr-2">
-                        <ClipboardList className="h-4 w-4 mr-1" />
-                        사례개념화
-                    </Button>
-                  </Link>
-                   <Link href={`/records/${student.id}?studentName=${encodeURIComponent(student.name)}`}>
-                    <Button variant="outline" size="sm" className="mr-2">
-                        <BookUser className="h-4 w-4 mr-1" />
-                        상담일지
-                    </Button>
-                  </Link>
-                  <Link href={`/records/${student.id}/tests?studentName=${encodeURIComponent(student.name)}`}>
-                    <Button variant="outline" size="sm" className="mr-2">
-                        <Beaker className="h-4 w-4 mr-1" />
-                        심리검사
-                    </Button>
-                  </Link>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" title="삭제">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">삭제</span>
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="flex gap-2">
+                       <Link href={`/records/${student.id}/conceptualization?studentName=${encodeURIComponent(student.name)}`}>
+                        <Button variant="outline" size="sm">
+                            <ClipboardList className="h-4 w-4 mr-1" />
+                            사례개념화
+                        </Button>
+                      </Link>
+                       <Link href={`/records/${student.id}?studentName=${encodeURIComponent(student.name)}`}>
+                        <Button variant="outline" size="sm">
+                            <BookUser className="h-4 w-4 mr-1" />
+                            상담일지
+                        </Button>
+                      </Link>
+                      <Link href={`/records/${student.id}/tests?studentName=${encodeURIComponent(student.name)}`}>
+                        <Button variant="outline" size="sm">
+                            <Beaker className="h-4 w-4 mr-1" />
+                            심리검사
+                        </Button>
+                      </Link>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => onOpenFileUploadModal(student)}>
+                        <FolderArchive className="h-4 w-4 mr-1"/>
+                        파일
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          이 작업은 되돌릴 수 없습니다. 내담자 정보와 관련된 모든 데이터가 영구적으로 삭제될 수 있습니다.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>취소</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDelete(student.id)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">수정</span>
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => onOpenFileUploadModal(student)}>
-                    파일
-                  </Button>
+                      <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">수정</span>
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="ghost" size="icon" title="삭제">
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">삭제</span>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              이 작업은 되돌릴 수 없습니다. 내담자 정보와 관련된 모든 데이터가 영구적으로 삭제될 수 있습니다.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>취소</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => onDelete(student.id)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
