@@ -1,19 +1,11 @@
-
-[
-  {
-    "origin": ["*"],
-    "method": ["GET", "PUT", "POST", "DELETE", "OPTIONS"],
-    "responseHeader": [
-      "Content-Type",
-      "Content-Length",
-      "Authorization",
-      "Accept",
-      "X-Goog-Resumable",
-      "X-Goog-Upload-Command",
-      "X-Goog-Upload-Offset",
-      "X-Goog-Upload-Protocol",
-      "X-Goog-Upload-Status"
-    ],
-    "maxAgeSeconds": 3600
+{
+  "rules": {
+    "service firebase.storage": {
+      "match /b/{bucket}/o": {
+        "match /student_files/{userId}/{studentId}/{allPaths=**}": {
+          "allow read, write": "if request.auth != null && request.auth.uid == userId;"
+        }
+      }
+    }
   }
-]
+}

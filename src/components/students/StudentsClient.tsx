@@ -57,14 +57,14 @@ export default function StudentsClient() {
     setIsFetchingFiles(true);
     setUploadedFiles([]);
     try {
-        const studentFolderRef = ref(storage, `student_files/${studentId}`);
+        const studentFolderRef = ref(storage, `student_files/${user.uid}/${studentId}`);
         const res = await listAll(studentFolderRef);
         
         const filesData = await Promise.all(
             res.items.map(async (itemRef) => {
                 const downloadURL = await getDownloadURL(itemRef);
                 return {
-                    id: itemRef.name, // Use file name as a unique key
+                    id: itemRef.name,
                     fileName: itemRef.name,
                     downloadURL,
                     storagePath: itemRef.fullPath,
@@ -136,7 +136,7 @@ export default function StudentsClient() {
             });
         }
         
-        const storageFolderRef = ref(storage, `student_files/${studentId}`);
+        const storageFolderRef = ref(storage, `student_files/${user.uid}/${studentId}`);
         const res = await listAll(storageFolderRef);
         await Promise.all(res.items.map((itemRef) => deleteObject(itemRef)));
 
@@ -171,7 +171,7 @@ export default function StudentsClient() {
         return;
     }
 
-    const storagePath = `student_files/${selectedStudentForFiles.id}/${file.name}`;
+    const storagePath = `student_files/${user.uid}/${selectedStudentForFiles.id}/${file.name}`;
     const storageRef = ref(storage, storagePath);
     
     toast({
@@ -185,7 +185,6 @@ export default function StudentsClient() {
             title: "업로드 성공",
             description: `${file.name} 파일이 성공적으로 업로드되었습니다.`,
         });
-        // Refresh file list
         fetchFilesForStudent(selectedStudentForFiles.id);
     } catch (error) {
         console.error("Error uploading file: ", error);
@@ -207,7 +206,6 @@ export default function StudentsClient() {
             title: "삭제 성공",
             description: `${fileToDelete.fileName} 파일이 삭제되었습니다.`,
         });
-        // Refresh file list
         fetchFilesForStudent(selectedStudentForFiles.id);
     } catch (error) {
         console.error("Error deleting file:", error);
