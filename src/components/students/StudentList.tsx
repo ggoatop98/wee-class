@@ -24,12 +24,11 @@ interface StudentListProps {
   onEdit: (student: Student) => void;
   onDelete: (id: string) => void;
   onUpdateStatus: (id: string, status: StudentStatus) => void;
-  onOpenFiles: (student: Student) => void;
   onOpenFileUploadModal: (student: Student) => void;
   loading: boolean;
 }
 
-export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onOpenFiles, onOpenFileUploadModal, loading }: StudentListProps) {
+export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onOpenFileUploadModal, loading }: StudentListProps) {
 
   if (loading) {
     return (
@@ -161,10 +160,6 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                   </AlertDialog>
                   <Button variant="outline" size="sm" onClick={() => onOpenFileUploadModal(student)}>
                     파일
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => onOpenFiles(student)} title="첨부파일 목록">
-                    <FolderArchive className="h-4 w-4" />
-                    <span className="sr-only">첨부파일 목록</span>
                   </Button>
                 </TableCell>
               </TableRow>
