@@ -88,37 +88,3 @@ body {
     li p { @apply my-0; }
   }
 }
-
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .printable-area, .printable-area * {
-    visibility: visible;
-  }
-  
-  .printable-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    border: none;
-    box-shadow: none;
-  }
-
-  .no-print, .no-print * {
-    display: none !important;
-  }
-
-  .printable-content {
-    grid-column: span 3 / span 3;
-  }
-  
-  .printable-header .flex.items-center {
-      justify-content: center !important;
-  }
-}

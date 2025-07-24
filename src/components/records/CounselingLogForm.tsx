@@ -116,13 +116,54 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
     };
 
     const handlePrint = () => {
-        window.print();
+        const data = form.getValues();
+        const printContent = `
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px;">
+                <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">상담 일지</h1>
+                <div style="border: 1px solid #ccc; padding: 20px;">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">내담자명</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${studentName}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">상담일시</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.counselingDate, "yyyy-MM-dd")} ${data.counselingHour}:${data.counselingMinute}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px;">상담 내용</h2>
+                        <div style="min-height: 200px; padding: 10px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word;">${data.mainIssues.replace(/\n/g, '<br />')}</div>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px;">상담 의견</h2>
+                        <div style="min-height: 200px; padding: 10px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word;">${(data.therapistComments || '').replace(/\n/g, '<br />')}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const printWindow = window.open('', '_blank', 'height=800,width=800');
+        if (printWindow) {
+            printWindow.document.write('<html><head><title>상담일지 인쇄</title>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.onafterprint = function() {
+                printWindow.close();
+            };
+        } else {
+            alert('팝업 차단으로 인해 인쇄 창을 열 수 없습니다. 팝업 차단을 해제해주세요.');
+        }
     }
 
     return (
-        <Card className="h-full printable-area">
+        <Card className="h-full">
             <CardContent className="p-6 h-full flex flex-col">
-                <div className="printable-header">
+                <div>
                     <PageHeader title="상담 일지" centered>
                         <Input readOnly value={studentName} className="text-center font-semibold text-lg" />
                     </PageHeader>
@@ -186,7 +227,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
-                        <div className="flex justify-end gap-2 pt-4 no-print">
+                        <div className="flex justify-end gap-2 pt-4">
                             <Button type="button" variant="ghost" onClick={handlePrint}>
                                 <Printer className="mr-2 h-4 w-4" />
                                 인쇄
