@@ -3,7 +3,7 @@
 
 import React, { useRef } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload } from 'lucide-react';
+import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload, FolderArchive } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -24,25 +24,12 @@ interface StudentListProps {
   onEdit: (student: Student) => void;
   onDelete: (id: string) => void;
   onUpdateStatus: (id: string, status: StudentStatus) => void;
-  onFileUpload: (studentId: string, file: File) => void;
+  onOpenFiles: (student: Student) => void;
+  onOpenFileUploadModal: (student: Student) => void;
   loading: boolean;
 }
 
-export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onFileUpload, loading }: StudentListProps) {
-  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
-  
-  const handleUploadClick = (studentId: string) => {
-    fileInputRefs.current[studentId]?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, studentId: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      onFileUpload(studentId, file);
-    }
-    // Reset file input value to allow uploading the same file again
-    e.target.value = '';
-  };
+export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onOpenFiles, onOpenFileUploadModal, loading }: StudentListProps) {
 
   if (loading) {
     return (
@@ -91,7 +78,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
             <TableHead className="text-base">연락처</TableHead>
             <TableHead className="text-base">상담분야</TableHead>
             <TableHead className="text-base">상태</TableHead>
-            <TableHead className="text-center w-[400px] text-base">작업</TableHead>
+            <TableHead className="text-center w-[450px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -147,16 +134,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                         심리검사
                     </Button>
                   </Link>
-                  <input
-                    type="file"
-                    ref={(el) => (fileInputRefs.current[student.id] = el)}
-                    style={{ display: 'none' }}
-                    onChange={(e) => handleFileChange(e, student.id)}
-                  />
-                  <Button variant="ghost" size="icon" onClick={() => handleUploadClick(student.id)} title="파일 업로드">
-                    <Upload className="h-4 w-4" />
-                    <span className="sr-only">파일 업로드</span>
-                  </Button>
+
                   <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
                     <Pencil className="h-4 w-4" />
                     <span className="sr-only">수정</span>
@@ -181,6 +159,13 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                  <Button variant="outline" size="sm" onClick={() => onOpenFileUploadModal(student)}>
+                    파일
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => onOpenFiles(student)} title="첨부파일 목록">
+                    <FolderArchive className="h-4 w-4" />
+                    <span className="sr-only">첨부파일 목록</span>
+                  </Button>
                 </TableCell>
               </TableRow>
             ))

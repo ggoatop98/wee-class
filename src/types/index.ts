@@ -80,3 +80,15 @@ export interface Todo {
   isCompleted: boolean;
   createdAt: Timestamp;
 }
+
+export interface UploadedFile {
+  id: string;
+  userId: string;
+  studentId: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  downloadURL: string;
+  storagePath: string;
+  uploadedAt: Timestamp;
+}
