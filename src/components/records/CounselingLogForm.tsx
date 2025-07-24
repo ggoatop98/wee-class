@@ -228,7 +228,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                             )}/>
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
-                            <Button type="button" variant="ghost" onClick={handlePrint}>
+                            <Button type="button" variant="outline" onClick={handlePrint}>
                                 <Printer className="mr-2 h-4 w-4" />
                                 인쇄
                             </Button>
