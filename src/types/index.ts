@@ -81,15 +81,14 @@ export interface Todo {
   createdAt: Timestamp;
 }
 
-// NOTE: This type no longer needs userId and studentId as it will be a subcollection.
-// They are kept here for reference but aren't strictly required in the documents themselves.
+// This type is now for files listed directly from Firebase Storage.
+// 'id' can be the file name or path.
 export interface UploadedFile {
-  id: string;
+  id: string; // Using file name as ID
   fileName: string;
-  fileType: string;
-  fileSize: number;
   downloadURL: string;
   storagePath: string;
-  uploadedAt: Timestamp;
-  // userId and studentId are implicitly available via the collection path
+  fileSize?: number; // Size might not be readily available, making it optional
+  fileType?: string; // Type might not be readily available, making it optional
+  uploadedAt?: Timestamp; // Not available from Storage listAll, making it optional
 }

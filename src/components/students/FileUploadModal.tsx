@@ -36,7 +36,10 @@ export default function FileUploadModal({ isOpen, onOpenChange, student, onUploa
     setIsUploading(true);
     await onUpload(selectedFile);
     setIsUploading(false);
-    setSelectedFile(null); // Reset after upload
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
   };
   
   const triggerFileSelect = () => fileInputRef.current?.click();
