@@ -81,14 +81,15 @@ export interface Todo {
   createdAt: Timestamp;
 }
 
+// NOTE: This type no longer needs userId and studentId as it will be a subcollection.
+// They are kept here for reference but aren't strictly required in the documents themselves.
 export interface UploadedFile {
   id: string;
-  userId: string;
-  studentId: string;
   fileName: string;
   fileType: string;
   fileSize: number;
   downloadURL: string;
   storagePath: string;
   uploadedAt: Timestamp;
+  // userId and studentId are implicitly available via the collection path
 }
