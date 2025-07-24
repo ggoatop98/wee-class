@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { PlusCircle, FolderArchive } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDocs, writeBatch, addDoc, Timestamp, orderBy } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
@@ -119,12 +119,13 @@ export default function StudentsClient() {
   };
 
   const handleDeleteStudent = async (studentId: string) => {
+    if (!user) return;
     try {
         const batch = writeBatch(db);
 
         const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests", "studentFiles"];
         for (const coll of collectionsToDeleteFrom) {
-            const q = query(collection(db, coll), where("studentId", "==", studentId), where("userId", "==", user?.uid));
+            const q = query(collection(db, coll), where("studentId", "==", studentId), where("userId", "==", user.uid));
             const snapshot = await getDocs(q);
             snapshot.forEach(doc => {
                 batch.delete(doc.ref);
