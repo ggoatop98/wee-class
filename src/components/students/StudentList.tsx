@@ -133,11 +133,6 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                         심리검사
                     </Button>
                   </Link>
-
-                  <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
-                    <Pencil className="h-4 w-4" />
-                    <span className="sr-only">수정</span>
-                  </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="ghost" size="icon" title="삭제">
@@ -158,6 +153,10 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                  <Button variant="ghost" size="icon" onClick={() => onEdit(student)} title="수정">
+                    <Pencil className="h-4 w-4" />
+                    <span className="sr-only">수정</span>
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => onOpenFileUploadModal(student)}>
                     파일
                   </Button>
