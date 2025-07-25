@@ -92,3 +92,16 @@ export interface UploadedFile {
   fileType?: string; // Type might not be readily available, making it optional
   uploadedAt?: Timestamp; // Not available from Storage listAll, making it optional
 }
+
+export type CombinedRecordType = '상담' | '심리검사';
+
+export interface CombinedRecord {
+    id: string;
+    studentId: string;
+    studentName: string;
+    date: string;
+    time?: string;
+    type: CombinedRecordType;
+    originalId: string;
+    details: string; // For display, e.g., counseling main issues or test name
+}
