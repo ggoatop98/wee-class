@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from '@/components/ui/button';
 import { Loader2, FileText, UploadCloud, Trash2, Download } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import truncate from 'truncate';
 
 interface FileUploadModalProps {
   isOpen: boolean;
@@ -119,47 +119,44 @@ export default function FileUploadModal({ isOpen, onOpenChange, student, onUploa
                             <p className="text-muted-foreground text-sm">업로드된 파일이 없습니다.</p>
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>파일명</TableHead>
-                                    <TableHead className="text-right w-[80px]">작업</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {files.map(file => (
-                                    <TableRow key={file.id}>
-                                        <TableCell className="font-medium truncate" title={file.fileName}>{file.fileName}</TableCell>
-                                        <TableCell className="text-right">
-                                            <a href={file.downloadURL} target="_blank" rel="noopener noreferrer">
-                                              <Button variant="ghost" size="icon" title="다운로드">
-                                                <Download className="h-4 w-4" />
-                                              </Button>
-                                            </a>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" title="삭제">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                    이 작업은 되돌릴 수 없습니다. 파일이 영구적으로 삭제됩니다.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>취소</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => onDelete(file)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                        <div className="space-y-2">
+                            {files.map(file => (
+                                <div key={file.id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
+                                    <div className="flex items-center gap-2 overflow-hidden flex-1">
+                                        <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                                        <span className="text-sm font-medium truncate" title={file.fileName}>
+                                            {file.fileName}
+                                        </span>
+                                    </div>
+                                    <div className="flex-shrink-0">
+                                        <a href={file.downloadURL} target="_blank" rel="noopener noreferrer">
+                                          <Button variant="ghost" size="icon" title="다운로드">
+                                            <Download className="h-4 w-4" />
+                                          </Button>
+                                        </a>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" title="삭제">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                이 작업은 되돌릴 수 없습니다. 파일이 영구적으로 삭제됩니다.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>취소</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => onDelete(file)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     )}
                  </ScrollArea>
             </div>
