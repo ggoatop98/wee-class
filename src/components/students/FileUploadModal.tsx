@@ -123,7 +123,7 @@ export default function FileUploadModal({ isOpen, onOpenChange, student, onUploa
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>파일명</TableHead>
-                                    <TableHead className="text-right">작업</TableHead>
+                                    <TableHead className="text-right w-[80px]">작업</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
