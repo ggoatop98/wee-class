@@ -68,6 +68,7 @@ export default function CombinedRecordsClient() {
       studentId: test.studentId,
       studentName: test.studentName,
       date: test.testDate,
+      time: test.testTime,
       type: '심리검사',
       originalId: test.id,
       details: test.testName,

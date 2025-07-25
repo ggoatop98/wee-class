@@ -41,7 +41,11 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const testsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PsychologicalTest));
-            testsData.sort((a, b) => new Date(b.testDate).getTime() - new Date(a.testDate).getTime());
+            testsData.sort((a, b) => {
+                const dateComparison = b.testDate.localeCompare(a.testDate);
+                if (dateComparison !== 0) return dateComparison;
+                return (b.testTime || '').localeCompare(a.testTime || '');
+            });
             setTests(testsData);
             setLoading(false);
         });
@@ -63,7 +67,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
         setSelectedTest(null);
     };
 
-    const handleSave = async (data: { testName: string; testDate: Date; results: string }) => {
+    const handleSave = async (data: { testName: string; testDate: string; testHour: string; testMinute: string; results: string }) => {
         if (!user) {
             toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
             return;
@@ -74,7 +78,8 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
             studentId,
             studentName,
             testName: data.testName,
-            testDate: data.testDate.toISOString().split('T')[0],
+            testDate: data.testDate,
+            testTime: `${data.testHour}:${data.testMinute}`,
             results: data.results,
             updatedAt: Timestamp.now(),
         };
@@ -122,7 +127,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
                 onSave={handleSave}
                 onCancel={handleCancel}
             />
-        )
+        );
     }
 
     return (
@@ -165,6 +170,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
                                         <TableRow>
                                             <TableHead>검사명</TableHead>
                                             <TableHead>검사일</TableHead>
+                                            <TableHead>검사 시간</TableHead>
                                             <TableHead className="text-right">작업</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -173,6 +179,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
                                         <TableRow key={test.id}>
                                             <TableCell className="font-medium">{test.testName}</TableCell>
                                             <TableCell>{new Date(test.testDate).toLocaleDateString('ko-KR')}</TableCell>
+                                            <TableCell>{test.testTime || '-'}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon" onClick={() => handleSelectTest(test)}>
                                                     <Pencil className="h-4 w-4" />

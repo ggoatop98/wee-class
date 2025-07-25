@@ -18,11 +18,14 @@ import { Calendar } from '@/components/ui/calendar';
 import { Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PsychologicalTest } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 
 const testSchema = z.object({
   testName: z.string().min(1, '검사명을 입력해주세요.'),
   testDate: z.date({ required_error: '검사일을 선택해주세요.' }),
+  testHour: z.string().min(1, '시간을 선택해주세요.'),
+  testMinute: z.string().min(1, '분을 선택해주세요.'),
   results: z.string().min(1, '검사 결과를 입력해주세요.'),
 });
 
@@ -31,7 +34,7 @@ type TestFormValues = z.infer<typeof testSchema>;
 interface PsychologicalTestFormProps {
     studentName: string;
     initialData: Partial<PsychologicalTest> | null;
-    onSave: (data: TestFormValues) => void;
+    onSave: (data: Omit<TestFormValues, 'testDate'> & { testDate: string }) => void;
     onCancel: () => void;
 }
 
@@ -43,28 +46,38 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
         defaultValues: {
             testName: '',
             testDate: new Date(),
+            testHour: '13',
+            testMinute: '00',
             results: '',
         },
     });
 
     useEffect(() => {
         if (initialData) {
+            const [hour, minute] = initialData.testTime?.split(':') || ['13', '00'];
             form.reset({
                 testName: initialData.testName || '',
                 testDate: initialData.testDate ? parseISO(initialData.testDate) : new Date(),
+                testHour: hour,
+                testMinute: minute,
                 results: initialData.results || '',
             });
         } else {
             form.reset({
                 testName: '',
                 testDate: new Date(),
+                testHour: '13',
+                testMinute: '00',
                 results: '',
             });
         }
     }, [initialData, form]);
 
     const handleSaveClick = (data: TestFormValues) => {
-        onSave(data);
+        onSave({
+            ...data,
+            testDate: format(data.testDate, 'yyyy-MM-dd'),
+        });
     };
 
     const handleDateSelect = (selectedDate?: Date) => {
@@ -85,8 +98,8 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                             <tr>
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">내담자명</td>
                                 <td style="border: 1px solid #ccc; padding: 8px;">${studentName}</td>
-                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">검사일</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.testDate, "yyyy-MM-dd")}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">검사일시</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.testDate, "yyyy-MM-dd")} ${data.testHour}:${data.testMinute}</td>
                             </tr>
                              <tr>
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">검사명</td>
@@ -134,14 +147,14 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
             </PageHeader>
             <Form {...form}>
                 <form id="psychological-test-form" onSubmit={form.handleSubmit(handleSaveClick)} className="space-y-4 flex-grow flex flex-col">
+                    <FormField control={form.control} name="testName" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>검사명</FormLabel>
+                            <FormControl><Input placeholder="예: HTP 검사" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}/>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FormField control={form.control} name="testName" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>검사명</FormLabel>
-                                <FormControl><Input placeholder="예: HTP 검사" {...field} /></FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}/>
                         <FormField control={form.control} name="testDate" render={({ field }) => (
                         <FormItem className="flex flex-col justify-end">
                             <FormLabel>검사일</FormLabel>
@@ -164,6 +177,30 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                             <FormMessage />
                         </FormItem>
                         )}/>
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField control={form.control} name="testHour" render={({ field }) => (
+                                <FormItem><FormLabel>시간</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                    <SelectValue placeholder="시간" />
+                                </SelectTrigger></FormControl><SelectContent>
+                                    {Array.from({ length: 10 }, (_, i) => String(8 + i).padStart(2, '0')).map(hour => (
+                                        <SelectItem key={hour} value={hour}>{hour}</SelectItem>
+                                    ))}
+                                </SelectContent></Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="testMinute" render={({ field }) => (
+                                <FormItem><FormLabel>분</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                    <SelectValue placeholder="분" />
+                                </SelectTrigger></FormControl><SelectContent>
+                                    {['00', '10', '20', '30', '40', '50'].map(min => (
+                                        <SelectItem key={min} value={min}>{min}</SelectItem>
+                                    ))}
+                                </SelectContent></Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                        </div>
                     </div>
                      <FormField
                         control={form.control}
