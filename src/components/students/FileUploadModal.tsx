@@ -68,48 +68,52 @@ export default function FileUploadModal({ isOpen, onOpenChange, student, onUploa
           </DialogDescription>
         </DialogHeader>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+        <div className="grid grid-cols-1 gap-6 py-4">
             {/* Upload section */}
             <div className="space-y-4 p-4 border rounded-lg">
                 <h3 className="font-semibold text-lg">새 파일 업로드</h3>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                />
-                <Button variant="outline" onClick={triggerFileSelect} disabled={isUploading} className="w-full">
-                    <UploadCloud className="mr-2 h-4 w-4" />
-                    파일 선택
-                </Button>
-                
-                {selectedFile && (
-                    <div className="mt-4 p-3 border rounded-md flex items-center justify-between">
-                    <div className="flex items-center gap-2 overflow-hidden">
-                        <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        <span className="text-sm truncate" title={selectedFile.name}>{selectedFile.name}</span>
+                <div className="flex gap-4">
+                    <div className="flex-1">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                        />
+                        <Button variant="outline" onClick={triggerFileSelect} disabled={isUploading} className="w-full">
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                            파일 선택
+                        </Button>
+                        
+                        {selectedFile && (
+                            <div className="mt-2 p-2 border rounded-md flex items-center justify-between">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                                <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                                <span className="text-sm truncate" title={selectedFile.name}>{selectedFile.name}</span>
+                            </div>
+                            <span className="text-sm text-muted-foreground flex-shrink-0 ml-2">
+                                {formatFileSize(selectedFile.size)}
+                            </span>
+                            </div>
+                        )}
                     </div>
-                    <span className="text-sm text-muted-foreground flex-shrink-0">
-                        {formatFileSize(selectedFile.size)}
-                    </span>
-                    </div>
-                )}
-                <Button onClick={handleUploadClick} disabled={!selectedFile || isUploading} className="w-full">
-                    {isUploading ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        업로드 중...
-                    </>
-                    ) : (
-                    '업로드'
-                    )}
-                </Button>
+                    <Button onClick={handleUploadClick} disabled={!selectedFile || isUploading} className="self-start">
+                        {isUploading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            업로드 중...
+                        </>
+                        ) : (
+                        '업로드'
+                        )}
+                    </Button>
+                </div>
             </div>
 
             {/* File list section */}
             <div className="space-y-4 p-4 border rounded-lg">
                  <h3 className="font-semibold text-lg">업로드된 파일 목록</h3>
-                 <ScrollArea className="h-64">
+                 <ScrollArea className="h-48">
                     {isFetchingFiles ? (
                         <div className="flex items-center justify-center h-full">
                             <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -128,7 +132,7 @@ export default function FileUploadModal({ isOpen, onOpenChange, student, onUploa
                                             {file.fileName}
                                         </span>
                                     </div>
-                                    <div className="flex-shrink-0">
+                                    <div className="flex-shrink-0 ml-4">
                                         <a href={file.downloadURL} target="_blank" rel="noopener noreferrer">
                                           <Button variant="ghost" size="icon" title="다운로드">
                                             <Download className="h-4 w-4" />
