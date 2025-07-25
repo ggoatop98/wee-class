@@ -79,7 +79,7 @@ export default function TodoList() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>To-Do 리스트</CardTitle>
+        <CardTitle>TO-DO LIST</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleAddTask} className="flex gap-2 mb-4">
