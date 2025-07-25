@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import type { Appointment } from '@/types';
-import { Badge } from '@/components/ui/badge';
+import truncate from 'truncate';
 
 interface AppointmentListProps {
   appointments: Appointment[];
@@ -35,7 +35,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
                 <TableHead className="text-base">시간</TableHead>
                 <TableHead className="text-base">상담 종류</TableHead>
                 <TableHead className="text-base">내담자</TableHead>
-                <TableHead className="text-base">구분</TableHead>
+                <TableHead className="text-base">메모</TableHead>
                 <TableHead className="text-right text-base">작업</TableHead>
             </TableRow>
           </TableHeader>
@@ -65,7 +65,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
             <TableHead className="w-[120px] text-base">시간</TableHead>
             <TableHead className="text-base">상담 종류</TableHead>
             <TableHead className="w-[150px] text-base">내담자</TableHead>
-            <TableHead className="w-[150px] text-base">구분</TableHead>
+            <TableHead className="text-base">메모</TableHead>
             <TableHead className="text-right w-[120px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
@@ -83,9 +83,7 @@ export default function AppointmentList({ appointments, onEdit, onDelete, loadin
                 <TableCell className="text-base">{`${item.startTime}`}</TableCell>
                 <TableCell className="font-medium text-base">{item.type}</TableCell>
                 <TableCell className="text-base">{item.studentName}</TableCell>
-                <TableCell className="text-base">
-                  <Badge variant="secondary" className="text-sm">{item.type}</Badge>
-                </TableCell>
+                <TableCell className="text-base text-muted-foreground">{truncate(item.memo || '', 30)}</TableCell>
                 <TableCell className="text-right">
                    <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
                     <Pencil className="h-4 w-4" />
