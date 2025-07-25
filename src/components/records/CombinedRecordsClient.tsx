@@ -8,11 +8,11 @@ import { useToast } from "@/hooks/use-toast";
 import type { CounselingLog, PsychologicalTest, CombinedRecord } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { Download } from "lucide-react";
 
 import { PageHeader } from "../PageHeader";
 import { Input } from "@/components/ui/input";
 import CombinedRecordList from "./CombinedRecordList";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "../ui/button";
 
 export default function CombinedRecordsClient() {
@@ -110,17 +110,57 @@ export default function CombinedRecordsClient() {
     const url = type === '상담' ? `/records/${studentId}?studentName=${encodeURIComponent(studentName)}` : `/records/${studentId}/tests?studentName=${encodeURIComponent(studentName)}`;
     router.push(url);
   };
+  
+  const handleDownloadExcel = () => {
+    if (filteredRecords.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: '다운로드할 데이터가 없습니다.',
+      });
+      return;
+    }
+
+    const headers = ['날짜', '시간', '내담자', '구분', '내용'];
+    const data = filteredRecords.map(record => [
+      record.date,
+      record.time || '',
+      record.studentName,
+      record.type,
+      // 내용 필드의 쉼표가 CSV를 깨뜨리지 않도록 큰따옴표로 감싸줍니다.
+      `"${record.details.replace(/"/g, '""')}"` 
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(','), ...data.map(e => e.join(','))].join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    const today = new Date().toISOString().slice(0, 10);
+    link.setAttribute("download", `상담및심리검사목록_${today}.csv`);
+    document.body.appendChild(link);
+
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   return (
     <>
       <PageHeader title="상담 및 심리검사 목록">
-        <Input
-          type="search"
-          placeholder="내담자 이름으로 검색..."
-          className="w-72"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="flex items-center gap-2">
+            <Input
+              type="search"
+              placeholder="내담자 이름으로 검색..."
+              className="w-72"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button onClick={handleDownloadExcel} variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                엑셀로 다운로드
+            </Button>
+        </div>
       </PageHeader>
       <CombinedRecordList
         records={filteredRecords}
