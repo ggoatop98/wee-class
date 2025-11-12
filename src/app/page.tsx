@@ -134,7 +134,14 @@ function HomePageContent() {
   
     const today = new Date();
     today.setHours(0,0,0,0);
+    const todayKey = format(today, 'yyyy-MM-dd');
+    
+    // 1. Check for today's appointments first
+    if (appointmentsByDate[todayKey] && appointmentsByDate[todayKey].length > 0) {
+        return appointmentsByDate[todayKey];
+    }
 
+    // 2. If no appointments today, find the next upcoming day with appointments
     const upcomingAppointments = allAppointments.filter(app => {
         const appDate = new Date(app.date);
         const tzOffset = appDate.getTimezoneOffset() * 60000;
@@ -164,20 +171,12 @@ function HomePageContent() {
     }
     const today = new Date();
     today.setHours(0,0,0,0);
+    const todayKey = format(today, 'yyyy-MM-dd');
 
-    const upcomingAppointments = allAppointments.filter(app => {
-        const appDate = new Date(app.date);
-        const tzOffset = appDate.getTimezoneOffset() * 60000;
-        return new Date(appDate.valueOf() + tzOffset) >= today;
-    });
-
-    if (upcomingAppointments.length > 0) {
-      const firstDate = new Date(upcomingAppointments[0].date);
-       const tzOffset = firstDate.getTimezoneOffset() * 60000;
-      if (isSameDay(new Date(firstDate.valueOf() + tzOffset), today)) {
+    if (appointmentsByDate[todayKey] && appointmentsByDate[todayKey].length > 0) {
         return "오늘의 일정";
-      }
     }
+
     return "예정된 일정";
   };
 
