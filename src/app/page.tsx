@@ -65,14 +65,18 @@ function HomePageContent() {
       unsubAppointments();
     };
   }, [user]);
+  
+  const parseDateWithTimezone = (dateString: string) => {
+    const date = new Date(dateString);
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.valueOf() + tzOffset);
+  };
 
   const appointmentsByDate = useMemo(() => {
     const grouped: { [key: string]: Appointment[] } = {};
     
     allAppointments.forEach(app => {
-      const originalDate = new Date(app.date);
-      const tzOffset = originalDate.getTimezoneOffset() * 60000;
-      const baseDate = new Date(originalDate.valueOf() + tzOffset);
+      const baseDate = parseDateWithTimezone(app.date);
 
       const dateKey = format(baseDate, 'yyyy-MM-dd');
       if (!(app.excludedDates || []).includes(dateKey)) {
@@ -114,11 +118,7 @@ function HomePageContent() {
   }, [allAppointments]);
 
   const appointmentDates = useMemo(() => {
-    return Object.keys(appointmentsByDate).map(dateStr => {
-        const date = new Date(dateStr);
-        const tzOffset = date.getTimezoneOffset() * 60000;
-        return new Date(date.valueOf() + tzOffset);
-    });
+    return Object.keys(appointmentsByDate).map(dateStr => parseDateWithTimezone(dateStr));
   }, [appointmentsByDate]);
 
 
@@ -127,36 +127,27 @@ function HomePageContent() {
         const dateKey = format(selectedDate, 'yyyy-MM-dd');
         return appointmentsByDate[dateKey] || [];
     }
-
-    if (allAppointments.length === 0) {
-      return [];
-    }
   
     const today = new Date();
     today.setHours(0,0,0,0);
     const todayKey = format(today, 'yyyy-MM-dd');
     
-    // 1. Check for today's appointments first
     if (appointmentsByDate[todayKey] && appointmentsByDate[todayKey].length > 0) {
         return appointmentsByDate[todayKey];
     }
 
-    // 2. If no appointments today, find the next upcoming day with appointments
-    const upcomingAppointments = allAppointments.filter(app => {
-        const appDate = new Date(app.date);
-        const tzOffset = appDate.getTimezoneOffset() * 60000;
-        return new Date(appDate.valueOf() + tzOffset) >= today && !(app.excludedDates || []).includes(format(new Date(appDate.valueOf() + tzOffset), 'yyyy-MM-dd'));
-    });
+    const upcomingKeys = Object.keys(appointmentsByDate)
+        .filter(dateKey => parseDateWithTimezone(dateKey) >= today)
+        .sort();
 
-    if (upcomingAppointments.length > 0) {
-        const firstDate = upcomingAppointments[0].date;
-        const dateKey = format(new Date(firstDate), 'yyyy-MM-dd');
-        return appointmentsByDate[dateKey] || [];
+    if (upcomingKeys.length > 0) {
+        const nextDateKey = upcomingKeys[0];
+        return appointmentsByDate[nextDateKey] || [];
     }
     
     return [];
 
-  }, [allAppointments, selectedDate, appointmentsByDate]);
+  }, [selectedDate, appointmentsByDate]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
@@ -169,12 +160,18 @@ function HomePageContent() {
     if (selectedDate) {
       return `${format(selectedDate, 'M월 d일')} 일정`;
     }
+    
     const today = new Date();
     today.setHours(0,0,0,0);
     const todayKey = format(today, 'yyyy-MM-dd');
 
     if (appointmentsByDate[todayKey] && appointmentsByDate[todayKey].length > 0) {
         return "오늘의 일정";
+    }
+    
+    if (appointmentsToShow.length > 0) {
+        const firstAppDate = parseDateWithTimezone(appointmentsToShow[0].date);
+        return `${format(firstAppDate, 'M월 d일')} 일정`;
     }
 
     return "예정된 일정";
@@ -217,7 +214,7 @@ function HomePageContent() {
                         <li key={app.id} className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
                           <div>
                             <p className="font-semibold">{`${app.studentName} - ${app.title}`}</p>
-                            <p className="text-sm text-muted-foreground">{new Date(app.date).toLocaleDateString('ko-KR', { timeZone: 'UTC', year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
+                            <p className="text-sm text-muted-foreground">{parseDateWithTimezone(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
                           </div>
                         </li>
                     )) : (
