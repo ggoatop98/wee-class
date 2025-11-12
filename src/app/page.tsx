@@ -37,9 +37,6 @@ function HomePageContent() {
         const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
         setStudents(studentsData);
     });
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
     
     const q = query(
       collection(db, "appointments"), 
@@ -48,15 +45,6 @@ function HomePageContent() {
 
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
-      
-      appointmentsData.sort((a, b) => {
-        if (a.date < b.date) return -1;
-        if (a.date > b.date) return 1;
-        if (a.startTime < b.startTime) return -1;
-        if (a.startTime > b.startTime) return 1;
-        return 0;
-      });
-
       setAllAppointments(appointmentsData);
     });
 
@@ -76,16 +64,20 @@ function HomePageContent() {
     const grouped: { [key: string]: Appointment[] } = {};
     
     allAppointments.forEach(app => {
-      const baseDate = parseDateWithTimezone(app.date);
+      const originalDate = new Date(app.date);
+      const tzOffset = originalDate.getTimezoneOffset() * 60000;
+      const baseDate = new Date(originalDate.valueOf() + tzOffset);
 
       const dateKey = format(baseDate, 'yyyy-MM-dd');
       if (!(app.excludedDates || []).includes(dateKey)) {
         if (!grouped[dateKey]) {
-          grouped[dateKey] = [];
+            grouped[dateKey] = [];
         }
-        grouped[dateKey].push(app);
+        grouped[dateKey].push({
+          ...app,
+          date: format(baseDate, 'yyyy-MM-dd')
+        });
       }
-
 
       if (app.repeatSetting && app.repeatSetting !== '해당 없음' && app.repeatCount) {
         for (let i = 1; i < app.repeatCount; i++) {
@@ -103,17 +95,23 @@ function HomePageContent() {
           const nextDateKey = format(nextDate, 'yyyy-MM-dd');
           if (!(app.excludedDates || []).includes(nextDateKey)) {
             if (!grouped[nextDateKey]) {
-              grouped[nextDateKey] = [];
+                grouped[nextDateKey] = [];
             }
             grouped[nextDateKey].push({
-              ...app,
-              date: nextDate.toISOString().split('T')[0],
-              id: `${app.id}-repeat-${i}` 
+                ...app,
+                date: nextDateKey,
+                id: `${app.id}-repeat-${i}` 
             });
           }
         }
       }
     });
+
+    // 정렬 추가
+    for (const dateKey in grouped) {
+      grouped[dateKey].sort((a, b) => a.startTime.localeCompare(b.startTime));
+    }
+    
     return grouped;
   }, [allAppointments]);
 
