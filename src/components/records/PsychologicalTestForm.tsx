@@ -147,13 +147,15 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
             </PageHeader>
             <Form {...form}>
                 <form id="psychological-test-form" onSubmit={form.handleSubmit(handleSaveClick)} className="space-y-4 flex-grow flex flex-col">
-                    <FormField control={form.control} name="testName" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>검사명</FormLabel>
-                            <FormControl><Input placeholder="예: HTP 검사" {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
+                    <div className="md:w-1/3">
+                        <FormField control={form.control} name="testName" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>검사명</FormLabel>
+                                <FormControl><Input placeholder="예: HTP 검사" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}/>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="testDate" render={({ field }) => (
                         <FormItem className="flex flex-col justify-end">
