@@ -181,31 +181,32 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex-grow flex flex-col">
                         <div className="flex-grow space-y-4 overflow-auto p-1">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField control={form.control} name="counselingDate" render={({ field }) => (
-                                <FormItem className="flex flex-col justify-end">
-                                    <FormLabel>상담 날짜</FormLabel>
-                                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                                        <PopoverTrigger asChild>
-                                        <FormControl>
-                                            <Button
-                                            variant={"outline"}
-                                            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
-                                            >
-                                            {field.value ? format(field.value, "PPP", { locale: ko }) : <span>날짜 선택</span>}
-                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                            </Button>
-                                        </FormControl>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={field.value} onSelect={handleDateSelect} initialFocus locale={ko} />
-                                        </PopoverContent>
-                                    </Popover>
-                                    <FormMessage />
-                                </FormItem>
-                                )}/>
-                                
-                                <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                <div className="md:col-span-1">
+                                    <FormField control={form.control} name="counselingDate" render={({ field }) => (
+                                        <FormItem className="flex flex-col justify-end">
+                                            <FormLabel>상담 날짜</FormLabel>
+                                            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                                                <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                    variant={"outline"}
+                                                    className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                                    >
+                                                    {field.value ? format(field.value, "PPP", { locale: ko }) : <span>날짜 선택</span>}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar mode="single" selected={field.value} onSelect={handleDateSelect} initialFocus locale={ko} />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}/>
+                                </div>
+                                <div className="md:col-span-2 grid grid-cols-4 gap-2">
                                     <FormField control={form.control} name="counselingHour" render={({ field }) => (
                                         <FormItem><FormLabel>시간</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
