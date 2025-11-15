@@ -39,6 +39,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                 <TableHead className="text-base">구분</TableHead>
                 <TableHead className="text-base">중분류</TableHead>
                 <TableHead className="text-base">상담구분</TableHead>
+                <TableHead className="text-base">상담매체</TableHead>
                 <TableHead className="text-right text-base">작업</TableHead>
             </TableRow>
           </TableHeader>
@@ -48,6 +49,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
@@ -71,13 +73,14 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
             <TableHead className="w-[100px] text-base">구분</TableHead>
             <TableHead className="w-[120px] text-base">중분류</TableHead>
             <TableHead className="w-[120px] text-base">상담구분</TableHead>
+            <TableHead className="w-[120px] text-base">상담매체</TableHead>
             <TableHead className="text-right w-[120px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {records.length === 0 ? (
              <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-base">
+              <TableCell colSpan={8} className="h-24 text-center text-base">
                 등록된 기록이 없습니다.
               </TableCell>
             </TableRow>
@@ -99,6 +102,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                 </TableCell>
                 <TableCell className="text-base">{item.middleCategory || ''}</TableCell>
                 <TableCell className="text-base">{item.counselingDivision || ''}</TableCell>
+                <TableCell className="text-base">{item.counselingMethod || ''}</TableCell>
                 <TableCell className="text-right">
                    <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
                     <Pencil className="h-4 w-4" />
