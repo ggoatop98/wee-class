@@ -2,8 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { collection, onSnapshot, query, where, doc, deleteDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs, writeBatch } from "firebase/firestore";
+import { db, storage } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import type { CounselingLog, PsychologicalTest, CombinedRecord, Student } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import CombinedRecordList from "./CombinedRecordList";
 import { Button } from "../ui/button";
 import DateRangePickerModal from "./DateRangePickerModal";
+import { deleteObject, listAll, ref } from "firebase/storage";
 
 export default function CombinedRecordsClient() {
   const { user } = useAuth();
@@ -94,9 +95,16 @@ export default function CombinedRecordsClient() {
 
     const allRecords = [...logsAsRecords, ...testsAsRecords];
     allRecords.sort((a, b) => {
-      const dateComparison = a.date.localeCompare(b.date);
-      if (dateComparison !== 0) return dateComparison;
-      if (a.time && b.time) return a.time.localeCompare(b.time);
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+
+      if (dateA < dateB) return -1;
+      if (dateA > dateB) return 1;
+      
+      if (a.time && b.time) {
+          if (a.time < b.time) return -1;
+          if (a.time > b.time) return 1;
+      }
       return 0;
     });
 
@@ -113,8 +121,17 @@ export default function CombinedRecordsClient() {
   }, [combinedRecords, searchTerm]);
 
   const handleDelete = async (record: CombinedRecord) => {
+    if (!user) return;
     try {
-        const collectionName = record.type === '상담' ? 'counselingLogs' : 'psychologicalTests';
+        const collectionName = record.type === '상담' || record.type === '자문' ? 'counselingLogs' : 'psychologicalTests';
+        
+        // Delete related files if it's a student record (though this should be handled in student delete)
+        if (record.type !== '상담' && record.type !== '자문' && record.type !== '검사') {
+            const storageFolderRef = ref(storage, `student_files/${user.uid}/${record.studentId}`);
+            const res = await listAll(storageFolderRef);
+            await Promise.all(res.items.map((itemRef) => deleteObject(itemRef)));
+        }
+
         await deleteDoc(doc(db, collectionName, record.originalId));
         toast({ title: '성공', description: `기록이 삭제되었습니다.` });
     } catch (error) {
@@ -163,20 +180,33 @@ export default function CombinedRecordsClient() {
       const hours = Math.floor(totalDuration / 60);
       const minutes = totalDuration % 60;
       const endTime = addMinutes(startTime, totalDuration);
+      
+      let 대분류 = record.type;
+      let 중분류 = record.isAdvisory ? '교원자문' : '개인상담';
+      let 상담구분 = studentInfo?.counselingField || '';
+      let 상담내용 = record.type === '상담' ? record.details : '';
+      
+      if (record.type === '검사') {
+        대분류 = '검사';
+        중분류 = '심리검사';
+        상담구분 = '개인심리검사';
+        상담내용 = ''; // 검사 내용은 엑셀에 포함되지 않음
+      }
+
 
       return {
         '상담분류': '전문상담',
         'Wee클래스': 'Wee클래스',
-        '대분류': record.type,
-        '중분류': record.isAdvisory ? '교원자문' : '개인상담', 
-        '상담구분': studentInfo?.counselingField || '',
+        '대분류': 대분류,
+        '중분류': 중분류, 
+        '상담구분': 상담구분,
         '상담인원': 1,
         '학년도': recordDate.getFullYear(),
         '상담일자': format(recordDate, 'yyyyMMdd'),
         '학년': studentInfo?.class.split('-')[0] + '학년' || '',
         '성별': studentInfo?.gender || '',
         '상담제목': '',
-        '상담내용': record.type === '상담' ? record.details : '', 
+        '상담내용': 상담내용, 
         '상담시간(시)': hours > 0 ? hours : '',
         '상담시간(분)': minutes,
         '상담사소속': '전문상담교사',
@@ -237,3 +267,5 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
+
+    
