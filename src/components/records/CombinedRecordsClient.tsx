@@ -150,9 +150,9 @@ export default function CombinedRecordsClient() {
 
     const dataToExport = recordsToDownload.map(record => {
       const studentInfo = studentsMap.get(record.studentId);
-      const recordDate = new Date(record.date);
-      recordDate.setMinutes(recordDate.getMinutes() + recordDate.getTimezoneOffset());
       
+      const recordDate = new Date(record.date + 'T00:00:00');
+
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const endTime = addMinutes(startTime, 40);
 
@@ -167,7 +167,7 @@ export default function CombinedRecordsClient() {
         '상담일자': format(recordDate, 'yyyyMMdd'),
         '학년': studentInfo?.class.split('-')[0] + '학년' || '',
         '성별': studentInfo?.gender || '',
-        '상담제목': record.details,
+        '상담제목': '',
         '상담내용': record.type === '상담' ? record.details : '', // Assuming 'details' is counseling content for '상담' type
         '상담시간(시)': '',
         '상담시간(분)': 40,
