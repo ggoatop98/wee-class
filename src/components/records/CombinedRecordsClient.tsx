@@ -137,12 +137,8 @@ export default function CombinedRecordsClient() {
     const toDateStr = format(dateRange.to, 'yyyy-MM-dd');
 
     const recordsToDownload = filteredRecords.filter(record => {
-        const recordDate = new Date(record.date);
-        const fromDate = new Date(dateRange.from!);
-        const toDate = new Date(dateRange.to!);
-        fromDate.setHours(0,0,0,0);
-        toDate.setHours(23,59,59,999);
-        return recordDate >= fromDate && recordDate <= toDate;
+        const recordDateStr = record.date;
+        return recordDateStr >= fromDateStr && recordDateStr <= toDateStr;
     });
     
     if (recordsToDownload.length === 0) {
@@ -160,8 +156,10 @@ export default function CombinedRecordsClient() {
       const recordDate = new Date(record.date + 'T00:00:00');
 
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
-      const duration = record.duration || 40;
-      const endTime = addMinutes(startTime, duration);
+      const totalDuration = record.duration || 40;
+      const hours = Math.floor(totalDuration / 60);
+      const minutes = totalDuration % 60;
+      const endTime = addMinutes(startTime, totalDuration);
 
       return {
         '상담분류': '전문상담',
@@ -176,8 +174,8 @@ export default function CombinedRecordsClient() {
         '성별': studentInfo?.gender || '',
         '상담제목': '',
         '상담내용': record.type === '상담' ? record.details : '', 
-        '상담시간(시)': '',
-        '상담시간(분)': duration,
+        '상담시간(시)': hours > 0 ? hours : '',
+        '상담시간(분)': minutes,
         '상담사소속': '전문상담교사',
         '상담매체구분': '면담',
         '': '', // Empty Q column
