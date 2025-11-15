@@ -10,11 +10,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
 import * as XLSX from 'xlsx';
+import { DateRange } from "react-day-picker";
 
 import { PageHeader } from "../PageHeader";
 import { Input } from "@/components/ui/input";
 import CombinedRecordList from "./CombinedRecordList";
 import { Button } from "../ui/button";
+import DateRangePickerModal from "./DateRangePickerModal";
 
 export default function CombinedRecordsClient() {
   const { user } = useAuth();
@@ -24,6 +26,7 @@ export default function CombinedRecordsClient() {
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const router = useRouter();
+  const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -112,16 +115,26 @@ export default function CombinedRecordsClient() {
     router.push(url);
   };
   
-  const handleDownloadExcel = () => {
-    if (filteredRecords.length === 0) {
+  const handleDownloadExcel = (dateRange: DateRange) => {
+    if (!dateRange.from || !dateRange.to) {
+        return;
+    }
+
+    const recordsToDownload = filteredRecords.filter(record => {
+        const recordDate = new Date(record.date);
+        return recordDate >= dateRange.from! && recordDate <= dateRange.to!;
+    });
+    
+    if (recordsToDownload.length === 0) {
       toast({
         variant: 'destructive',
         title: '다운로드할 데이터가 없습니다.',
+        description: '선택한 기간에 해당하는 기록이 없습니다.',
       });
       return;
     }
 
-    const dataToExport = filteredRecords.map(record => ({
+    const dataToExport = recordsToDownload.map(record => ({
       '날짜': record.date,
       '시간': record.time || '',
       '내담자': record.studentName,
@@ -144,6 +157,7 @@ export default function CombinedRecordsClient() {
 
     const today = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(workbook, `상담및심리검사목록_${today}.xlsx`);
+    setIsDateRangeModalOpen(false);
   };
 
 
@@ -158,7 +172,7 @@ export default function CombinedRecordsClient() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button onClick={handleDownloadExcel} variant="outline">
+            <Button onClick={() => setIsDateRangeModalOpen(true)} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 엑셀로 다운로드
             </Button>
@@ -169,6 +183,11 @@ export default function CombinedRecordsClient() {
         onDelete={handleDelete}
         onEdit={handleEdit}
         loading={loading}
+      />
+      <DateRangePickerModal
+        isOpen={isDateRangeModalOpen}
+        onOpenChange={setIsDateRangeModalOpen}
+        onDownload={handleDownloadExcel}
       />
     </>
   );
