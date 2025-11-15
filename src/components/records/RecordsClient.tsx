@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -18,7 +19,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import CounselingLogForm from '@/components/records/CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 
 interface RecordsClientProps {
@@ -37,6 +37,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     const router = useRouter();
     
     const currentStudent = students.find(s => s.id === studentId);
+    const previousLog = isFormVisible && !selectedLog && logs.length > 0 ? logs[0] : null;
 
     useEffect(() => {
         if (!studentId || !user) return;
@@ -105,6 +106,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                 isAdvisory: data.isAdvisory || false,
                 isParentCounseling: data.isParentCounseling || false,
                 advisoryField: data.isAdvisory ? (data.advisoryField || '기타') : '',
+                counselingDivision: data.counselingDivision,
                 coCounselees: data.coCounselees || [],
             };
 
@@ -214,6 +216,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                             onSave={handleSaveLog}
                             onCancel={handleCancel}
                             log={selectedLog}
+                            previousLog={previousLog}
                         />
                     ) : (
                         <Card className="h-full flex items-center justify-center min-h-[70vh]">

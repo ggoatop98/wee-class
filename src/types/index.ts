@@ -44,6 +44,8 @@ export interface CoCounselee {
     name: string;
 }
 
+export type CounselingDivision = '진로' | '성격' | '대인관계' | '가정 및 가족관계' | '일탈 및 비행' | '학교폭력 가해' | '학교폭력 피해' | '자해 및 자살' | '정신건강' | '컴퓨터 및 스마트폰 과사용' | '정보제공' | '기타';
+
 export interface CounselingLog {
   id: string;
   userId: string;
@@ -56,6 +58,7 @@ export interface CounselingLog {
   isAdvisory?: boolean; // 자문 여부
   isParentCounseling?: boolean; // 학부모상담 여부
   advisoryField?: '학교학습' | '사회성발달' | '정서발달' | '진로발달' | '행동발달' | '기타';
+  counselingDivision?: CounselingDivision;
   mainIssues: string;
   counselingGoals?: string;
   sessionContent?: string;
@@ -119,7 +122,7 @@ export interface CombinedRecord {
     time?: string;
     type: CombinedRecordType;
     middleCategory?: string;
-    counselingDivision?: string;
+    counselingDivision?: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | '';
     originalId: string;
     details: string; // For display, e.g., counseling main issues or test name
     duration?: number;

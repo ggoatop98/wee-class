@@ -1,11 +1,12 @@
 
+
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { CounselingLog, Student, CoCounselee } from '@/types';
+import type { CounselingLog, Student, CoCounselee, CounselingDivision } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,10 +21,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Calendar as CalendarIcon, Printer, UserPlus, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PageHeader } from '../PageHeader';
 import { Checkbox } from '../ui/checkbox';
-import { Badge } from '../ui/badge';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+
+const counselingDivisions: [CounselingDivision, ...CounselingDivision[]] = ['진로', '성격', '대인관계', '가정 및 가족관계', '일탈 및 비행', '학교폭력 가해', '학교폭력 피해', '자해 및 자살', '정신건강', '컴퓨터 및 스마트폰 과사용', '정보제공', '기타'];
 
 
 const logSchema = z.object({
@@ -35,6 +36,7 @@ const logSchema = z.object({
   isAdvisory: z.boolean().optional(),
   isParentCounseling: z.boolean().optional(),
   advisoryField: z.enum(['학교학습', '사회성발달', '정서발달', '진로발달', '행동발달', '기타']).optional(),
+  counselingDivision: z.string().optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
@@ -51,11 +53,12 @@ interface CounselingLogFormProps {
   currentStudent?: Student;
   allStudents: Student[];
   log: CounselingLog | null;
+  previousLog: CounselingLog | null;
   onSave: (data: Omit<CounselingLog, 'id'>) => void;
   onCancel: () => void;
 }
 
-export default function CounselingLogForm({ studentId, studentName, currentStudent, allStudents, log, onSave, onCancel }: CounselingLogFormProps) {
+export default function CounselingLogForm({ studentId, studentName, currentStudent, allStudents, log, previousLog, onSave, onCancel }: CounselingLogFormProps) {
     const { user } = useAuth();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [isStudentSelectOpen, setIsStudentSelectOpen] = useState(false);
@@ -71,6 +74,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
             isAdvisory: false,
             isParentCounseling: false,
             advisoryField: '기타',
+            counselingDivision: previousLog?.counselingDivision || '기타',
             mainIssues: '',
             therapistComments: '',
             counselingGoals: '',
@@ -95,6 +99,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                 isAdvisory: log.isAdvisory || false,
                 isParentCounseling: log.isParentCounseling || false,
                 advisoryField: log.advisoryField || '기타',
+                counselingDivision: log.counselingDivision || '기타',
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
                 counselingGoals: log.counselingGoals,
@@ -112,6 +117,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                 isAdvisory: false,
                 isParentCounseling: false,
                 advisoryField: '기타',
+                counselingDivision: previousLog?.counselingDivision || '기타',
                 mainIssues: '',
                 therapistComments: '',
                 counselingGoals: '',
@@ -120,7 +126,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                 coCounselees: [],
             });
         }
-    }, [log, form]);
+    }, [log, previousLog, form]);
 
     const sameGradeStudents = useMemo(() => {
         if (!currentStudent) return [];
@@ -147,6 +153,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
             isAdvisory: data.isAdvisory,
             isParentCounseling: data.isParentCounseling,
             advisoryField: data.advisoryField,
+            counselingDivision: data.counselingDivision as CounselingDivision,
             mainIssues: data.mainIssues,
             therapistComments: data.therapistComments || '',
             counselingGoals: data.counselingGoals || '',
@@ -355,6 +362,17 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                                 <FormItem>
                                     <div className="flex items-center gap-4">
                                         <FormLabel>상담 내용</FormLabel>
+                                        {!isAdvisory && (
+                                            <FormField control={form.control} name="counselingDivision" render={({ field: divisionField }) => (
+                                                <FormItem className="w-48"><Select onValueChange={divisionField.onChange} value={divisionField.value}><FormControl><SelectTrigger>
+                                                    <SelectValue placeholder="상담 구분" />
+                                                </SelectTrigger></FormControl><SelectContent>
+                                                    {counselingDivisions.map(division => (
+                                                        <SelectItem key={division} value={division}>{division}</SelectItem>
+                                                    ))}
+                                                </SelectContent></Select></FormItem>
+                                            )}/>
+                                        )}
                                         <FormField
                                             control={form.control}
                                             name="isAdvisory"

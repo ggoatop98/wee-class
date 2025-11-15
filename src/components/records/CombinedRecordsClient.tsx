@@ -6,7 +6,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { collection, onSnapshot, query, where, doc, deleteDoc, getDocs, writeBatch } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import type { CounselingLog, PsychologicalTest, CombinedRecord, Student } from "@/types";
+import type { CounselingLog, PsychologicalTest, CombinedRecord, Student, CounselingDivision } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
@@ -82,11 +82,13 @@ export default function CombinedRecordsClient() {
         middleCategory = '개인상담';
       }
 
-      let counselingDivision = '';
+      let counselingDivision: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | '' = '';
       if (middleCategory === '교원자문') {
         counselingDivision = '기타';
       } else if (middleCategory === '학부모상담') {
         counselingDivision = '학생관련상담';
+      } else if (log.counselingDivision) {
+        counselingDivision = log.counselingDivision;
       }
 
       return {
