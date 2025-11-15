@@ -222,32 +222,18 @@ export default function CombinedRecordsClient() {
 
     const dataToExport = recordsToDownload.map(record => {
       const studentInfo = studentsMap.get(record.studentId);
-      
       const recordDate = new Date(record.date);
-
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const totalDuration = record.duration || 40;
       const hours = Math.floor(totalDuration / 60);
       const minutes = totalDuration % 60;
       const endTime = addMinutes(startTime, totalDuration);
       
-      let 대분류 = record.type;
-      let 중분류 = record.middleCategory || '';
-      
-      let 상담구분 = record.counselingDivision || '';
-      let 상담내용 = record.type === '상담' ? record.details : '';
-      let 상담인원 = 1 + (record.coCounselees?.length || 0);
-      
-      if (record.type === '검사') {
-        대분류 = '검사';
-        중분류 = '심리검사';
-        상담구분 = '개인심리검사';
-        상담내용 = ''; // 검사 내용은 엑셀에 포함되지 않음
-      }
-      
-      if (record.isAdvisory) {
-        상담구분 = record.advisoryField || '기타';
-      }
+      const 대분류 = record.type;
+      const 중분류 = record.middleCategory || '';
+      const 상담구분 = record.counselingDivision || '';
+      const 상담내용 = record.type === '상담' ? record.details : '';
+      const 상담인원 = 1 + (record.coCounselees?.length || 0);
 
       return {
         '상담분류': '전문상담',
@@ -326,3 +312,4 @@ export default function CombinedRecordsClient() {
     
 
     
+
