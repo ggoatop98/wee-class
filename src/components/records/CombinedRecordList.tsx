@@ -36,7 +36,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                 <TableHead className="text-base">날짜</TableHead>
                 <TableHead className="text-base">시간</TableHead>
                 <TableHead className="text-base">내담자</TableHead>
-                <TableHead className="text-base">구분</TableHead>
+                <TableHead className="text-base">대분류</TableHead>
                 <TableHead className="text-base">중분류</TableHead>
                 <TableHead className="text-base">상담구분</TableHead>
                 <TableHead className="text-base">상담매체</TableHead>
@@ -70,7 +70,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
             <TableHead className="w-[150px] text-base">날짜</TableHead>
             <TableHead className="w-[120px] text-base">시간</TableHead>
             <TableHead className="w-[150px] text-base">내담자</TableHead>
-            <TableHead className="w-[100px] text-base">구분</TableHead>
+            <TableHead className="w-[100px] text-base">대분류</TableHead>
             <TableHead className="w-[120px] text-base">중분류</TableHead>
             <TableHead className="w-[120px] text-base">상담구분</TableHead>
             <TableHead className="w-[120px] text-base">상담매체</TableHead>
