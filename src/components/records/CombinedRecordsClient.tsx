@@ -238,9 +238,12 @@ export default function CombinedRecordsClient() {
       const gender = studentInfo?.gender || '';
       const counselingDivisionText = 상담구분 || '';
 
-      const 상담내용 = record.type === '상담'
-          ? `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`
-          : record.details;
+      let 상담내용 = record.details || '';
+      if (record.type === '상담') {
+          상담내용 = `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`;
+      } else if (record.type === '자문') {
+          상담내용 = "학생 정서, 적응행동 관련 교원 자문";
+      }
 
       const 상담인원 = 1 + (record.coCounselees?.length || 0);
 
@@ -317,3 +320,5 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
+
+    
