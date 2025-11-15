@@ -92,9 +92,9 @@ export default function CombinedRecordsClient() {
 
     const allRecords = [...logsAsRecords, ...testsAsRecords];
     allRecords.sort((a, b) => {
-      const dateComparison = b.date.localeCompare(a.date);
+      const dateComparison = a.date.localeCompare(b.date);
       if (dateComparison !== 0) return dateComparison;
-      if (a.time && b.time) return b.time.localeCompare(a.time);
+      if (a.time && b.time) return a.time.localeCompare(b.time);
       return 0;
     });
 
