@@ -150,7 +150,8 @@ export default function CombinedRecordsClient() {
 
     const dataToExport = recordsToDownload.map(record => {
       const studentInfo = studentsMap.get(record.studentId);
-      const recordDate = new Date(`${record.date}T00:00:00`); // Avoid timezone issues
+      const recordDate = new Date(record.date);
+      recordDate.setMinutes(recordDate.getMinutes() + recordDate.getTimezoneOffset());
       
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const endTime = addMinutes(startTime, 40);
