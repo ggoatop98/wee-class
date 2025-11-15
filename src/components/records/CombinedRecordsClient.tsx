@@ -88,6 +88,7 @@ export default function CombinedRecordsClient() {
       type: '검사',
       originalId: test.id,
       details: test.testName,
+      duration: test.testDuration,
     }));
 
     const allRecords = [...logsAsRecords, ...testsAsRecords];

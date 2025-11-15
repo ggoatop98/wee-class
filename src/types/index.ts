@@ -73,6 +73,7 @@ export interface PsychologicalTest {
     testName: string;
     testDate: string; // yyyy-MM-dd
     testTime?: string; // HH:mm
+    testDuration?: number; // in minutes
     results: string; // Can be rich text
     createdAt: Timestamp;
     updatedAt: Timestamp;

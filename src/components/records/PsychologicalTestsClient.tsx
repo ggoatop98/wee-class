@@ -67,7 +67,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
         setSelectedTest(null);
     };
 
-    const handleSave = async (data: { testName: string; testDate: string; testHour: string; testMinute: string; results: string }) => {
+    const handleSave = async (data: { testName: string; testDate: string; testHour: string; testMinute: string; testDuration: number; results: string; }) => {
         if (!user) {
             toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
             return;
@@ -80,6 +80,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
             testName: data.testName,
             testDate: data.testDate,
             testTime: `${data.testHour}:${data.testMinute}`,
+            testDuration: data.testDuration,
             results: data.results,
             updatedAt: Timestamp.now(),
         };

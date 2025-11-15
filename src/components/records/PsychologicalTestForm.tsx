@@ -26,6 +26,7 @@ const testSchema = z.object({
   testDate: z.date({ required_error: '검사일을 선택해주세요.' }),
   testHour: z.string().min(1, '시간을 선택해주세요.'),
   testMinute: z.string().min(1, '분을 선택해주세요.'),
+  testDuration: z.coerce.number().optional(),
   results: z.string().min(1, '검사 결과를 입력해주세요.'),
 });
 
@@ -48,6 +49,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
             testDate: new Date(),
             testHour: '13',
             testMinute: '00',
+            testDuration: 40,
             results: '',
         },
     });
@@ -60,6 +62,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                 testDate: initialData.testDate ? parseISO(initialData.testDate) : new Date(),
                 testHour: hour,
                 testMinute: minute,
+                testDuration: initialData.testDuration || 40,
                 results: initialData.results || '',
             });
         } else {
@@ -68,6 +71,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                 testDate: new Date(),
                 testHour: '13',
                 testMinute: '00',
+                testDuration: 40,
                 results: '',
             });
         }
@@ -99,7 +103,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">내담자명</td>
                                 <td style="border: 1px solid #ccc; padding: 8px;">${studentName}</td>
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">검사일시</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.testDate, "yyyy-MM-dd")} ${data.testHour}:${data.testMinute}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.testDate, "yyyy-MM-dd")} ${data.testHour}:${data.testMinute} (${data.testDuration}분)</td>
                             </tr>
                              <tr>
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">검사명</td>
@@ -179,7 +183,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                             <FormMessage />
                         </FormItem>
                         )}/>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-2">
                             <FormField control={form.control} name="testHour" render={({ field }) => (
                                 <FormItem><FormLabel>시간</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
@@ -198,6 +202,17 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                 </SelectTrigger></FormControl><SelectContent>
                                     {['00', '10', '20', '30', '40', '50'].map(min => (
                                         <SelectItem key={min} value={min}>{min}</SelectItem>
+                                    ))}
+                                </SelectContent></Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                             <FormField control={form.control} name="testDuration" render={({ field }) => (
+                                <FormItem><FormLabel>진행시간</FormLabel>
+                                <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={String(field.value ?? '')}><FormControl><SelectTrigger>
+                                    <SelectValue placeholder="분" />
+                                </SelectTrigger></FormControl><SelectContent>
+                                    {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(min => (
+                                        <SelectItem key={min} value={String(min)}>{min}분</SelectItem>
                                     ))}
                                 </SelectContent></Select>
                                 <FormMessage /></FormItem>
