@@ -156,13 +156,24 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
             </PageHeader>
             <Form {...form}>
                 <form id="psychological-test-form" onSubmit={form.handleSubmit(handleSaveClick)} className="space-y-4 flex-grow flex flex-col">
-                    <div className="md:w-1/3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField control={form.control} name="testName" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>검사명</FormLabel>
                                 <FormControl><Input placeholder="예: HTP 검사" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
+                        )}/>
+                        <FormField control={form.control} name="testMethod" render={({ field }) => (
+                            <FormItem><FormLabel>방식</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value ?? '면담'}><FormControl><SelectTrigger>
+                                <SelectValue placeholder="방식" />
+                            </SelectTrigger></FormControl><SelectContent>
+                                <SelectItem value="면담">면담</SelectItem>
+                                <SelectItem value="전화상담">전화상담</SelectItem>
+                                <SelectItem value="사이버상담">사이버상담</SelectItem>
+                            </SelectContent></Select>
+                            <FormMessage /></FormItem>
                         )}/>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,7 +199,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                             <FormMessage />
                         </FormItem>
                         )}/>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                             <FormField control={form.control} name="testHour" render={({ field }) => (
                                 <FormItem><FormLabel>시간</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
@@ -219,17 +230,6 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                     {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(min => (
                                         <SelectItem key={min} value={String(min)}>{min}분</SelectItem>
                                     ))}
-                                </SelectContent></Select>
-                                <FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="testMethod" render={({ field }) => (
-                                <FormItem><FormLabel>방식</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value ?? '면담'}><FormControl><SelectTrigger>
-                                    <SelectValue placeholder="방식" />
-                                </SelectTrigger></FormControl><SelectContent>
-                                    <SelectItem value="면담">면담</SelectItem>
-                                    <SelectItem value="전화상담">전화상담</SelectItem>
-                                    <SelectItem value="사이버상담">사이버상담</SelectItem>
                                 </SelectContent></Select>
                                 <FormMessage /></FormItem>
                             )}/>
