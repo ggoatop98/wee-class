@@ -170,7 +170,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                       <div>
                                                         <div className="flex items-center gap-2 mb-1">
                                                           <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
-                                                          {log.isAdvisory && <Badge variant="secondary">자문</Badge>}
+                                                          {log.isAdvisory && <Badge variant="outline">자문</Badge>}
                                                           {log.isParentCounseling && <Badge variant="destructive">학부모</Badge>}
                                                         </div>
                                                         <p className="text-sm text-muted-foreground">{truncate(log.mainIssues, 20)}</p>
@@ -227,5 +227,3 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         </>
     );
 }
-
-    
