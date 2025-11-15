@@ -84,7 +84,10 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                 <TableCell className="text-base">{item.time || '-'}</TableCell>
                 <TableCell className="font-medium text-base">{item.studentName}</TableCell>
                 <TableCell className="text-base">
-                   <Badge variant={(item.type === '상담' || item.type === '자문') ? 'secondary' : 'default'} className="text-sm">
+                   <Badge 
+                        variant={item.type === '자문' ? 'outline' : (item.type === '상담' ? 'secondary' : 'default')} 
+                        className="text-sm"
+                    >
                         {item.type}
                     </Badge>
                 </TableCell>
