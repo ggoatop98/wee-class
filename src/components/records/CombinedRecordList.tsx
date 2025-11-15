@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -94,7 +95,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                         {item.type}
                     </Badge>
                 </TableCell>
-                <TableCell className="text-base"></TableCell>
+                <TableCell className="text-base">{item.middleCategory || ''}</TableCell>
                 <TableCell className="text-base"></TableCell>
                 <TableCell className="text-right">
                    <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>

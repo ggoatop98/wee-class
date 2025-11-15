@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
@@ -67,21 +68,37 @@ export default function CombinedRecordsClient() {
   }, [user]);
 
   const combinedRecords: CombinedRecord[] = useMemo(() => {
-    const logsAsRecords: CombinedRecord[] = counselingLogs.map(log => ({
-      id: `log-${log.id}`,
-      studentId: log.studentId,
-      studentName: log.studentName,
-      date: log.counselingDate,
-      time: log.counselingTime,
-      type: log.isAdvisory ? '자문' : '상담',
-      originalId: log.id,
-      details: log.mainIssues,
-      duration: log.counselingDuration,
-      counselingMethod: log.counselingMethod,
-      isAdvisory: log.isAdvisory,
-      isParentCounseling: log.isParentCounseling,
-      coCounselees: log.coCounselees,
-    }));
+    const logsAsRecords: CombinedRecord[] = counselingLogs.map(log => {
+      let middleCategory = '';
+      const counseleeCount = 1 + (log.coCounselees?.length || 0);
+
+      if (log.isParentCounseling) {
+        middleCategory = '학부모상담';
+      } else if (log.isAdvisory) {
+        middleCategory = '교원자문';
+      } else if (counseleeCount > 1) {
+        middleCategory = '집단상담';
+      } else {
+        middleCategory = '개인상담';
+      }
+
+      return {
+        id: `log-${log.id}`,
+        studentId: log.studentId,
+        studentName: log.studentName,
+        date: log.counselingDate,
+        time: log.counselingTime,
+        type: log.isAdvisory ? '자문' : '상담',
+        middleCategory,
+        originalId: log.id,
+        details: log.mainIssues,
+        duration: log.counselingDuration,
+        counselingMethod: log.counselingMethod,
+        isAdvisory: log.isAdvisory,
+        isParentCounseling: log.isParentCounseling,
+        coCounselees: log.coCounselees,
+      }
+    });
 
     const testsAsRecords: CombinedRecord[] = psychologicalTests.map(test => ({
       id: `test-${test.id}`,
@@ -90,6 +107,7 @@ export default function CombinedRecordsClient() {
       date: test.testDate,
       time: test.testTime,
       type: '검사',
+      middleCategory: '심리검사',
       originalId: test.id,
       details: test.testName,
       duration: test.testDuration,
@@ -184,11 +202,10 @@ export default function CombinedRecordsClient() {
       const endTime = addMinutes(startTime, totalDuration);
       
       let 대분류 = record.type;
-      let 중분류 = '';
+      let 중분류 = record.middleCategory || '';
       if(record.isAdvisory) 중분류 = '교원자문';
       else if(record.isParentCounseling) 중분류 = '학부모상담';
-      else 중분류 = '개인상담';
-
+      
       let 상담구분 = record.isAdvisory ? '기타' : (studentInfo?.counselingField || '');
       let 상담내용 = record.type === '상담' ? record.details : '';
       let 상담인원 = 1 + (record.coCounselees?.length || 0);

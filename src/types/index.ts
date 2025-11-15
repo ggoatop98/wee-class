@@ -1,4 +1,5 @@
 
+
 import type { Timestamp } from 'firebase/firestore';
 
 export type StudentStatus = '상담중' | '종결';
@@ -117,6 +118,7 @@ export interface CombinedRecord {
     date: string;
     time?: string;
     type: CombinedRecordType;
+    middleCategory?: string;
     originalId: string;
     details: string; // For display, e.g., counseling main issues or test name
     duration?: number;
