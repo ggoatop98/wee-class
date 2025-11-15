@@ -83,10 +83,28 @@ export default function CombinedRecordsClient() {
       }
 
       let counselingDivision: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | string | undefined = '';
+      
       if (middleCategory === '교원자문') {
         counselingDivision = log.advisoryField;
       } else if (middleCategory === '학부모상담') {
         counselingDivision = '학생관련상담';
+      } else if (middleCategory === '집단상담') {
+        switch (log.counselingDivision) {
+          case '진로':
+            counselingDivision = '진로';
+            break;
+          case '성격':
+          case '대인관계':
+            counselingDivision = '성격/대인관계';
+            break;
+          case '학교폭력 가해':
+          case '학교폭력 피해':
+            counselingDivision = '학교폭력';
+            break;
+          default:
+            counselingDivision = '기타';
+            break;
+        }
       } else if (log.counselingDivision) {
         counselingDivision = log.counselingDivision;
       }
@@ -303,5 +321,7 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
+
+    
 
     
