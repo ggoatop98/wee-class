@@ -232,7 +232,16 @@ export default function CombinedRecordsClient() {
       const 대분류 = record.type;
       const 중분류 = record.middleCategory || '';
       const 상담구분 = record.counselingDivision || '';
-      const 상담내용 = record.type === '상담' ? record.details : '';
+      const 상담매체 = record.counselingMethod || '면담';
+
+      const grade = studentInfo?.class.split('-')[0] ? `${studentInfo.class.split('-')[0]}학년` : '';
+      const gender = studentInfo?.gender || '';
+      const counselingDivisionText = 상담구분 || '';
+
+      const 상담내용 = record.type === '상담'
+          ? `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`
+          : record.details;
+
       const 상담인원 = 1 + (record.coCounselees?.length || 0);
 
       return {
@@ -244,14 +253,14 @@ export default function CombinedRecordsClient() {
         '상담인원': 상담인원,
         '학년도': recordDate.getFullYear(),
         '상담일자': format(recordDate, 'yyyyMMdd'),
-        '학년': studentInfo?.class.split('-')[0] + '학년' || '',
-        '성별': studentInfo?.gender || '',
+        '학년': grade,
+        '성별': gender,
         '상담제목': '',
         '상담내용': 상담내용, 
         '상담시간(시)': hours > 0 ? hours : '',
         '상담시간(분)': minutes,
         '상담사소속': '전문상담교사',
-        '상담매체구분': record.counselingMethod || '면담',
+        '상담매체구분': 상담매체,
         '': '', // Empty Q column
         '상담시작시각': record.time ? format(startTime, 'yyyy. MM. dd. HH:mm') : '',
         '상담종료시각': record.time ? format(endTime, 'yyyy. MM. dd. HH:mm') : '',
@@ -308,8 +317,3 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
-
-    
-
-    
-
