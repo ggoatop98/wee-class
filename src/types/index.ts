@@ -122,7 +122,7 @@ export interface CombinedRecord {
     time?: string;
     type: CombinedRecordType;
     middleCategory?: string;
-    counselingDivision?: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | '';
+    counselingDivision?: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | string;
     originalId: string;
     details: string; // For display, e.g., counseling main issues or test name
     duration?: number;

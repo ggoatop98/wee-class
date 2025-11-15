@@ -82,9 +82,9 @@ export default function CombinedRecordsClient() {
         middleCategory = '개인상담';
       }
 
-      let counselingDivision: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | '' = '';
+      let counselingDivision: CounselingDivision | '기타' | '학생관련상담' | '개인심리검사' | string | undefined = '';
       if (middleCategory === '교원자문') {
-        counselingDivision = '기타';
+        counselingDivision = log.advisoryField;
       } else if (middleCategory === '학부모상담') {
         counselingDivision = '학생관련상담';
       } else if (log.counselingDivision) {
@@ -227,7 +227,7 @@ export default function CombinedRecordsClient() {
       }
       
       if (record.isAdvisory) {
-        상담구분 = '기타';
+        상담구분 = record.advisoryField || '기타';
       }
 
       return {
