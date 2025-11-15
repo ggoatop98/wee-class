@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { CounselingLog, CounselingMethod } from '@/types';
+import type { CounselingLog } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,6 +21,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '../PageHeader';
+import { Checkbox } from '../ui/checkbox';
 
 
 const logSchema = z.object({
@@ -29,6 +30,7 @@ const logSchema = z.object({
   counselingMinute: z.string().min(1, '분을 선택해주세요.'),
   counselingDuration: z.coerce.number().optional(),
   counselingMethod: z.enum(['면담', '전화상담', '사이버상담']).optional(),
+  isAdvisory: z.boolean().optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
@@ -58,6 +60,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingMinute: '00',
             counselingDuration: 40,
             counselingMethod: '면담',
+            isAdvisory: false,
             mainIssues: '',
             therapistComments: '',
             counselingGoals: '',
@@ -75,6 +78,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingMinute: minute || '00',
                 counselingDuration: log.counselingDuration || 40,
                 counselingMethod: log.counselingMethod || '면담',
+                isAdvisory: log.isAdvisory || false,
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
                 counselingGoals: log.counselingGoals,
@@ -88,6 +92,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingMinute: '00',
                 counselingDuration: 40,
                 counselingMethod: '면담',
+                isAdvisory: false,
                 mainIssues: '',
                 therapistComments: '',
                 counselingGoals: '',
@@ -108,6 +113,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingTime: `${data.counselingHour}:${data.counselingMinute}`,
             counselingDuration: data.counselingDuration,
             counselingMethod: data.counselingMethod,
+            isAdvisory: data.isAdvisory,
             mainIssues: data.mainIssues,
             therapistComments: data.therapistComments || '',
             counselingGoals: data.counselingGoals || '',
@@ -191,10 +197,10 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                                 <FormControl>
                                                     <Button
                                                     variant={"outline"}
-                                                    className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                                    className={cn("w-full pl-3 text-left font-normal justify-start", !field.value && "text-muted-foreground")}
                                                     >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
                                                     {field.value ? format(field.value, "PPP", { locale: ko }) : <span>날짜 선택</span>}
-                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                                     </Button>
                                                 </FormControl>
                                                 </PopoverTrigger>
@@ -254,7 +260,27 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 </div>
                             </div>
                             <FormField control={form.control} name="mainIssues" render={({ field }) => (
-                                <FormItem><FormLabel>상담 내용</FormLabel><FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} /></FormControl><FormMessage /></FormItem>
+                                <FormItem>
+                                    <div className="flex items-center gap-4">
+                                        <FormLabel>상담 내용</FormLabel>
+                                        <FormField
+                                            control={form.control}
+                                            name="isAdvisory"
+                                            render={({ field: advisoryField }) => (
+                                                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                                    <FormControl>
+                                                        <Checkbox
+                                                            checked={advisoryField.value}
+                                                            onCheckedChange={advisoryField.onChange}
+                                                        />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">자문</FormLabel>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} /></FormControl><FormMessage />
+                                </FormItem>
                             )}/>
                              <FormField control={form.control} name="therapistComments" render={({ field }) => (
                                 <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} /></FormControl><FormMessage /></FormItem>

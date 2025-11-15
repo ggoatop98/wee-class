@@ -47,6 +47,7 @@ export interface CounselingLog {
   counselingTime: string; // HH:mm
   counselingDuration?: number; // in minutes
   counselingMethod?: CounselingMethod;
+  isAdvisory?: boolean; // 자문 여부
   mainIssues: string;
   counselingGoals?: string;
   sessionContent?: string;
@@ -112,4 +113,5 @@ export interface CombinedRecord {
     details: string; // For display, e.g., counseling main issues or test name
     duration?: number;
     counselingMethod?: CounselingMethod;
+    isAdvisory?: boolean;
 }

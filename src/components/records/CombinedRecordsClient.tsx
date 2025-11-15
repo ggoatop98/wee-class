@@ -76,7 +76,8 @@ export default function CombinedRecordsClient() {
       originalId: log.id,
       details: log.mainIssues,
       duration: log.counselingDuration,
-      counselingMethod: log.counselingMethod
+      counselingMethod: log.counselingMethod,
+      isAdvisory: log.isAdvisory,
     }));
 
     const testsAsRecords: CombinedRecord[] = psychologicalTests.map(test => ({
@@ -167,7 +168,7 @@ export default function CombinedRecordsClient() {
         '상담분류': '전문상담',
         'Wee클래스': 'Wee클래스',
         '대분류': record.type,
-        '중분류': '개인상담', 
+        '중분류': record.type === '상담' && record.isAdvisory ? '교원자문' : '개인상담', 
         '상담구분': studentInfo?.counselingField || '',
         '상담인원': 1,
         '학년도': recordDate.getFullYear(),
