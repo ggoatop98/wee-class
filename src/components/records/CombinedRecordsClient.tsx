@@ -5,12 +5,13 @@ import React, { useState, useEffect, useMemo } from "react";
 import { collection, onSnapshot, query, where, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import type { CounselingLog, PsychologicalTest, CombinedRecord } from "@/types";
+import type { CounselingLog, PsychologicalTest, CombinedRecord, Student } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 
 import { PageHeader } from "../PageHeader";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ export default function CombinedRecordsClient() {
   const { user } = useAuth();
   const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
   const [psychologicalTests, setPsychologicalTests] = useState<PsychologicalTest[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
@@ -45,12 +47,20 @@ export default function CombinedRecordsClient() {
       setPsychologicalTests(testsData);
     });
 
+    const studentsQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+    const unsubStudents = onSnapshot(studentsQuery, (snapshot) => {
+        const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
+        setStudents(studentsData);
+    });
+
+
     // Initial loading finished after both snapshots are active
     const timer = setTimeout(() => setLoading(false), 500);
 
     return () => {
       unsubLogs();
       unsubTests();
+      unsubStudents();
       clearTimeout(timer);
     };
   }, [user]);
@@ -120,6 +130,8 @@ export default function CombinedRecordsClient() {
         return;
     }
 
+    const studentsMap = new Map(students.map(s => [s.id, s]));
+
     const recordsToDownload = filteredRecords.filter(record => {
         const recordDate = new Date(record.date);
         return recordDate >= dateRange.from! && recordDate <= dateRange.to!;
@@ -134,25 +146,45 @@ export default function CombinedRecordsClient() {
       return;
     }
 
-    const dataToExport = recordsToDownload.map(record => ({
-      '날짜': record.date,
-      '시간': record.time || '',
-      '내담자': record.studentName,
-      '구분': record.type,
-      '내용': record.details
-    }));
+    const dataToExport = recordsToDownload.map(record => {
+      const studentInfo = studentsMap.get(record.studentId);
+      const recordDate = new Date(record.date);
+      const [hour, minute] = record.time ? record.time.split(':') : ['',''];
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      return {
+        '상담분류': '전문상담',
+        '기관명': 'Wee클래스',
+        '대분류': record.type,
+        '중분류': '개인상담', // Assuming it's always individual for now
+        '상담구분': studentInfo?.counselingField || '',
+        '상담인원': 1,
+        '학년도': recordDate.getFullYear(),
+        '상담일자': format(recordDate, 'yyyyMMdd'),
+        '학년': studentInfo?.class.split('-')[0] + '학년' || '',
+        '성별': studentInfo?.gender || '',
+        '상담제목': record.details,
+        '상담내용': record.type === '상담' ? record.details : '', // Assuming 'details' is counseling content for '상담' type
+        '상담시간(시)': hour ? parseInt(hour, 10) : '',
+        '상담시간(분)': minute ? parseInt(minute, 10) : '',
+        '상담사소속': '전문상담교사',
+        '상담매체구분': '면담',
+        '': '', // Empty Q column
+        '상담시작시각': record.time ? `${format(recordDate, 'yyyy. MM. dd.')} ${record.time}` : '',
+        '상담종료시각': '', // This data is not available
+      }
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport, {
+      header: ['상담분류', '기관명', '대분류', '중분류', '상담구분', '상담인원', '학년도', '상담일자', '학년', '성별', '상담제목', '상담내용', '상담시간(시)', '상담시간(분)', '상담사소속', '상담매체구분', '', '상담시작시각', '상담종료시각']
+    });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "상담 기록");
     
     // Column widths
     worksheet['!cols'] = [
-        { wch: 12 }, // 날짜
-        { wch: 10 }, // 시간
-        { wch: 15 }, // 내담자
-        { wch: 12 }, // 구분
-        { wch: 50 }  // 내용
+        { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
+        { wch: 10 }, { wch: 8 }, { wch: 6 }, { wch: 20 }, { wch: 30 }, { wch: 10 }, { wch: 10 },
+        { wch: 15 }, { wch: 12 }, {wch: 2}, { wch: 20 }, { wch: 20 }
     ];
 
     const today = new Date().toISOString().slice(0, 10);
