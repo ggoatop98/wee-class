@@ -19,6 +19,7 @@ import CounselingLogForm from '@/components/records/CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Badge } from '../ui/badge';
 
 interface RecordsClientProps {
     studentId: string;
@@ -150,7 +151,10 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                 >
                                                     <div className="flex justify-between items-start">
                                                       <div>
-                                                        <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                          <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
+                                                          {log.isAdvisory && <Badge variant="outline">자문</Badge>}
+                                                        </div>
                                                         <p className="text-sm text-muted-foreground">{truncate(log.mainIssues, 20)}</p>
                                                       </div>
                                                         <AlertDialog>
