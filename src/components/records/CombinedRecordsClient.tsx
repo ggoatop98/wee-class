@@ -132,9 +132,11 @@ export default function CombinedRecordsClient() {
 
     const studentsMap = new Map(students.map(s => [s.id, s]));
 
+    const fromDateStr = format(dateRange.from, 'yyyy-MM-dd');
+    const toDateStr = format(dateRange.to, 'yyyy-MM-dd');
+
     const recordsToDownload = filteredRecords.filter(record => {
-        const recordDate = new Date(record.date);
-        return recordDate >= dateRange.from! && recordDate <= dateRange.to!;
+        return record.date >= fromDateStr && record.date <= toDateStr;
     });
     
     if (recordsToDownload.length === 0) {
@@ -150,7 +152,7 @@ export default function CombinedRecordsClient() {
       const studentInfo = studentsMap.get(record.studentId);
       const recordDate = new Date(`${record.date}T00:00:00`); // Avoid timezone issues
       
-      const startTime = new Date(`${record.date}T${record.time || '00:00:00'}`);
+      const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const endTime = addMinutes(startTime, 40);
 
       return {
