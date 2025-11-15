@@ -87,6 +87,7 @@ export interface PsychologicalTest {
     testDate: string; // yyyy-MM-dd
     testTime?: string; // HH:mm
     testDuration?: number; // in minutes
+    testMethod?: CounselingMethod;
     results: string; // Can be rich text
     createdAt: Timestamp;
     updatedAt: Timestamp;

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -17,7 +18,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { PsychologicalTest } from '@/types';
+import type { PsychologicalTest, CounselingMethod } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 
@@ -27,6 +28,7 @@ const testSchema = z.object({
   testHour: z.string().min(1, '시간을 선택해주세요.'),
   testMinute: z.string().min(1, '분을 선택해주세요.'),
   testDuration: z.coerce.number().optional(),
+  testMethod: z.enum(['면담', '전화상담', '사이버상담']).optional(),
   results: z.string().min(1, '검사 결과를 입력해주세요.'),
 });
 
@@ -50,6 +52,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
             testHour: '13',
             testMinute: '00',
             testDuration: 40,
+            testMethod: '면담',
             results: '',
         },
     });
@@ -63,6 +66,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                 testHour: hour,
                 testMinute: minute,
                 testDuration: initialData.testDuration || 40,
+                testMethod: initialData.testMethod || '면담',
                 results: initialData.results || '',
             });
         } else {
@@ -72,6 +76,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                 testHour: '13',
                 testMinute: '00',
                 testDuration: 40,
+                testMethod: '면담',
                 results: '',
             });
         }
@@ -183,7 +188,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                             <FormMessage />
                         </FormItem>
                         )}/>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-4 gap-2">
                             <FormField control={form.control} name="testHour" render={({ field }) => (
                                 <FormItem><FormLabel>시간</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
@@ -214,6 +219,17 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                     {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(min => (
                                         <SelectItem key={min} value={String(min)}>{min}분</SelectItem>
                                     ))}
+                                </SelectContent></Select>
+                                <FormMessage /></FormItem>
+                            )}/>
+                            <FormField control={form.control} name="testMethod" render={({ field }) => (
+                                <FormItem><FormLabel>방식</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value ?? '면담'}><FormControl><SelectTrigger>
+                                    <SelectValue placeholder="방식" />
+                                </SelectTrigger></FormControl><SelectContent>
+                                    <SelectItem value="면담">면담</SelectItem>
+                                    <SelectItem value="전화상담">전화상담</SelectItem>
+                                    <SelectItem value="사이버상담">사이버상담</SelectItem>
                                 </SelectContent></Select>
                                 <FormMessage /></FormItem>
                             )}/>

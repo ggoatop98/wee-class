@@ -140,6 +140,7 @@ export default function CombinedRecordsClient() {
       originalId: test.id,
       details: test.testName,
       duration: test.testDuration,
+      counselingMethod: test.testMethod,
     }));
 
     const allRecords = [...logsAsRecords, ...testsAsRecords];

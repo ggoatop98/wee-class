@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -67,7 +68,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
         setSelectedTest(null);
     };
 
-    const handleSave = async (data: { testName: string; testDate: string; testHour: string; testMinute: string; testDuration: number; results: string; }) => {
+    const handleSave = async (data: { testName: string; testDate: string; testHour: string; testMinute: string; testDuration: number | undefined; testMethod: "면담" | "전화상담" | "사이버상담" | undefined; results: string; }) => {
         if (!user) {
             toast({ variant: 'destructive', title: '오류', description: '로그인이 필요합니다.' });
             return;
@@ -81,6 +82,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
             testDate: data.testDate,
             testTime: `${data.testHour}:${data.testMinute}`,
             testDuration: data.testDuration,
+            testMethod: data.testMethod,
             results: data.results,
             updatedAt: Timestamp.now(),
         };
