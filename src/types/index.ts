@@ -53,6 +53,7 @@ export interface CounselingLog {
   counselingDuration?: number; // in minutes
   counselingMethod?: CounselingMethod;
   isAdvisory?: boolean; // 자문 여부
+  isParentCounseling?: boolean; // 학부모상담 여부
   advisoryField?: '학교학습' | '사회성발달' | '정서발달' | '진로발달' | '행동발달' | '기타';
   mainIssues: string;
   counselingGoals?: string;
@@ -121,5 +122,8 @@ export interface CombinedRecord {
     duration?: number;
     counselingMethod?: CounselingMethod;
     isAdvisory?: boolean;
+    isParentCounseling?: boolean;
     coCounselees?: CoCounselee[];
 }
+
+    

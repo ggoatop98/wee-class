@@ -79,6 +79,7 @@ export default function CombinedRecordsClient() {
       duration: log.counselingDuration,
       counselingMethod: log.counselingMethod,
       isAdvisory: log.isAdvisory,
+      isParentCounseling: log.isParentCounseling,
       coCounselees: log.coCounselees,
     }));
 
@@ -183,7 +184,11 @@ export default function CombinedRecordsClient() {
       const endTime = addMinutes(startTime, totalDuration);
       
       let 대분류 = record.type;
-      let 중분류 = record.isAdvisory ? '교원자문' : '개인상담';
+      let 중분류 = '';
+      if(record.isAdvisory) 중분류 = '교원자문';
+      else if(record.isParentCounseling) 중분류 = '학부모상담';
+      else 중분류 = '개인상담';
+
       let 상담구분 = record.isAdvisory ? '기타' : (studentInfo?.counselingField || '');
       let 상담내용 = record.type === '상담' ? record.details : '';
       let 상담인원 = 1 + (record.coCounselees?.length || 0);
@@ -269,3 +274,5 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
+
+    

@@ -103,6 +103,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                 ...data, 
                 counselingMethod: data.counselingMethod || '면담',
                 isAdvisory: data.isAdvisory || false,
+                isParentCounseling: data.isParentCounseling || false,
                 advisoryField: data.isAdvisory ? (data.advisoryField || '기타') : '',
                 coCounselees: data.coCounselees || [],
             };
@@ -170,6 +171,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                         <div className="flex items-center gap-2 mb-1">
                                                           <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
                                                           {log.isAdvisory && <Badge variant="secondary">자문</Badge>}
+                                                          {log.isParentCounseling && <Badge variant="destructive">학부모</Badge>}
                                                         </div>
                                                         <p className="text-sm text-muted-foreground">{truncate(log.mainIssues, 20)}</p>
                                                       </div>
@@ -225,3 +227,5 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         </>
     );
 }
+
+    

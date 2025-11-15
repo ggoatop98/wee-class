@@ -33,6 +33,7 @@ const logSchema = z.object({
   counselingDuration: z.coerce.number().optional(),
   counselingMethod: z.enum(['면담', '전화상담', '사이버상담']).optional(),
   isAdvisory: z.boolean().optional(),
+  isParentCounseling: z.boolean().optional(),
   advisoryField: z.enum(['학교학습', '사회성발달', '정서발달', '진로발달', '행동발달', '기타']).optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
@@ -68,6 +69,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
             counselingDuration: 40,
             counselingMethod: '면담',
             isAdvisory: false,
+            isParentCounseling: false,
             advisoryField: '기타',
             mainIssues: '',
             therapistComments: '',
@@ -91,6 +93,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                 counselingDuration: log.counselingDuration || 40,
                 counselingMethod: log.counselingMethod || '면담',
                 isAdvisory: log.isAdvisory || false,
+                isParentCounseling: log.isParentCounseling || false,
                 advisoryField: log.advisoryField || '기타',
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
@@ -107,6 +110,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                 counselingDuration: 40,
                 counselingMethod: '면담',
                 isAdvisory: false,
+                isParentCounseling: false,
                 advisoryField: '기타',
                 mainIssues: '',
                 therapistComments: '',
@@ -141,6 +145,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
             counselingDuration: data.counselingDuration,
             counselingMethod: data.counselingMethod,
             isAdvisory: data.isAdvisory,
+            isParentCounseling: data.isParentCounseling,
             advisoryField: data.advisoryField,
             mainIssues: data.mainIssues,
             therapistComments: data.therapistComments || '',
@@ -365,6 +370,21 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                                                 </FormItem>
                                             )}
                                         />
+                                        <FormField
+                                            control={form.control}
+                                            name="isParentCounseling"
+                                            render={({ field: parentField }) => (
+                                                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                                    <FormControl>
+                                                        <Checkbox
+                                                            checked={parentField.value}
+                                                            onCheckedChange={parentField.onChange}
+                                                        />
+                                                    </FormControl>
+                                                    <FormLabel className="font-normal">학부모상담</FormLabel>
+                                                </FormItem>
+                                            )}
+                                        />
                                          {isAdvisory && (
                                             <FormField control={form.control} name="advisoryField" render={({ field }) => (
                                                 <FormItem className="w-48"><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
@@ -402,4 +422,5 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
     );
 }
 
+    
     
