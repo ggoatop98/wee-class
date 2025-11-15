@@ -185,7 +185,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 <div className="md:col-span-1">
                                     <FormField control={form.control} name="counselingDate" render={({ field }) => (
                                         <FormItem className="flex flex-col justify-end">
-                                            <FormLabel>상담 날짜</FormLabel>
+                                            <FormLabel className="text-center">상담 날짜</FormLabel>
                                             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                                                 <PopoverTrigger asChild>
                                                 <FormControl>
