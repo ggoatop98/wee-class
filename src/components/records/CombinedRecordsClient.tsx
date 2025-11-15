@@ -75,6 +75,7 @@ export default function CombinedRecordsClient() {
       type: '상담',
       originalId: log.id,
       details: log.mainIssues,
+      duration: log.counselingDuration,
     }));
 
     const testsAsRecords: CombinedRecord[] = psychologicalTests.map(test => ({
@@ -136,7 +137,12 @@ export default function CombinedRecordsClient() {
     const toDateStr = format(dateRange.to, 'yyyy-MM-dd');
 
     const recordsToDownload = filteredRecords.filter(record => {
-        return record.date >= fromDateStr && record.date <= toDateStr;
+        const recordDate = new Date(record.date);
+        const fromDate = new Date(dateRange.from!);
+        const toDate = new Date(dateRange.to!);
+        fromDate.setHours(0,0,0,0);
+        toDate.setHours(23,59,59,999);
+        return recordDate >= fromDate && recordDate <= toDate;
     });
     
     if (recordsToDownload.length === 0) {
@@ -154,13 +160,14 @@ export default function CombinedRecordsClient() {
       const recordDate = new Date(record.date + 'T00:00:00');
 
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
-      const endTime = addMinutes(startTime, 40);
+      const duration = record.duration || 40;
+      const endTime = addMinutes(startTime, duration);
 
       return {
         '상담분류': '전문상담',
         'Wee클래스': 'Wee클래스',
         '대분류': record.type,
-        '중분류': '개인상담', // Assuming it's always individual for now
+        '중분류': '개인상담', 
         '상담구분': studentInfo?.counselingField || '',
         '상담인원': 1,
         '학년도': recordDate.getFullYear(),
@@ -168,9 +175,9 @@ export default function CombinedRecordsClient() {
         '학년': studentInfo?.class.split('-')[0] + '학년' || '',
         '성별': studentInfo?.gender || '',
         '상담제목': '',
-        '상담내용': record.type === '상담' ? record.details : '', // Assuming 'details' is counseling content for '상담' type
+        '상담내용': record.type === '상담' ? record.details : '', 
         '상담시간(시)': '',
-        '상담시간(분)': 40,
+        '상담시간(분)': duration,
         '상담사소속': '전문상담교사',
         '상담매체구분': '면담',
         '': '', // Empty Q column

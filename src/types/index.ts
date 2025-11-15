@@ -43,6 +43,7 @@ export interface CounselingLog {
   studentName:string;
   counselingDate: string; // yyyy-MM-dd
   counselingTime: string; // HH:mm
+  counselingDuration?: number; // in minutes
   mainIssues: string;
   counselingGoals?: string;
   sessionContent?: string;
@@ -105,4 +106,5 @@ export interface CombinedRecord {
     type: CombinedRecordType;
     originalId: string;
     details: string; // For display, e.g., counseling main issues or test name
+    duration?: number;
 }

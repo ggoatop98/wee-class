@@ -27,6 +27,7 @@ const logSchema = z.object({
   counselingDate: z.date({ required_error: '날짜를 선택해주세요.' }),
   counselingHour: z.string().min(1, '시간을 선택해주세요.'),
   counselingMinute: z.string().min(1, '분을 선택해주세요.'),
+  counselingDuration: z.coerce.number().optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
@@ -54,6 +55,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingDate: new Date(),
             counselingHour: '13',
             counselingMinute: '00',
+            counselingDuration: 40,
             mainIssues: '',
             therapistComments: '',
             counselingGoals: '',
@@ -69,6 +71,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingDate: new Date(log.counselingDate),
                 counselingHour: hour || '13',
                 counselingMinute: minute || '00',
+                counselingDuration: log.counselingDuration || 40,
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
                 counselingGoals: log.counselingGoals,
@@ -80,6 +83,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingDate: new Date(),
                 counselingHour: '13',
                 counselingMinute: '00',
+                counselingDuration: 40,
                 mainIssues: '',
                 therapistComments: '',
                 counselingGoals: '',
@@ -98,6 +102,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             studentName,
             counselingDate: format(data.counselingDate, 'yyyy-MM-dd'),
             counselingTime: `${data.counselingHour}:${data.counselingMinute}`,
+            counselingDuration: data.counselingDuration,
             mainIssues: data.mainIssues,
             therapistComments: data.therapistComments || '',
             counselingGoals: data.counselingGoals || '',
@@ -127,7 +132,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">내담자명</td>
                                 <td style="border: 1px solid #ccc; padding: 8px;">${studentName}</td>
                                 <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">상담일시</td>
-                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.counselingDate, "yyyy-MM-dd")} ${data.counselingHour}:${data.counselingMinute}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${format(data.counselingDate, "yyyy-MM-dd")} ${data.counselingHour}:${data.counselingMinute} (${data.counselingDuration}분)</td>
                             </tr>
                         </tbody>
                     </table>
@@ -171,7 +176,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex-grow flex flex-col">
                         <div className="flex-grow space-y-4 overflow-auto p-1">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="counselingDate" render={({ field }) => (
                                 <FormItem className="flex flex-col justify-end">
                                     <FormLabel>상담 날짜</FormLabel>
@@ -195,7 +200,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 </FormItem>
                                 )}/>
                                 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-3 gap-2">
                                     <FormField control={form.control} name="counselingHour" render={({ field }) => (
                                         <FormItem><FormLabel>시간</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
@@ -214,6 +219,17 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                         </SelectTrigger></FormControl><SelectContent>
                                             {['00', '10', '20', '30', '40', '50'].map(min => (
                                                 <SelectItem key={min} value={min}>{min}</SelectItem>
+                                            ))}
+                                        </SelectContent></Select>
+                                        <FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="counselingDuration" render={({ field }) => (
+                                        <FormItem><FormLabel>진행시간</FormLabel>
+                                        <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={String(field.value ?? '')}><FormControl><SelectTrigger>
+                                            <SelectValue placeholder="분" />
+                                        </SelectTrigger></FormControl><SelectContent>
+                                            {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(min => (
+                                                <SelectItem key={min} value={String(min)}>{min}분</SelectItem>
                                             ))}
                                         </SelectContent></Select>
                                         <FormMessage /></FormItem>
