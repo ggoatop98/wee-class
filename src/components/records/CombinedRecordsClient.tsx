@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { DateRange } from "react-day-picker";
-import { format } from "date-fns";
+import { format, addMinutes } from "date-fns";
 
 import { PageHeader } from "../PageHeader";
 import { Input } from "@/components/ui/input";
@@ -148,8 +148,11 @@ export default function CombinedRecordsClient() {
 
     const dataToExport = recordsToDownload.map(record => {
       const studentInfo = studentsMap.get(record.studentId);
-      const recordDate = new Date(record.date);
-      const [hour, minute] = record.time ? record.time.split(':') : ['',''];
+      const recordDate = new Date(`${record.date}T00:00:00`); // Avoid timezone issues
+      const [hour, minute] = record.time ? record.time.split(':') : ['0', '0'];
+
+      const startTime = new Date(`${record.date}T${record.time || '00:00:00'}`);
+      const endTime = addMinutes(startTime, 40);
 
       return {
         '상담분류': '전문상담',
@@ -164,13 +167,13 @@ export default function CombinedRecordsClient() {
         '성별': studentInfo?.gender || '',
         '상담제목': record.details,
         '상담내용': record.type === '상담' ? record.details : '', // Assuming 'details' is counseling content for '상담' type
-        '상담시간(시)': hour ? parseInt(hour, 10) : '',
-        '상담시간(분)': minute ? parseInt(minute, 10) : '',
+        '상담시간(시)': '',
+        '상담시간(분)': 40,
         '상담사소속': '전문상담교사',
         '상담매체구분': '면담',
         '': '', // Empty Q column
-        '상담시작시각': record.time ? `${format(recordDate, 'yyyy. MM. dd.')} ${record.time}` : '',
-        '상담종료시각': '', // This data is not available
+        '상담시작시각': record.time ? format(startTime, 'yyyy. MM. dd. HH:mm') : '',
+        '상담종료시각': record.time ? format(endTime, 'yyyy. MM. dd. HH:mm') : '',
       }
     });
 
