@@ -67,13 +67,13 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[150px] text-base">날짜</TableHead>
-            <TableHead className="w-[120px] text-base">시간</TableHead>
-            <TableHead className="w-[150px] text-base">내담자</TableHead>
-            <TableHead className="w-[100px] text-base">대분류</TableHead>
+            <TableHead className="w-[120px] text-base">날짜</TableHead>
+            <TableHead className="w-[100px] text-base">시간</TableHead>
+            <TableHead className="w-[200px] text-base">내담자</TableHead>
+            <TableHead className="w-[90px] text-base">대분류</TableHead>
             <TableHead className="w-[120px] text-base">중분류</TableHead>
             <TableHead className="w-[120px] text-base">상담구분</TableHead>
-            <TableHead className="w-[120px] text-base">상담매체</TableHead>
+            <TableHead className="w-[100px] text-base">상담매체</TableHead>
             <TableHead className="text-right w-[120px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
