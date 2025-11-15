@@ -158,7 +158,7 @@ export default function CombinedRecordsClient() {
 
       return {
         '상담분류': '전문상담',
-        '기관명': 'Wee클래스',
+        'Wee클래스': 'Wee클래스',
         '대분류': record.type,
         '중분류': '개인상담', // Assuming it's always individual for now
         '상담구분': studentInfo?.counselingField || '',
@@ -180,7 +180,7 @@ export default function CombinedRecordsClient() {
     });
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport, {
-      header: ['상담분류', '기관명', '대분류', '중분류', '상담구분', '상담인원', '학년도', '상담일자', '학년', '성별', '상담제목', '상담내용', '상담시간(시)', '상담시간(분)', '상담사소속', '상담매체구분', '', '상담시작시각', '상담종료시각']
+      header: ['상담분류', 'Wee클래스', '대분류', '중분류', '상담구분', '상담인원', '학년도', '상담일자', '학년', '성별', '상담제목', '상담내용', '상담시간(시)', '상담시간(분)', '상담사소속', '상담매체구분', '', '상담시작시각', '상담종료시각']
     });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "상담 기록");
