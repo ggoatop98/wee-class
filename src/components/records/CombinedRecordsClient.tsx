@@ -183,7 +183,7 @@ export default function CombinedRecordsClient() {
       
       let 대분류 = record.type;
       let 중분류 = record.isAdvisory ? '교원자문' : '개인상담';
-      let 상담구분 = studentInfo?.counselingField || '';
+      let 상담구분 = record.isAdvisory ? '기타' : (studentInfo?.counselingField || '');
       let 상담내용 = record.type === '상담' ? record.details : '';
       
       if (record.type === '검사') {
@@ -268,4 +268,5 @@ export default function CombinedRecordsClient() {
   );
 }
 
+    
     
