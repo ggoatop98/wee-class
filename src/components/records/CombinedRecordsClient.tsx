@@ -85,7 +85,7 @@ export default function CombinedRecordsClient() {
       studentName: test.studentName,
       date: test.testDate,
       time: test.testTime,
-      type: '심리검사',
+      type: '검사',
       originalId: test.id,
       details: test.testName,
     }));
@@ -206,7 +206,7 @@ export default function CombinedRecordsClient() {
 
   return (
     <>
-      <PageHeader title="상담 및 심리검사 목록">
+      <PageHeader title="상담 및 검사 목록">
         <div className="flex items-center gap-2">
             <Input
               type="search"
