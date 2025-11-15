@@ -12,7 +12,7 @@ export interface Student {
   requester?: '학생' | '학부모' | '교사' | '기타';
   status: StudentStatus;
   contact?: string;
-  counselingField?: string;
+  counselingField?: '해당없음' | '일반관심군' | '우선관심군'; // 정서행동특성검사 결과
   memo?: string;
   createdAt: Timestamp;
 }
@@ -48,6 +48,7 @@ export interface CounselingLog {
   counselingDuration?: number; // in minutes
   counselingMethod?: CounselingMethod;
   isAdvisory?: boolean; // 자문 여부
+  advisoryField?: '학교학습' | '사회성발달' | '정서발달' | '진로발달' | '행동발달' | '기타';
   mainIssues: string;
   counselingGoals?: string;
   sessionContent?: string;

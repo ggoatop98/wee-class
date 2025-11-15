@@ -41,7 +41,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
               <TableHead>성별</TableHead>
               <TableHead>의뢰자</TableHead>
               <TableHead>연락처</TableHead>
-              <TableHead>상담분야</TableHead>
+              <TableHead>정서행동특성검사</TableHead>
               <TableHead>상태</TableHead>
               <TableHead className="text-center">작업</TableHead>
             </TableRow>
@@ -75,7 +75,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
             <TableHead className="text-base">성별</TableHead>
             <TableHead className="text-base">의뢰자</TableHead>
             <TableHead className="text-base">연락처</TableHead>
-            <TableHead className="text-base">상담분야</TableHead>
+            <TableHead className="text-base">정서행동특성검사</TableHead>
             <TableHead className="text-base">상태</TableHead>
             <TableHead className="text-center w-[380px] text-base">작업</TableHead>
           </TableRow>

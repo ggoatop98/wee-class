@@ -63,7 +63,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
       status: '상담중',
       requester: '학생',
       contact: '',
-      counselingField: '기타',
+      counselingField: '해당없음',
       memo: '',
     },
   });
@@ -77,7 +77,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
         status: student.status || '상담중',
         requester: student.requester || '학생',
         contact: student.contact || '',
-        counselingField: student.counselingField || '기타',
+        counselingField: student.counselingField || '해당없음',
         memo: student.memo || '',
       });
     } else {
@@ -88,7 +88,7 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
         status: '상담중',
         requester: '학생',
         contact: '',
-        counselingField: '기타',
+        counselingField: '해당없음',
         memo: '',
       });
     }
@@ -254,24 +254,17 @@ export default function StudentForm({ isOpen, onOpenChange, student }: StudentFo
                 name="counselingField"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>상담분야</FormLabel>
+                    <FormLabel>정서행동특성검사</FormLabel>
                      <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="상담분야 선택" />
+                          <SelectValue placeholder="정서행동특성검사 결과 선택" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="친구관계">친구관계</SelectItem>
-                        <SelectItem value="충동성/과잉행동">충동성/과잉행동</SelectItem>
-                        <SelectItem value="주의력">주의력</SelectItem>
-                        <SelectItem value="분노조절">분노조절</SelectItem>
-                        <SelectItem value="우울/불안">우울/불안</SelectItem>
-                        <SelectItem value="가족">가족</SelectItem>
-                        <SelectItem value="학업">학업</SelectItem>
-                        <SelectItem value="진로">진로</SelectItem>
-                        <SelectItem value="지능">지능</SelectItem>
-                        <SelectItem value="기타">기타</SelectItem>
+                        <SelectItem value="해당없음">해당없음</SelectItem>
+                        <SelectItem value="일반관심군">일반관심군</SelectItem>
+                        <SelectItem value="우선관심군">우선관심군</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
