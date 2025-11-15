@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { CounselingLog } from '@/types';
+import type { CounselingLog, CounselingMethod } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +28,7 @@ const logSchema = z.object({
   counselingHour: z.string().min(1, '시간을 선택해주세요.'),
   counselingMinute: z.string().min(1, '분을 선택해주세요.'),
   counselingDuration: z.coerce.number().optional(),
+  counselingMethod: z.enum(['면담', '학부모상담', '교원자문']).optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
@@ -56,6 +57,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingHour: '13',
             counselingMinute: '00',
             counselingDuration: 40,
+            counselingMethod: '면담',
             mainIssues: '',
             therapistComments: '',
             counselingGoals: '',
@@ -72,6 +74,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingHour: hour || '13',
                 counselingMinute: minute || '00',
                 counselingDuration: log.counselingDuration || 40,
+                counselingMethod: log.counselingMethod || '면담',
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
                 counselingGoals: log.counselingGoals,
@@ -84,6 +87,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingHour: '13',
                 counselingMinute: '00',
                 counselingDuration: 40,
+                counselingMethod: '면담',
                 mainIssues: '',
                 therapistComments: '',
                 counselingGoals: '',
@@ -103,6 +107,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingDate: format(data.counselingDate, 'yyyy-MM-dd'),
             counselingTime: `${data.counselingHour}:${data.counselingMinute}`,
             counselingDuration: data.counselingDuration,
+            counselingMethod: data.counselingMethod,
             mainIssues: data.mainIssues,
             therapistComments: data.therapistComments || '',
             counselingGoals: data.counselingGoals || '',
@@ -200,7 +205,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 </FormItem>
                                 )}/>
                                 
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-4 gap-2">
                                     <FormField control={form.control} name="counselingHour" render={({ field }) => (
                                         <FormItem><FormLabel>시간</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
@@ -231,6 +236,17 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                             {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(min => (
                                                 <SelectItem key={min} value={String(min)}>{min}분</SelectItem>
                                             ))}
+                                        </SelectContent></Select>
+                                        <FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="counselingMethod" render={({ field }) => (
+                                        <FormItem><FormLabel>방식</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                            <SelectValue placeholder="방식" />
+                                        </SelectTrigger></FormControl><SelectContent>
+                                            <SelectItem value="면담">면담</SelectItem>
+                                            <SelectItem value="학부모상담">학부모상담</SelectItem>
+                                            <SelectItem value="교원자문">교원자문</SelectItem>
                                         </SelectContent></Select>
                                         <FormMessage /></FormItem>
                                     )}/>

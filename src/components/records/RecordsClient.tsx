@@ -85,11 +85,12 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
 
     const handleSaveLog = async (data: Omit<CounselingLog, 'id'>) => {
         try {
+            const dataToSave = { ...data, counselingMethod: data.counselingMethod || '면담' };
             if (selectedLog) {
-                await setDoc(doc(db, 'counselingLogs', selectedLog.id), data, { merge: true });
+                await setDoc(doc(db, 'counselingLogs', selectedLog.id), dataToSave, { merge: true });
                 toast({ title: '성공', description: '상담일지가 수정되었습니다.' });
             } else {
-                await addDoc(collection(db, 'counselingLogs'), { ...data, createdAt: Timestamp.now() });
+                await addDoc(collection(db, 'counselingLogs'), { ...dataToSave, createdAt: Timestamp.now() });
                 toast({ title: '성공', description: '새 상담일지가 저장되었습니다.' });
             }
             setIsFormVisible(false);

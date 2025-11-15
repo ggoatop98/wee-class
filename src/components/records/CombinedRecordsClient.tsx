@@ -76,6 +76,7 @@ export default function CombinedRecordsClient() {
       originalId: log.id,
       details: log.mainIssues,
       duration: log.counselingDuration,
+      counselingMethod: log.counselingMethod
     }));
 
     const testsAsRecords: CombinedRecord[] = psychologicalTests.map(test => ({
@@ -153,7 +154,7 @@ export default function CombinedRecordsClient() {
     const dataToExport = recordsToDownload.map(record => {
       const studentInfo = studentsMap.get(record.studentId);
       
-      const recordDate = new Date(record.date + 'T00:00:00');
+      const recordDate = new Date(record.date);
 
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const totalDuration = record.duration || 40;
@@ -177,7 +178,7 @@ export default function CombinedRecordsClient() {
         '상담시간(시)': hours > 0 ? hours : '',
         '상담시간(분)': minutes,
         '상담사소속': '전문상담교사',
-        '상담매체구분': '면담',
+        '상담매체구분': record.counselingMethod || '면담',
         '': '', // Empty Q column
         '상담시작시각': record.time ? format(startTime, 'yyyy. MM. dd. HH:mm') : '',
         '상담종료시각': record.time ? format(endTime, 'yyyy. MM. dd. HH:mm') : '',

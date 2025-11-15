@@ -36,6 +36,8 @@ export interface Appointment {
   excludedDates?: string[]; // Array of 'yyyy-MM-dd' strings
 }
 
+export type CounselingMethod = '면담' | '학부모상담' | '교원자문';
+
 export interface CounselingLog {
   id: string;
   userId: string;
@@ -44,6 +46,7 @@ export interface CounselingLog {
   counselingDate: string; // yyyy-MM-dd
   counselingTime: string; // HH:mm
   counselingDuration?: number; // in minutes
+  counselingMethod?: CounselingMethod;
   mainIssues: string;
   counselingGoals?: string;
   sessionContent?: string;
@@ -107,4 +110,5 @@ export interface CombinedRecord {
     originalId: string;
     details: string; // For display, e.g., counseling main issues or test name
     duration?: number;
+    counselingMethod?: CounselingMethod;
 }
