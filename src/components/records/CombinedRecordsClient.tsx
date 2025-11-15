@@ -85,6 +85,8 @@ export default function CombinedRecordsClient() {
       let counselingDivision = '';
       if (middleCategory === '교원자문') {
         counselingDivision = '기타';
+      } else if (middleCategory === '학부모상담') {
+        counselingDivision = '학생관련상담';
       }
 
       return {
