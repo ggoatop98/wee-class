@@ -38,6 +38,11 @@ export interface Appointment {
 
 export type CounselingMethod = '면담' | '전화상담' | '사이버상담';
 
+export interface CoCounselee {
+    id: string;
+    name: string;
+}
+
 export interface CounselingLog {
   id: string;
   userId: string;
@@ -55,6 +60,7 @@ export interface CounselingLog {
   therapistComments?: string;
   nextSessionGoals?: string;
   createdAt: Timestamp;
+  coCounselees?: CoCounselee[];
 }
 
 export interface CaseConceptualization {
@@ -115,4 +121,5 @@ export interface CombinedRecord {
     duration?: number;
     counselingMethod?: CounselingMethod;
     isAdvisory?: boolean;
+    coCounselees?: CoCounselee[];
 }

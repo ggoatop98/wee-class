@@ -7,7 +7,7 @@ import { PlusCircle, Loader2, Trash2, ArrowLeft } from 'lucide-react';
 import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import type { CounselingLog } from '@/types';
+import type { CounselingLog, Student } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import truncate from 'truncate';
 
@@ -29,21 +29,25 @@ interface RecordsClientProps {
 export default function RecordsClient({ studentId, studentName }: RecordsClientProps) {
     const { user } = useAuth();
     const [logs, setLogs] = useState<CounselingLog[]>([]);
+    const [students, setStudents] = useState<Student[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedLog, setSelectedLog] = useState<CounselingLog | null>(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
+    
+    const currentStudent = students.find(s => s.id === studentId);
 
     useEffect(() => {
         if (!studentId || !user) return;
         setLoading(true);
-        const q = query(
+
+        const logsQuery = query(
             collection(db, "counselingLogs"),
             where("studentId", "==", studentId),
             where("userId", "==", user.uid)
         );
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubLogs = onSnapshot(logsQuery, (snapshot) => {
             const logsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CounselingLog));
             
             logsData.sort((a, b) => {
@@ -57,7 +61,16 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
             setLogs(logsData);
             setLoading(false);
         });
-        return () => unsubscribe();
+        
+        const studentsQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+        const unsubStudents = onSnapshot(studentsQuery, (snapshot) => {
+            setStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student)));
+        });
+
+        return () => {
+            unsubLogs();
+            unsubStudents();
+        };
     }, [studentId, user]);
 
     const handleAddNewLog = () => {
@@ -89,8 +102,11 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
             const dataToSave = { 
                 ...data, 
                 counselingMethod: data.counselingMethod || '면담',
-                isAdvisory: data.isAdvisory || false 
+                isAdvisory: data.isAdvisory || false,
+                advisoryField: data.isAdvisory ? (data.advisoryField || '기타') : '',
+                coCounselees: data.coCounselees || [],
             };
+
             if (selectedLog) {
                 await setDoc(doc(db, 'counselingLogs', selectedLog.id), dataToSave, { merge: true });
                 toast({ title: '성공', description: '상담일지가 수정되었습니다.' });
@@ -153,7 +169,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                                       <div>
                                                         <div className="flex items-center gap-2 mb-1">
                                                           <p className="font-semibold">{new Date(log.counselingDate).toLocaleDateString('ko-KR')} {log.counselingTime}</p>
-                                                          {log.isAdvisory && <Badge variant="outline">자문</Badge>}
+                                                          {log.isAdvisory && <Badge variant="secondary">자문</Badge>}
                                                         </div>
                                                         <p className="text-sm text-muted-foreground">{truncate(log.mainIssues, 20)}</p>
                                                       </div>
@@ -191,6 +207,8 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                         <CounselingLogForm
                             studentId={studentId}
                             studentName={studentName}
+                            currentStudent={currentStudent}
+                            allStudents={students}
                             onSave={handleSaveLog}
                             onCancel={handleCancel}
                             log={selectedLog}

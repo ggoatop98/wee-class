@@ -1,11 +1,11 @@
 
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { CounselingLog } from '@/types';
+import type { CounselingLog, Student, CoCounselee } from '@/types';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,10 +18,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon, Printer } from 'lucide-react';
+import { Calendar as CalendarIcon, Printer, UserPlus, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '../PageHeader';
 import { Checkbox } from '../ui/checkbox';
+import { Badge } from '../ui/badge';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 
 const logSchema = z.object({
@@ -31,11 +33,13 @@ const logSchema = z.object({
   counselingDuration: z.coerce.number().optional(),
   counselingMethod: z.enum(['면담', '전화상담', '사이버상담']).optional(),
   isAdvisory: z.boolean().optional(),
+  advisoryField: z.enum(['학교학습', '사회성발달', '정서발달', '진로발달', '행동발달', '기타']).optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
   sessionContent: z.string().optional(),
   nextSessionGoals: z.string().optional(),
+  coCounselees: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
 });
 
 type LogFormValues = z.infer<typeof logSchema>;
@@ -43,14 +47,17 @@ type LogFormValues = z.infer<typeof logSchema>;
 interface CounselingLogFormProps {
   studentId: string;
   studentName: string;
+  currentStudent?: Student;
+  allStudents: Student[];
   log: CounselingLog | null;
   onSave: (data: Omit<CounselingLog, 'id'>) => void;
   onCancel: () => void;
 }
 
-export default function CounselingLogForm({ studentId, studentName, log, onSave, onCancel }: CounselingLogFormProps) {
+export default function CounselingLogForm({ studentId, studentName, currentStudent, allStudents, log, onSave, onCancel }: CounselingLogFormProps) {
     const { user } = useAuth();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [isStudentSelectOpen, setIsStudentSelectOpen] = useState(false);
     
     const form = useForm<LogFormValues>({
         resolver: zodResolver(logSchema),
@@ -61,13 +68,18 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingDuration: 40,
             counselingMethod: '면담',
             isAdvisory: false,
+            advisoryField: '기타',
             mainIssues: '',
             therapistComments: '',
             counselingGoals: '',
             sessionContent: '',
             nextSessionGoals: '',
+            coCounselees: [],
         },
     });
+
+    const isAdvisory = useWatch({ control: form.control, name: 'isAdvisory' });
+    const coCounselees = useWatch({ control: form.control, name: 'coCounselees' }) || [];
 
     useEffect(() => {
         if (log) {
@@ -79,11 +91,13 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingDuration: log.counselingDuration || 40,
                 counselingMethod: log.counselingMethod || '면담',
                 isAdvisory: log.isAdvisory || false,
+                advisoryField: log.advisoryField || '기타',
                 mainIssues: log.mainIssues,
                 therapistComments: log.therapistComments || '',
                 counselingGoals: log.counselingGoals,
                 sessionContent: log.sessionContent,
                 nextSessionGoals: log.nextSessionGoals,
+                coCounselees: log.coCounselees || [],
             });
         } else {
             form.reset({
@@ -93,14 +107,27 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                 counselingDuration: 40,
                 counselingMethod: '면담',
                 isAdvisory: false,
+                advisoryField: '기타',
                 mainIssues: '',
                 therapistComments: '',
                 counselingGoals: '',
                 sessionContent: '',
                 nextSessionGoals: '',
+                coCounselees: [],
             });
         }
     }, [log, form]);
+
+    const sameGradeStudents = useMemo(() => {
+        if (!currentStudent) return [];
+        const currentGrade = currentStudent.class.split('-')[0];
+        const addedCounseleeIds = new Set([studentId, ...coCounselees.map(c => c.id)]);
+
+        return allStudents
+            .filter(s => s.class.startsWith(`${currentGrade}-`) && !addedCounseleeIds.has(s.id))
+            .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    }, [currentStudent, allStudents, studentId, coCounselees]);
+
 
     const onSubmit = (data: LogFormValues) => {
         if (!user) return;
@@ -114,12 +141,14 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
             counselingDuration: data.counselingDuration,
             counselingMethod: data.counselingMethod,
             isAdvisory: data.isAdvisory,
+            advisoryField: data.advisoryField,
             mainIssues: data.mainIssues,
             therapistComments: data.therapistComments || '',
             counselingGoals: data.counselingGoals || '',
             sessionContent: data.sessionContent || '',
             nextSessionGoals: data.nextSessionGoals || '',
-            createdAt: log?.createdAt || new Date()
+            createdAt: log?.createdAt || new Date(),
+            coCounselees: data.coCounselees || [],
         };
         onSave(submissionData);
     };
@@ -130,6 +159,18 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
           setIsCalendarOpen(false);
         }
     };
+
+    const addCoCounselee = (student: Student) => {
+        const newCoCounselees = [...coCounselees, { id: student.id, name: student.name }];
+        form.setValue('coCounselees', newCoCounselees);
+        setIsStudentSelectOpen(false);
+    };
+
+    const removeCoCounselee = (studentId: string) => {
+        const newCoCounselees = coCounselees.filter(s => s.id !== studentId);
+        form.setValue('coCounselees', newCoCounselees);
+    };
+
 
     const handlePrint = () => {
         const data = form.getValues();
@@ -179,14 +220,49 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
     return (
         <Card className="h-full">
             <CardContent className="p-6 h-full flex flex-col">
-                <div>
-                    <PageHeader title="상담 일지" centered>
-                        <Input readOnly value={studentName} className="text-center font-semibold text-lg" />
-                    </PageHeader>
-                </div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex-grow flex flex-col">
                         <div className="flex-grow space-y-4 overflow-auto p-1">
+                             <div className="flex items-center gap-2">
+                                <Input readOnly value={studentName} className="text-center font-semibold text-lg flex-shrink" />
+                                {coCounselees.map(s => (
+                                    <Badge key={s.id} variant="secondary" className="text-base py-1">
+                                        {s.name}
+                                        <button type="button" onClick={() => removeCoCounselee(s.id)} className="ml-1 -mr-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                                            <XCircle className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                                        </button>
+                                    </Badge>
+                                ))}
+                                <Popover open={isStudentSelectOpen} onOpenChange={setIsStudentSelectOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button type="button" variant="outline" size="sm">
+                                            <UserPlus className="mr-2 h-4 w-4" /> 내담자 추가
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="p-0 w-[200px]" align="start">
+                                        <Command>
+                                            <CommandInput placeholder="학생 이름 검색..." />
+                                            <CommandList>
+                                                <CommandEmpty>결과 없음.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {sameGradeStudents.map(s => (
+                                                        <CommandItem
+                                                            key={s.id}
+                                                            value={s.name}
+                                                            onSelect={() => addCoCounselee(s)}
+                                                        >
+                                                            {s.name} ({s.class})
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <div className="flex-grow text-right pr-2">
+                                    <span className="text-sm text-muted-foreground">총 {1 + coCounselees.length}명</span>
+                                </div>
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                                 <div className="md:col-span-1">
                                     <FormField control={form.control} name="counselingDate" render={({ field }) => (
@@ -237,7 +313,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                     )}/>
                                     <FormField control={form.control} name="counselingDuration" render={({ field }) => (
                                         <FormItem><FormLabel className="text-center">진행시간</FormLabel>
-                                        <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={String(field.value ?? '')}><FormControl><SelectTrigger>
+                                        <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={String(field.value ?? '40')}><FormControl><SelectTrigger>
                                             <SelectValue placeholder="분" />
                                         </SelectTrigger></FormControl><SelectContent>
                                             {Array.from({ length: 10 }, (_, i) => (i + 1) * 10).map(min => (
@@ -248,7 +324,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                     )}/>
                                     <FormField control={form.control} name="counselingMethod" render={({ field }) => (
                                         <FormItem><FormLabel className="text-center">방식</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                        <Select onValueChange={field.onChange} value={field.value ?? '면담'}><FormControl><SelectTrigger>
                                             <SelectValue placeholder="방식" />
                                         </SelectTrigger></FormControl><SelectContent>
                                             <SelectItem value="면담">면담</SelectItem>
@@ -278,6 +354,20 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                                 </FormItem>
                                             )}
                                         />
+                                         {isAdvisory && (
+                                            <FormField control={form.control} name="advisoryField" render={({ field }) => (
+                                                <FormItem className="w-48"><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
+                                                    <SelectValue placeholder="자문 분야" />
+                                                </SelectTrigger></FormControl><SelectContent>
+                                                    <SelectItem value="학교학습">학교학습</SelectItem>
+                                                    <SelectItem value="사회성발달">사회성발달</SelectItem>
+                                                    <SelectItem value="정서발달">정서발달</SelectItem>
+                                                    <SelectItem value="진로발달">진로발달</SelectItem>
+                                                    <SelectItem value="행동발달">행동발달</SelectItem>
+                                                    <SelectItem value="기타">기타</SelectItem>
+                                                </SelectContent></Select></FormItem>
+                                            )}/>
+                                        )}
                                     </div>
                                     <FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} /></FormControl><FormMessage />
                                 </FormItem>

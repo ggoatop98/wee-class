@@ -79,6 +79,7 @@ export default function CombinedRecordsClient() {
       duration: log.counselingDuration,
       counselingMethod: log.counselingMethod,
       isAdvisory: log.isAdvisory,
+      coCounselees: log.coCounselees,
     }));
 
     const testsAsRecords: CombinedRecord[] = psychologicalTests.map(test => ({
@@ -98,12 +99,12 @@ export default function CombinedRecordsClient() {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
 
-      if (dateA < dateB) return -1;
-      if (dateA > dateB) return 1;
+      if (dateA < dateB) return 1;
+      if (dateA > dateB) return -1;
       
       if (a.time && b.time) {
-          if (a.time < b.time) return -1;
-          if (a.time > b.time) return 1;
+          if (a.time < b.time) return 1;
+          if (a.time > b.time) return -1;
       }
       return 0;
     });
@@ -156,7 +157,7 @@ export default function CombinedRecordsClient() {
     const fromDateStr = format(dateRange.from, 'yyyy-MM-dd');
     const toDateStr = format(dateRange.to, 'yyyy-MM-dd');
 
-    const recordsToDownload = filteredRecords.filter(record => {
+    const recordsToDownload = combinedRecords.filter(record => {
         const recordDateStr = record.date;
         return recordDateStr >= fromDateStr && recordDateStr <= toDateStr;
     });
@@ -185,6 +186,7 @@ export default function CombinedRecordsClient() {
       let 중분류 = record.isAdvisory ? '교원자문' : '개인상담';
       let 상담구분 = record.isAdvisory ? '기타' : (studentInfo?.counselingField || '');
       let 상담내용 = record.type === '상담' ? record.details : '';
+      let 상담인원 = 1 + (record.coCounselees?.length || 0);
       
       if (record.type === '검사') {
         대분류 = '검사';
@@ -200,7 +202,7 @@ export default function CombinedRecordsClient() {
         '대분류': 대분류,
         '중분류': 중분류, 
         '상담구분': 상담구분,
-        '상담인원': 1,
+        '상담인원': 상담인원,
         '학년도': recordDate.getFullYear(),
         '상담일자': format(recordDate, 'yyyyMMdd'),
         '학년': studentInfo?.class.split('-')[0] + '학년' || '',
@@ -267,6 +269,3 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
-
-    
-    
