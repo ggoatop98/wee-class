@@ -224,15 +224,26 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 flex-grow flex flex-col">
                         <div className="flex-grow space-y-4 overflow-auto p-1">
                              <div className="flex items-center gap-2">
-                                <Input readOnly value={studentName} className="text-center font-semibold text-lg flex-shrink" />
-                                {coCounselees.map(s => (
-                                    <Badge key={s.id} variant="secondary" className="text-base py-1">
-                                        {s.name}
-                                        <button type="button" onClick={() => removeCoCounselee(s.id)} className="ml-1 -mr-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                                            <XCircle className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                                        </button>
-                                    </Badge>
-                                ))}
+                                <div className="relative flex-grow">
+                                  <Input 
+                                      readOnly 
+                                      value={[studentName, ...coCounselees.map(s => s.name)].join(', ')} 
+                                      className="text-center font-semibold text-lg pr-8" 
+                                  />
+                                  <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                      {coCounselees.map((s, index) => (
+                                          <button 
+                                              key={s.id} 
+                                              type="button" 
+                                              onClick={() => removeCoCounselee(s.id)}
+                                              className="p-0.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10 focus:outline-none focus:ring-1 focus:ring-ring"
+                                          >
+                                              <XCircle className="h-4 w-4" />
+                                          </button>
+                                      ))}
+                                  </div>
+                                </div>
+
                                 <Popover open={isStudentSelectOpen} onOpenChange={setIsStudentSelectOpen}>
                                     <PopoverTrigger asChild>
                                         <Button type="button" variant="outline" size="sm">
@@ -259,7 +270,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                                         </Command>
                                     </PopoverContent>
                                 </Popover>
-                                <div className="flex-grow text-right pr-2">
+                                <div className="text-right pr-2">
                                     <span className="text-sm text-muted-foreground">총 {1 + coCounselees.length}명</span>
                                 </div>
                             </div>
@@ -390,3 +401,5 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
         </Card>
     );
 }
+
+    
