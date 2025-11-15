@@ -72,14 +72,19 @@ export default function CombinedRecordsClient() {
       let middleCategory = '';
       const counseleeCount = 1 + (log.coCounselees?.length || 0);
 
-      if (log.isParentCounseling) {
-        middleCategory = '학부모상담';
-      } else if (log.isAdvisory) {
+      if (log.isAdvisory) {
         middleCategory = '교원자문';
+      } else if (log.isParentCounseling) {
+        middleCategory = '학부모상담';
       } else if (counseleeCount > 1) {
         middleCategory = '집단상담';
       } else {
         middleCategory = '개인상담';
+      }
+
+      let counselingDivision = '';
+      if (middleCategory === '교원자문') {
+        counselingDivision = '기타';
       }
 
       return {
@@ -90,6 +95,7 @@ export default function CombinedRecordsClient() {
         time: log.counselingTime,
         type: log.isAdvisory ? '자문' : '상담',
         middleCategory,
+        counselingDivision,
         originalId: log.id,
         details: log.mainIssues,
         duration: log.counselingDuration,
@@ -108,6 +114,7 @@ export default function CombinedRecordsClient() {
       time: test.testTime,
       type: '검사',
       middleCategory: '심리검사',
+      counselingDivision: '개인심리검사',
       originalId: test.id,
       details: test.testName,
       duration: test.testDuration,
@@ -203,10 +210,8 @@ export default function CombinedRecordsClient() {
       
       let 대분류 = record.type;
       let 중분류 = record.middleCategory || '';
-      if(record.isAdvisory) 중분류 = '교원자문';
-      else if(record.isParentCounseling) 중분류 = '학부모상담';
       
-      let 상담구분 = record.isAdvisory ? '기타' : (studentInfo?.counselingField || '');
+      let 상담구분 = record.counselingDivision || '';
       let 상담내용 = record.type === '상담' ? record.details : '';
       let 상담인원 = 1 + (record.coCounselees?.length || 0);
       
@@ -216,7 +221,10 @@ export default function CombinedRecordsClient() {
         상담구분 = '개인심리검사';
         상담내용 = ''; // 검사 내용은 엑셀에 포함되지 않음
       }
-
+      
+      if (record.isAdvisory) {
+        상담구분 = '기타';
+      }
 
       return {
         '상담분류': '전문상담',

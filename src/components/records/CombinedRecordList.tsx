@@ -96,7 +96,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
                     </Badge>
                 </TableCell>
                 <TableCell className="text-base">{item.middleCategory || ''}</TableCell>
-                <TableCell className="text-base"></TableCell>
+                <TableCell className="text-base">{item.counselingDivision || ''}</TableCell>
                 <TableCell className="text-right">
                    <Button variant="ghost" size="icon" onClick={() => onEdit(item)}>
                     <Pencil className="h-4 w-4" />

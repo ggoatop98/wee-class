@@ -119,6 +119,7 @@ export interface CombinedRecord {
     time?: string;
     type: CombinedRecordType;
     middleCategory?: string;
+    counselingDivision?: string;
     originalId: string;
     details: string; // For display, e.g., counseling main issues or test name
     duration?: number;
