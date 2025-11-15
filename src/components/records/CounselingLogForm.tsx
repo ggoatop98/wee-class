@@ -28,7 +28,7 @@ const logSchema = z.object({
   counselingHour: z.string().min(1, '시간을 선택해주세요.'),
   counselingMinute: z.string().min(1, '분을 선택해주세요.'),
   counselingDuration: z.coerce.number().optional(),
-  counselingMethod: z.enum(['면담', '학부모상담', '교원자문']).optional(),
+  counselingMethod: z.enum(['면담', '전화상담', '사이버상담']).optional(),
   mainIssues: z.string().min(1, '상담 내용을 입력해주세요.'),
   therapistComments: z.string().optional(),
   counselingGoals: z.string().optional(),
@@ -208,7 +208,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                 </div>
                                 <div className="md:col-span-2 grid grid-cols-4 gap-2">
                                     <FormField control={form.control} name="counselingHour" render={({ field }) => (
-                                        <FormItem><FormLabel>시간</FormLabel>
+                                        <FormItem><FormLabel className="text-center">시간</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
                                             <SelectValue placeholder="시간" />
                                         </SelectTrigger></FormControl><SelectContent>
@@ -219,7 +219,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                         <FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="counselingMinute" render={({ field }) => (
-                                        <FormItem><FormLabel>분</FormLabel>
+                                        <FormItem><FormLabel className="text-center">분</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
                                             <SelectValue placeholder="분" />
                                         </SelectTrigger></FormControl><SelectContent>
@@ -230,7 +230,7 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                         <FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="counselingDuration" render={({ field }) => (
-                                        <FormItem><FormLabel>진행시간</FormLabel>
+                                        <FormItem><FormLabel className="text-center">진행시간</FormLabel>
                                         <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} value={String(field.value ?? '')}><FormControl><SelectTrigger>
                                             <SelectValue placeholder="분" />
                                         </SelectTrigger></FormControl><SelectContent>
@@ -241,13 +241,13 @@ export default function CounselingLogForm({ studentId, studentName, log, onSave,
                                         <FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="counselingMethod" render={({ field }) => (
-                                        <FormItem><FormLabel>방식</FormLabel>
+                                        <FormItem><FormLabel className="text-center">방식</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger>
                                             <SelectValue placeholder="방식" />
                                         </SelectTrigger></FormControl><SelectContent>
                                             <SelectItem value="면담">면담</SelectItem>
-                                            <SelectItem value="학부모상담">학부모상담</SelectItem>
-                                            <SelectItem value="교원자문">교원자문</SelectItem>
+                                            <SelectItem value="전화상담">전화상담</SelectItem>
+                                            <SelectItem value="사이버상담">사이버상담</SelectItem>
                                         </SelectContent></Select>
                                         <FormMessage /></FormItem>
                                     )}/>

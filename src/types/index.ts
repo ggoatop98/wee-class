@@ -36,7 +36,7 @@ export interface Appointment {
   excludedDates?: string[]; // Array of 'yyyy-MM-dd' strings
 }
 
-export type CounselingMethod = '면담' | '학부모상담' | '교원자문';
+export type CounselingMethod = '면담' | '전화상담' | '사이버상담';
 
 export interface CounselingLog {
   id: string;
