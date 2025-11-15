@@ -72,7 +72,7 @@ export default function CombinedRecordsClient() {
       studentName: log.studentName,
       date: log.counselingDate,
       time: log.counselingTime,
-      type: '상담',
+      type: log.isAdvisory ? '자문' : '상담',
       originalId: log.id,
       details: log.mainIssues,
       duration: log.counselingDuration,
@@ -125,7 +125,7 @@ export default function CombinedRecordsClient() {
 
   const handleEdit = (record: CombinedRecord) => {
     const { studentId, studentName, type } = record;
-    const url = type === '상담' ? `/records/${studentId}?studentName=${encodeURIComponent(studentName)}` : `/records/${studentId}/tests?studentName=${encodeURIComponent(studentName)}`;
+    const url = type === '상담' || type === '자문' ? `/records/${studentId}?studentName=${encodeURIComponent(studentName)}` : `/records/${studentId}/tests?studentName=${encodeURIComponent(studentName)}`;
     router.push(url);
   };
   
@@ -168,7 +168,7 @@ export default function CombinedRecordsClient() {
         '상담분류': '전문상담',
         'Wee클래스': 'Wee클래스',
         '대분류': record.type,
-        '중분류': record.type === '상담' && record.isAdvisory ? '교원자문' : '개인상담', 
+        '중분류': record.isAdvisory ? '교원자문' : '개인상담', 
         '상담구분': studentInfo?.counselingField || '',
         '상담인원': 1,
         '학년도': recordDate.getFullYear(),

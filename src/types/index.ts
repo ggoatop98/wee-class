@@ -100,7 +100,7 @@ export interface UploadedFile {
   uploadedAt?: Timestamp; // Not available from Storage listAll, making it optional
 }
 
-export type CombinedRecordType = '상담' | '검사';
+export type CombinedRecordType = '상담' | '검사' | '자문';
 
 export interface CombinedRecord {
     id: string;
