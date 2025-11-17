@@ -369,15 +369,18 @@ export default function CombinedRecordsClient() {
     
     const header = ["연번", "상담 일자", "상담 시간", "학년/반", "이름", "중분류", "상담구분"];
     const worksheet = XLSX.utils.json_to_sheet([], { skipHeader: true });
-    
+
     XLSX.utils.sheet_add_aoa(worksheet, [['상담관리대장']], { origin: 'A1' });
     
     worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 6 } }];
 
-    // Center align the title
+    // Center align the title and make it bold and larger
     if (!worksheet['A1']) worksheet['A1'] = {v: '상담관리대장'};
-    worksheet['A1'].s = { alignment: { horizontal: 'center', vertical: 'center' } };
-
+    worksheet['A1'].s = { 
+        alignment: { horizontal: 'center', vertical: 'center' },
+        font: { sz: 16, bold: true }
+    };
+    
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A3' });
     XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A4', skipHeader: true });
 
@@ -412,7 +415,7 @@ export default function CombinedRecordsClient() {
             />
             <Button onClick={() => handleOpenDownloadModal('neisedu')} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
-                엑셀로 다운로드
+                NEIS 상담현황
             </Button>
             <Button onClick={() => handleOpenDownloadModal('ledger')} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
