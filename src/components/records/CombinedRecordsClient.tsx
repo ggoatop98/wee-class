@@ -343,27 +343,43 @@ export default function CombinedRecordsClient() {
 
       const counseleeNames = [record.studentName, ...(record.coCounselees?.map(c => c.name) || [])].join(', ');
       
+      let middleCategory = record.middleCategory || '';
+      if(record.isAdvisory) middleCategory = '교원자문';
+      else if(record.isParentCounseling) middleCategory = '학부모상담';
+      else if(record.type === '검사') middleCategory = '심리검사';
+      else if((record.coCounselees?.length || 0) > 0) middleCategory = '집단상담';
+      else middleCategory = '개인상담';
+
+      let counselingDivision = record.counselingDivision || '';
+      if(middleCategory === '교원자문') counselingDivision = record.counselingDivision || '사회성발달';
+      if(middleCategory === '학부모상담') counselingDivision = '학생관련상담';
+      if(middleCategory === '심리검사') counselingDivision = '개인심리검사';
+
+
       return {
         '연번': index + 1,
         '상담 일자': `${format(recordDate, 'yyyy.MM.dd')}(${format(recordDate, 'E', { locale: ko })})`,
         '상담 시간': counselingTime,
         '학년/반': studentInfo?.class || '',
         '이름': counseleeNames,
-        '중분류': record.middleCategory || '',
-        '상담구분': record.counselingDivision || ''
+        '중분류': middleCategory,
+        '상담구분': counselingDivision
       };
     });
     
     const header = ["연번", "상담 일자", "상담 시간", "학년/반", "이름", "중분류", "상담구분"];
     const worksheet = XLSX.utils.json_to_sheet([], { header });
     
-    XLSX.utils.sheet_add_aoa(worksheet, [['상담관리대장']], { origin: 'C1' });
-    const periodText = `기간: ${format(dateRange.from, 'yyyy.M.d')} - ${format(dateRange.to, 'yyyy.M.d')}`;
-    XLSX.utils.sheet_add_aoa(worksheet, [[periodText]], { origin: 'F2' });
+    XLSX.utils.sheet_add_aoa(worksheet, [['상담관리대장']], { origin: 'A1' });
     
-    worksheet['!merges'] = [{ s: { r: 0, c: 2 }, e: { r: 0, c: 4 } }];
+    worksheet['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 1, c: 6 } }];
 
-    XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A4', skipHeader: true });
+    // Center align the title
+    if (!worksheet['A1']) worksheet['A1'] = {v: '상담관리대장'};
+    worksheet['A1'].s = { alignment: { horizontal: 'center', vertical: 'center' } };
+
+
+    XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A3', skipHeader: true });
 
     worksheet['!cols'] = [
       { wch: 5 },  // 연번
