@@ -16,9 +16,10 @@ interface DateRangePickerModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onDownload: (dateRange: DateRange) => void;
+  downloadType: 'neisedu' | 'ledger';
 }
 
-export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload }: DateRangePickerModalProps) {
+export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload, downloadType }: DateRangePickerModalProps) {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const { toast } = useToast();
 
@@ -43,15 +44,19 @@ export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload 
     }
     return `${format(dateRange.from, "PPP", { locale: ko })} - ${format(dateRange.to, "PPP", { locale: ko })}`;
   }
+  
+  const title = downloadType === 'ledger' ? '상담관리대장 기간 선택' : '다운로드 기간 선택';
+  const description = downloadType === 'ledger'
+    ? '상담관리대장으로 다운로드할 기록의 기간을 선택하세요.'
+    : '엑셀 파일로 다운로드할 상담 기록의 기간을 선택하세요.';
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>다운로드 기간 선택</DialogTitle>
-          <DialogDescription>
-            엑셀 파일로 다운로드할 상담 기록의 기간을 선택하세요.
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         
         <div className="flex flex-col items-center gap-4 py-4">

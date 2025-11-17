@@ -12,7 +12,8 @@ import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { DateRange } from "react-day-picker";
-import { format, addMinutes } from "date-fns";
+import { format, addMinutes, formatISO } from "date-fns";
+import { ko } from 'date-fns/locale';
 
 import { PageHeader } from "../PageHeader";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,8 @@ import CombinedRecordList from "./CombinedRecordList";
 import { Button } from "../ui/button";
 import DateRangePickerModal from "./DateRangePickerModal";
 import { deleteObject, listAll, ref } from "firebase/storage";
+
+type DownloadType = 'neisedu' | 'ledger';
 
 export default function CombinedRecordsClient() {
   const { user } = useAuth();
@@ -31,6 +34,8 @@ export default function CombinedRecordsClient() {
   const { toast } = useToast();
   const router = useRouter();
   const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
+  const [downloadType, setDownloadType] = useState<DownloadType>('neisedu');
+
 
   useEffect(() => {
     if (!user) return;
@@ -196,7 +201,22 @@ export default function CombinedRecordsClient() {
     router.push(url);
   };
   
+ const handleOpenDownloadModal = (type: DownloadType) => {
+    setDownloadType(type);
+    setIsDateRangeModalOpen(true);
+  };
+  
   const handleDownloadExcel = (dateRange: DateRange) => {
+    if (downloadType === 'neisedu') {
+        handleNeisEduExcelDownload(dateRange);
+    } else {
+        handleLedgerExcelDownload(dateRange);
+    }
+    setIsDateRangeModalOpen(false);
+  };
+
+
+  const handleNeisEduExcelDownload = (dateRange: DateRange) => {
     if (!dateRange.from || !dateRange.to) {
         return;
     }
@@ -222,7 +242,7 @@ export default function CombinedRecordsClient() {
 
     const dataToExport = recordsToDownload.map(record => {
       const studentInfo = studentsMap.get(record.studentId);
-      const recordDate = new Date(record.date);
+      const recordDate = new Date(`${record.date}T00:00:00`);
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const totalDuration = record.duration || 40;
       const hours = Math.floor(totalDuration / 60);
@@ -286,8 +306,90 @@ export default function CombinedRecordsClient() {
     ];
 
     const today = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(workbook, `상담및심리검사목록_${today}.xlsx`);
-    setIsDateRangeModalOpen(false);
+    XLSX.writeFile(workbook, `Wee클래스_상담일지_${today}.xlsx`);
+  };
+
+  const handleLedgerExcelDownload = (dateRange: DateRange) => {
+    if (!dateRange.from || !dateRange.to) return;
+  
+    const studentsMap = new Map(students.map(s => [s.id, s]));
+  
+    const fromDateStr = format(dateRange.from, 'yyyy-MM-dd');
+    const toDateStr = format(dateRange.to, 'yyyy-MM-dd');
+  
+    const recordsToDownload = combinedRecords.filter(record => {
+      const recordDateStr = record.date;
+      return recordDateStr >= fromDateStr && recordDateStr <= toDateStr;
+    });
+  
+    if (recordsToDownload.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: '다운로드할 데이터가 없습니다.',
+        description: '선택한 기간에 해당하는 기록이 없습니다.',
+      });
+      return;
+    }
+  
+    const dataToExport = recordsToDownload.map((record, index) => {
+      const studentInfo = studentsMap.get(record.studentId);
+      const recordDate = new Date(`${record.date}T00:00:00`);
+      const startTime = record.time ? new Date(`${record.date}T${record.time}`) : null;
+      const endTime = startTime && record.duration ? addMinutes(startTime, record.duration) : null;
+      
+      const counselingTime = startTime && endTime 
+        ? `${format(startTime, 'HH:mm')}-${format(endTime, 'HH:mm')}`
+        : (startTime ? format(startTime, 'HH:mm') : '');
+
+      const counseleeNames = [record.studentName, ...(record.coCounselees?.map(c => c.name) || [])].join(', ');
+      
+      const neisTitleDate = format(recordDate, 'yyyyMMdd');
+      const neisTitle = `${neisTitleDate}_${index + 1}`;
+
+      return {
+        '연번': index + 1,
+        '상담 일자': `${format(recordDate, 'yyyy.MM.dd')}(${format(recordDate, 'E', { locale: ko })})`,
+        '상담 시간': counselingTime,
+        'NEIS 상담현황 상담제목': neisTitle,
+        '학년-반': studentInfo?.class || '',
+        '성명': counseleeNames,
+        '중분류': record.middleCategory || '',
+        '상담구분': record.counselingDivision || ''
+      };
+    });
+    
+    // Create worksheet
+    const header = ["연번", "상담 일자", "상담 시간", "NEIS 상담현황 상담제목", "학년-반", "성명", "중분류", "상담구분"];
+    const worksheet = XLSX.utils.json_to_sheet([], { header });
+    
+    // Add title and period
+    XLSX.utils.sheet_add_aoa(worksheet, [['상담관리대장']], { origin: 'C1' });
+    const periodText = `기간: ${format(dateRange.from, 'yyyy.M.d')} - ${format(dateRange.to, 'yyyy.M.d')}`;
+    XLSX.utils.sheet_add_aoa(worksheet, [[periodText]], { origin: 'G2' });
+    
+    // Merge cells for title
+    worksheet['!merges'] = [{ s: { r: 0, c: 2 }, e: { r: 0, c: 5 } }]; // Merge C1 to F1 for title
+
+    // Add headers and data
+    XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A4', skipHeader: true });
+
+    // Column widths
+    worksheet['!cols'] = [
+      { wch: 5 },  // 연번
+      { wch: 15 }, // 상담 일자
+      { wch: 15 }, // 상담 시간
+      { wch: 20 }, // NEIS 상담현황 상담제목
+      { wch: 8 },  // 학년-반
+      { wch: 20 }, // 성명
+      { wch: 12 }, // 중분류
+      { wch: 15 }  // 상담구분
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "상담관리대장");
+  
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `상담관리대장_${today}.xlsx`);
   };
 
 
@@ -302,9 +404,13 @@ export default function CombinedRecordsClient() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <Button onClick={() => setIsDateRangeModalOpen(true)} variant="outline">
+            <Button onClick={() => handleOpenDownloadModal('neisedu')} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 엑셀로 다운로드
+            </Button>
+            <Button onClick={() => handleOpenDownloadModal('ledger')} variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                상담관리대장
             </Button>
         </div>
       </PageHeader>
@@ -318,6 +424,7 @@ export default function CombinedRecordsClient() {
         isOpen={isDateRangeModalOpen}
         onOpenChange={setIsDateRangeModalOpen}
         onDownload={handleDownloadExcel}
+        downloadType={downloadType}
       />
     </>
   );
