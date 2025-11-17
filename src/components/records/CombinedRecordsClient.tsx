@@ -343,44 +343,34 @@ export default function CombinedRecordsClient() {
 
       const counseleeNames = [record.studentName, ...(record.coCounselees?.map(c => c.name) || [])].join(', ');
       
-      const neisTitleDate = format(recordDate, 'yyyyMMdd');
-      const neisTitle = `${neisTitleDate}_${index + 1}`;
-
       return {
         '연번': index + 1,
         '상담 일자': `${format(recordDate, 'yyyy.MM.dd')}(${format(recordDate, 'E', { locale: ko })})`,
         '상담 시간': counselingTime,
-        'NEIS 상담현황 상담제목': neisTitle,
-        '학년-반': studentInfo?.class || '',
-        '성명': counseleeNames,
+        '학년/반': studentInfo?.class || '',
+        '이름': counseleeNames,
         '중분류': record.middleCategory || '',
         '상담구분': record.counselingDivision || ''
       };
     });
     
-    // Create worksheet
-    const header = ["연번", "상담 일자", "상담 시간", "NEIS 상담현황 상담제목", "학년-반", "성명", "중분류", "상담구분"];
+    const header = ["연번", "상담 일자", "상담 시간", "학년/반", "이름", "중분류", "상담구분"];
     const worksheet = XLSX.utils.json_to_sheet([], { header });
     
-    // Add title and period
     XLSX.utils.sheet_add_aoa(worksheet, [['상담관리대장']], { origin: 'C1' });
     const periodText = `기간: ${format(dateRange.from, 'yyyy.M.d')} - ${format(dateRange.to, 'yyyy.M.d')}`;
-    XLSX.utils.sheet_add_aoa(worksheet, [[periodText]], { origin: 'G2' });
+    XLSX.utils.sheet_add_aoa(worksheet, [[periodText]], { origin: 'F2' });
     
-    // Merge cells for title
-    worksheet['!merges'] = [{ s: { r: 0, c: 2 }, e: { r: 0, c: 5 } }]; // Merge C1 to F1 for title
+    worksheet['!merges'] = [{ s: { r: 0, c: 2 }, e: { r: 0, c: 4 } }];
 
-    // Add headers and data
     XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A4', skipHeader: true });
 
-    // Column widths
     worksheet['!cols'] = [
       { wch: 5 },  // 연번
       { wch: 15 }, // 상담 일자
       { wch: 15 }, // 상담 시간
-      { wch: 20 }, // NEIS 상담현황 상담제목
-      { wch: 8 },  // 학년-반
-      { wch: 20 }, // 성명
+      { wch: 8 },  // 학년/반
+      { wch: 30 }, // 이름
       { wch: 12 }, // 중분류
       { wch: 15 }  // 상담구분
     ];
