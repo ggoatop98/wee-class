@@ -245,8 +245,8 @@ export default function CombinedRecordsClient() {
       const recordDate = new Date(`${record.date}T00:00:00`);
       const startTime = record.time ? new Date(`${record.date}T${record.time}`) : new Date(record.date);
       const totalDuration = record.duration || 40;
-      const hours = Math.floor(totalDuration / 60);
-      const minutes = totalDuration % 60;
+      const hours = record.time ? Math.floor(totalDuration / 60) : 0;
+      const minutes = record.time ? totalDuration % 60 : 0;
       const endTime = addMinutes(startTime, totalDuration);
       
       const 대분류 = record.type;
@@ -259,10 +259,10 @@ export default function CombinedRecordsClient() {
       const counselingDivisionText = 상담구분 || '';
 
       let 상담내용 = '';
-      if (record.type === '상담') {
-          상담내용 = `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`;
-      } else if (record.type === '자문') {
+      if (record.isAdvisory) {
           상담내용 = "학생 정서, 적응행동 관련 교원 자문";
+      } else if (record.type === '상담') {
+          상담내용 = `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`;
       } else if (record.type === '검사') {
           상담내용 = `${record.details}, 학생 심리 검사 및 해석 관련 상담`;
       }
