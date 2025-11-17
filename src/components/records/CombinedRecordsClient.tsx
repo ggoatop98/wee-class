@@ -238,7 +238,7 @@ export default function CombinedRecordsClient() {
       const gender = studentInfo?.gender || '';
       const counselingDivisionText = 상담구분 || '';
 
-      let 상담내용 = record.details || '';
+      let 상담내용 = '';
       if (record.type === '상담') {
           상담내용 = `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`;
       } else if (record.type === '자문') {
@@ -260,7 +260,7 @@ export default function CombinedRecordsClient() {
         '성별': gender,
         '상담제목': '',
         '상담내용': 상담내용, 
-        '상담시간(시)': hours > 0 ? hours : '',
+        '상담시간(시)': hours,
         '상담시간(분)': minutes,
         '상담사소속': '전문상담교사',
         '상담매체구분': 상담매체,
@@ -320,5 +320,3 @@ export default function CombinedRecordsClient() {
     </>
   );
 }
-
-    
