@@ -243,6 +243,8 @@ export default function CombinedRecordsClient() {
           상담내용 = `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`;
       } else if (record.type === '자문') {
           상담내용 = "학생 정서, 적응행동 관련 교원 자문";
+      } else if (record.type === '검사') {
+          상담내용 = `${record.details}, 학생 심리 검사 및 해석 관련 상담`;
       }
 
       const 상담인원 = 1 + (record.coCounselees?.length || 0);
@@ -279,7 +281,7 @@ export default function CombinedRecordsClient() {
     // Column widths
     worksheet['!cols'] = [
         { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 8 }, { wch: 8 },
-        { wch: 10 }, { wch: 8 }, { wch: 6 }, { wch: 20 }, { wch: 30 }, { wch: 10 }, { wch: 10 },
+        { wch: 10 }, { wch: 8 }, { wch: 6 }, { wch: 20 }, { wch: 40 }, { wch: 10 }, { wch: 10 },
         { wch: 15 }, { wch: 12 }, {wch: 2}, { wch: 20 }, { wch: 20 }
     ];
 
