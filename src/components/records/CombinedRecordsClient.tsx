@@ -368,7 +368,7 @@ export default function CombinedRecordsClient() {
     });
     
     const header = ["연번", "상담 일자", "상담 시간", "학년/반", "이름", "중분류", "상담구분"];
-    const worksheet = XLSX.utils.json_to_sheet([], { header });
+    const worksheet = XLSX.utils.json_to_sheet([], { skipHeader: true });
     
     XLSX.utils.sheet_add_aoa(worksheet, [['상담관리대장']], { origin: 'A1' });
     
@@ -378,8 +378,8 @@ export default function CombinedRecordsClient() {
     if (!worksheet['A1']) worksheet['A1'] = {v: '상담관리대장'};
     worksheet['A1'].s = { alignment: { horizontal: 'center', vertical: 'center' } };
 
-
-    XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A3', skipHeader: true });
+    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A3' });
+    XLSX.utils.sheet_add_json(worksheet, dataToExport, { origin: 'A4', skipHeader: true });
 
     worksheet['!cols'] = [
       { wch: 5 },  // 연번
