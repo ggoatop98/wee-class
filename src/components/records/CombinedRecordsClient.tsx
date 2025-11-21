@@ -257,17 +257,22 @@ export default function CombinedRecordsClient() {
       const grade = studentInfo?.class.split('-')[0] ? `${studentInfo.class.split('-')[0]}학년` : '';
       const gender = studentInfo?.gender || '';
       const counselingDivisionText = 상담구분 || '';
+      const 상담인원 = 1 + (record.coCounselees?.length || 0);
+      const firstLineOfDetails = record.details.split('\n')[0];
 
       let 상담내용 = '';
-      if (record.isAdvisory) {
-          상담내용 = "학생 정서, 적응행동 관련 교원 자문";
-      } else if (record.type === '상담') {
-          상담내용 = `${grade}, ${gender}, ${counselingDivisionText}, 관련 상담`;
+      if (중분류 === '개인상담') {
+          상담내용 = `${grade}, ${gender}, ${counselingDivisionText}. ${firstLineOfDetails}`;
+      } else if (중분류 === '학부모상담') {
+          상담내용 = `${grade}, ${gender}, 학생 관련 학부모상담. ${firstLineOfDetails}`;
+      } else if (중분류 === '집단상담') {
+          상담내용 = `${상담인원}명 집단. ${counselingDivisionText}. ${firstLineOfDetails}`;
+      } else if (중분류 === '교원자문') {
+          상담내용 = `${grade}, ${gender}, ${counselingDivisionText}. ${firstLineOfDetails}`;
       } else if (record.type === '검사') {
           상담내용 = `${record.details}, 학생 심리 검사 및 해석 관련 상담`;
       }
 
-      const 상담인원 = 1 + (record.coCounselees?.length || 0);
 
       return {
         '상담분류': '전문상담',
