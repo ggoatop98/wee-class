@@ -8,10 +8,10 @@ import { PageHeader } from '@/components/PageHeader';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { CalendarPlus, UserPlus } from 'lucide-react';
+import { CalendarPlus, UserPlus, Pencil, Trash2 } from 'lucide-react';
 import StudentForm from '@/components/students/StudentForm';
 import AppointmentForm from '@/components/appointments/AppointmentForm';
-import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, where, doc, deleteDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Student, Appointment } from '@/types';
 import Link from 'next/link';
@@ -21,11 +21,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import TodoList from '@/components/dashboard/TodoList';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useToast } from '@/hooks/use-toast';
 
 function DashboardPageContent() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [allAppointments, setAllAppointments] = useState<Appointment[]>([]);
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
@@ -175,6 +179,46 @@ function DashboardPageContent() {
 
     return "예정된 일정";
   };
+  
+  const handleEditAppointment = (appointment: Appointment) => {
+    const originalId = appointment.id.split('-repeat-')[0];
+    const originalAppointment = allAppointments.find(a => a.id === originalId);
+    if (originalAppointment) {
+      setSelectedAppointment(originalAppointment);
+      setIsAppointmentModalOpen(true);
+    }
+  };
+
+  const handleDeleteAppointment = async (appointment: Appointment) => {
+    const originalId = appointment.id.split('-repeat-')[0];
+    const isRecurringInstance = appointment.id.includes('-repeat-');
+    
+    try {
+      if (isRecurringInstance) {
+        const appointmentRef = doc(db, "appointments", originalId);
+        await updateDoc(appointmentRef, {
+          excludedDates: arrayUnion(appointment.date)
+        });
+        toast({
+          title: "성공",
+          description: "선택한 반복 일정이 삭제되었습니다.",
+        });
+      } else {
+        await deleteDoc(doc(db, "appointments", originalId));
+        toast({
+          title: "성공",
+          description: "일정 정보가 삭제되었습니다.",
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting appointment: ", error);
+      toast({
+        variant: "destructive",
+        title: "오류",
+        description: "일정 삭제 중 오류가 발생했습니다.",
+      });
+    }
+  };
 
 
   return (
@@ -189,7 +233,7 @@ function DashboardPageContent() {
                 <CardTitle className="text-xl text-center">빠른 실행</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col sm:flex-row gap-4 p-4">
-                <Button onClick={() => setIsAppointmentModalOpen(true)} className="w-full sm:w-auto flex-grow">
+                <Button onClick={() => { setSelectedAppointment(null); setIsAppointmentModalOpen(true); }} className="w-full sm:w-auto flex-grow">
                   <CalendarPlus className="mr-2 h-4 w-4" />
                   일정 추가
                 </Button>
@@ -210,10 +254,36 @@ function DashboardPageContent() {
                 <ScrollArea className="h-[240px] pr-4">
                   <ul className="space-y-2">
                     {appointmentsToShow.length > 0 ? appointmentsToShow.map((app) => (
-                        <li key={app.id} className="flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
-                          <div>
+                        <li key={app.id} className="group flex items-center justify-between p-2 rounded-lg bg-background hover:bg-muted/80 transition-colors">
+                          <div className="flex-grow">
                             <p className="font-semibold">{`${app.studentName} - ${app.title}`}</p>
-                            <p className="text-sm text-muted-foreground">{parseDateWithTimezone(app.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} {app.startTime}</p>
+                            <p className="text-sm text-muted-foreground">{`${app.startTime}`}</p>
+                          </div>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditAppointment(app)}>
+                                <Pencil className="h-4 w-4" />
+                                <span className="sr-only">수정</span>
+                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">삭제</span>
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                        이 작업은 되돌릴 수 없습니다. 일정 정보가 영구적으로 삭제됩니다.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>취소</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteAppointment(app)} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </li>
                     )) : (
@@ -268,7 +338,7 @@ function DashboardPageContent() {
         </div>
       </main>
       <StudentForm isOpen={isStudentModalOpen} onOpenChange={setIsStudentModalOpen} />
-      <AppointmentForm isOpen={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen} students={students} />
+      <AppointmentForm isOpen={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen} students={students} appointment={selectedAppointment} />
     </AppLayout>
   );
 }
