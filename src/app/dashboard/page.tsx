@@ -230,7 +230,7 @@ function DashboardPageContent() {
           <div className="space-y-8 md:col-span-1">
              <Card>
               <CardHeader>
-                <CardTitle className="text-xl text-center">빠른 실행</CardTitle>
+                <CardTitle className="text-xl text-center">바로 가기</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col sm:flex-row gap-4 p-4">
                 <Button onClick={() => { setSelectedAppointment(null); setIsAppointmentModalOpen(true); }} className="w-full sm:w-auto flex-grow">
