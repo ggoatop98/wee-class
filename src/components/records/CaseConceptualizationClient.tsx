@@ -30,7 +30,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
     const router = useRouter();
 
     useEffect(() => {
-        if (!studentId || !user) return;
+        if (!studentId || !user?.uid) return;
         setLoading(true);
         const q = query(
             collection(db, "caseConceptualizations"),
@@ -47,7 +47,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
             setLoading(false);
         });
         return () => unsubscribe();
-    }, [studentId, user]);
+    }, [studentId, user?.uid]);
 
     const handleSave = async (content: string) => {
         if (!user) {

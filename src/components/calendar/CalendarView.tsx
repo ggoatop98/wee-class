@@ -30,7 +30,7 @@ export function CalendarView() {
   const lastDayOfMonth = endOfMonth(currentDate);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
     
     const q = query(collection(db, "appointments"), where("userId", "==", user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -47,7 +47,7 @@ export function CalendarView() {
       unsubscribe();
       studentUnsubscribe();
     }
-  }, [user]);
+  }, [user?.uid]);
 
   const daysInMonth = eachDayOfInterval({ start: firstDayOfMonth, end: lastDayOfMonth });
   const startingDayIndex = getDay(firstDayOfMonth);

@@ -19,7 +19,7 @@ export default function TodoList() {
   const [newTask, setNewTask] = useState('');
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
 
     // Remove orderBy from the query
     const q = query(
@@ -39,7 +39,7 @@ export default function TodoList() {
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid]);
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();

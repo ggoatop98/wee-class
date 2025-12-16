@@ -33,7 +33,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
     const router = useRouter();
 
     useEffect(() => {
-        if (!studentId || !user) return;
+        if (!studentId || !user?.uid) return;
         setLoading(true);
         const q = query(
             collection(db, "psychologicalTests"),
@@ -51,7 +51,7 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
             setLoading(false);
         });
         return () => unsubscribe();
-    }, [studentId, user]);
+    }, [studentId, user?.uid]);
 
     const handleAddNew = () => {
         setSelectedTest(null);

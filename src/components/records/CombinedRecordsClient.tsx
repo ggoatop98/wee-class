@@ -38,7 +38,7 @@ export default function CombinedRecordsClient() {
 
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
     
     setLoading(true);
 
@@ -61,16 +61,20 @@ export default function CombinedRecordsClient() {
     });
 
 
-    // Initial loading finished after both snapshots are active
-    const timer = setTimeout(() => setLoading(false), 500);
+    // Initial loading finished after all snapshots are active
+    Promise.all([
+        new Promise(resolve => onSnapshot(logsQuery, () => resolve(true))),
+        new Promise(resolve => onSnapshot(testsQuery, () => resolve(true))),
+        new Promise(resolve => onSnapshot(studentsQuery, () => resolve(true))),
+    ]).then(() => setLoading(false));
+
 
     return () => {
       unsubLogs();
       unsubTests();
       unsubStudents();
-      clearTimeout(timer);
     };
-  }, [user]);
+  }, [user?.uid]);
 
   const combinedRecords: CombinedRecord[] = useMemo(() => {
     const logsAsRecords: CombinedRecord[] = counselingLogs.map(log => {

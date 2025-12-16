@@ -40,7 +40,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     const previousLog = isFormVisible && !selectedLog && logs.length > 0 ? logs[0] : null;
 
     useEffect(() => {
-        if (!studentId || !user) return;
+        if (!studentId || !user?.uid) return;
         setLoading(true);
 
         const logsQuery = query(
@@ -72,7 +72,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
             unsubLogs();
             unsubStudents();
         };
-    }, [studentId, user]);
+    }, [studentId, user?.uid]);
 
     const handleAddNewLog = () => {
         setSelectedLog(null);

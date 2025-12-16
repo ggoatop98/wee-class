@@ -32,7 +32,7 @@ export default function StudentsClient() {
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.uid) {
         setLoading(false);
         return;
     };
@@ -50,7 +50,7 @@ export default function StudentsClient() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [user]);
+  }, [user?.uid]);
   
   const fetchFilesForStudent = useCallback(async (studentId: string) => {
     if (!user) return;
