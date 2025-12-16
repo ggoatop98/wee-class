@@ -45,7 +45,7 @@ export default function SignupPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">WeeClass Aid 회원가입</CardTitle>
+          <CardTitle className="text-2xl">Wee-Couns 회원가입</CardTitle>
           <CardDescription>
             사용할 이메일과 비밀번호를 입력하세요.
           </CardDescription>
