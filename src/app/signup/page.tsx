@@ -15,6 +15,7 @@ import { AlertCircle } from 'lucide-react';
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
@@ -22,6 +23,10 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
     setError('');
     setLoading(true);
     try {
@@ -81,6 +86,17 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="6자리 이상"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirm-password">비밀번호 확인</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="비밀번호를 다시 입력하세요."
               />
             </div>
           </CardContent>
