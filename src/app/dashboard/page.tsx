@@ -36,7 +36,7 @@ function DashboardPageContent() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
 
     const unsubStudents = onSnapshot(query(collection(db, "students"), where("userId", "==", user.uid)), (snapshot) => {
         const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
@@ -57,7 +57,7 @@ function DashboardPageContent() {
       unsubStudents();
       unsubAppointments();
     };
-  }, [user]);
+  }, [user?.uid]);
   
   const parseDateWithTimezone = (dateString: string) => {
     const date = new Date(dateString);
