@@ -25,13 +25,13 @@ export default function AppointmentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.uid) return;
     
     const q = query(collection(db, "appointments"), where("userId", "==", user.uid));
     const unsubAppointments = onSnapshot(q, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       setAppointments(appointmentsData);
-      if(loading) setLoading(false);
+      setLoading(false);
     });
     
     const studentsQuery = query(collection(db, "students"), where("userId", "==", user.uid));
@@ -44,7 +44,7 @@ export default function AppointmentsClient() {
       unsubAppointments();
       unsubStudents();
     };
-  }, [user, loading]);
+  }, [user?.uid]);
   
   const allAppointmentsWithRepeats = useMemo(() => {
     const expandedAppointments: Appointment[] = [];
