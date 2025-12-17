@@ -96,6 +96,9 @@ export default function LoginPage() {
                     회원가입
                 </Link>
             </div>
+            <div className="text-center text-xs text-muted-foreground pt-4">
+              문의 : 14877254@naver.com
+            </div>
           </CardFooter>
         </form>
       </Card>
