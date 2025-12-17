@@ -72,11 +72,11 @@ export default function StatisticsTable({ data, loading }: StatisticsTableProps)
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-16 text-center">No.</TableHead>
-            <TableHead className="w-32 text-center">대분류</TableHead>
-            <TableHead className="w-48 text-center">중분류</TableHead>
-            <TableHead className="w-48 text-center">상담구분</TableHead>
-            <TableHead className="w-24 text-center">상담건수</TableHead>
+            <TableHead className="w-16 text-center border-r">No.</TableHead>
+            <TableHead className="w-32 text-center border-r">대분류</TableHead>
+            <TableHead className="w-48 text-center border-r">중분류</TableHead>
+            <TableHead className="w-48 text-center border-r">상담구분</TableHead>
+            <TableHead className="w-24 text-center border-r">상담건수</TableHead>
             <TableHead className="w-32 text-center">평균상담시간(분)</TableHead>
           </TableRow>
         </TableHeader>
@@ -100,8 +100,8 @@ export default function StatisticsTable({ data, loading }: StatisticsTableProps)
               if(item.level1 === '' && item.no === '합계'){
                 return (
                      <TableRow key={index} className="bg-muted/90 font-bold">
-                        <TableCell colSpan={4} className="text-center text-lg">{item.no}</TableCell>
-                        <TableCell className="text-center text-lg">{item.count}</TableCell>
+                        <TableCell colSpan={4} className="text-center text-lg border-r">{item.no}</TableCell>
+                        <TableCell className="text-center text-lg border-r">{item.count}</TableCell>
                         <TableCell className="text-center text-lg">{item.avgTime.toFixed(2)}</TableCell>
                     </TableRow>
                 )
@@ -109,14 +109,14 @@ export default function StatisticsTable({ data, loading }: StatisticsTableProps)
 
               return (
                 <TableRow key={index} className={cn(item.isTotal && "bg-muted/80 font-bold")}>
-                    <TableCell className="text-center">{item.no}</TableCell>
+                    <TableCell className="text-center border-r">{item.no}</TableCell>
                     
-                    {level1RowSpan > 0 && <TableCell className="text-center align-top" rowSpan={level1RowSpan}>{item.level1}</TableCell>}
+                    {level1RowSpan > 0 && <TableCell className="text-center align-top border-r" rowSpan={level1RowSpan}>{item.level1}</TableCell>}
                     
-                    {level2RowSpan > 0 && <TableCell className="align-top" rowSpan={level2RowSpan}>{item.level2}</TableCell>}
+                    {level2RowSpan > 0 && <TableCell className="align-top border-r" rowSpan={level2RowSpan}>{item.level2}</TableCell>}
 
-                    <TableCell>{item.level3}</TableCell>
-                    <TableCell className="text-center">{item.count}</TableCell>
+                    <TableCell className="border-r">{item.level3}</TableCell>
+                    <TableCell className="text-center border-r">{item.count}</TableCell>
                     <TableCell className="text-center">{item.avgTime.toFixed(2)}</TableCell>
                 </TableRow>
               )
