@@ -64,9 +64,17 @@ export default function PostView({ postId }: PostViewProps) {
 
     }, [postId, router, toast]);
 
+    useEffect(() => {
+        if (post) {
+            const postRef = doc(db, 'posts', postId);
+            if (post.commentCount !== comments.length) {
+                updateDoc(postRef, { commentCount: comments.length });
+            }
+        }
+    }, [comments, post, postId]);
+
     const handleAddComment = async () => {
         if (newComment.trim() === '' || !user) return;
-        const postRef = doc(db, 'posts', postId);
 
         try {
             await addDoc(collection(db, `posts/${postId}/comments`), {
@@ -75,7 +83,6 @@ export default function PostView({ postId }: PostViewProps) {
                 authorName: user.displayName || user.email,
                 createdAt: Timestamp.now()
             });
-            await updateDoc(postRef, { commentCount: increment(1) });
             setNewComment('');
             toast({ title: '성공', description: '댓글이 작성되었습니다.' });
         } catch (error) {
@@ -97,10 +104,8 @@ export default function PostView({ postId }: PostViewProps) {
     };
 
     const handleDeleteComment = async (commentId: string) => {
-        const postRef = doc(db, 'posts', postId);
         try {
             await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
-            await updateDoc(postRef, { commentCount: increment(-1) });
             toast({ title: '성공', description: '댓글이 삭제되었습니다.' });
         } catch (error) {
             console.error('Error deleting comment: ', error);
