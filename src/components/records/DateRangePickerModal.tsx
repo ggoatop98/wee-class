@@ -53,10 +53,10 @@ export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload,
   
   const title = downloadType === 'ledger' ? '기간 선택' : '다운로드 기간 선택';
   const description = downloadType === 'ledger'
-    ? '통계를 조회할 기간을 선택하세요.'
+    ? '통계를 다운로드할 기간을 선택하세요.'
     : '엑셀 파일로 다운로드할 상담 기록의 기간을 선택하세요.';
 
-  const buttonText = downloadType === 'ledger' ? '조회' : '다운로드';
+  const buttonText = '다운로드';
 
 
   return (
@@ -86,7 +86,7 @@ export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload,
             취소
           </Button>
           <Button onClick={handleDownloadClick}>
-            {downloadType !== 'ledger' && <Download className="mr-2 h-4 w-4" />}
+            <Download className="mr-2 h-4 w-4" />
             {buttonText}
           </Button>
         </DialogFooter>
