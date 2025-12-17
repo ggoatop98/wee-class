@@ -95,7 +95,7 @@ export default function PostView({ postId }: PostViewProps) {
         if (!post) return;
         try {
             await deleteDoc(doc(db, 'posts', post.id));
-            toast({ title: '성공', description: '게시글이 삭제되었습니다.' });
+            toast({ title: '성공', description: '게시글이 삭제되었습니다.', duration: 500 });
             router.push('/community');
         } catch (error) {
             console.error('Error deleting post: ', error);
@@ -145,7 +145,7 @@ export default function PostView({ postId }: PostViewProps) {
                         dangerouslySetInnerHTML={{ __html: post.content }}
                     />
                 </CardContent>
-                <CardFooter className="flex justify-end">
+                 <CardFooter className="flex justify-end">
                     {user?.uid === post.authorId && (
                         <div className="flex gap-2">
                             <Button variant="outline" onClick={() => router.push(`/community/edit/${post.id}`)}>수정</Button>

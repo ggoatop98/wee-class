@@ -157,7 +157,7 @@ function toast({ ...props }: Toast) {
     type: "ADD_TOAST",
     toast: {
       ...props,
-      duration: props.variant === 'destructive' ? 5000 : 100, // 0.1 초
+      duration: props.duration ?? (props.variant === 'destructive' ? 5000 : 3000),
       id,
       open: true,
       onOpenChange: (open) => {
