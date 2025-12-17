@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DateRange } from 'react-day-picker';
 import { ko } from 'date-fns/locale';
 import { format } from 'date-fns';
@@ -23,12 +23,18 @@ export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload,
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!isOpen) {
+        setDateRange(undefined);
+    }
+  }, [isOpen]);
+
   const handleDownloadClick = () => {
     if (!dateRange || !dateRange.from || !dateRange.to) {
         toast({
             variant: 'destructive',
             title: '기간 오류',
-            description: '다운로드할 기간을 선택해주세요.',
+            description: '기간을 선택해주세요.',
         });
         return;
     }
@@ -45,10 +51,12 @@ export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload,
     return `${format(dateRange.from, "PPP", { locale: ko })} - ${format(dateRange.to, "PPP", { locale: ko })}`;
   }
   
-  const title = downloadType === 'ledger' ? '상담관리대장 기간 선택' : '다운로드 기간 선택';
+  const title = downloadType === 'ledger' ? '기간 선택' : '다운로드 기간 선택';
   const description = downloadType === 'ledger'
-    ? '상담관리대장으로 다운로드할 기록의 기간을 선택하세요.'
+    ? '통계를 조회할 기간을 선택하세요.'
     : '엑셀 파일로 다운로드할 상담 기록의 기간을 선택하세요.';
+
+  const buttonText = downloadType === 'ledger' ? '조회' : '다운로드';
 
 
   return (
@@ -78,8 +86,8 @@ export default function DateRangePickerModal({ isOpen, onOpenChange, onDownload,
             취소
           </Button>
           <Button onClick={handleDownloadClick}>
-            <Download className="mr-2 h-4 w-4" />
-            다운로드
+            {downloadType !== 'ledger' && <Download className="mr-2 h-4 w-4" />}
+            {buttonText}
           </Button>
         </DialogFooter>
       </DialogContent>
