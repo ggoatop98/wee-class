@@ -12,7 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { House, Calendar, CalendarDays, Users, BookUser, LogOut, BarChart } from "lucide-react";
+import { House, Calendar, CalendarDays, Users, BookUser, LogOut, BarChart, UserCog } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
@@ -23,6 +23,7 @@ const menuItems = [
   { href: "/students", label: "내담자", icon: Users },
   { href: "/records", label: "상담 목록", icon: BookUser },
   { href: "/statistics", label: "상담 통계", icon: BarChart },
+  { href: "/account", label: "계정 관리", icon: UserCog },
 ];
 
 export function AppSidebar() {
