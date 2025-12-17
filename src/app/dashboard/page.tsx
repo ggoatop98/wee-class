@@ -179,7 +179,7 @@ function DashboardPageContent() {
         return `${format(firstAppDate, 'M월 d일')} 일정`;
     }
 
-    return "예정된 일정";
+    return "상담 일정";
   };
   
   const handleEditAppointment = (appointment: Appointment) => {
