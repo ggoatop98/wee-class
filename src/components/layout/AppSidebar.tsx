@@ -22,7 +22,7 @@ const menuItems = [
   { href: "/calendar", label: "캘린더", icon: CalendarDays },
   { href: "/students", label: "내담자", icon: Users },
   { href: "/records", label: "상담 목록", icon: BookUser },
-  { href: "/statistics", label: "통계", icon: BarChart },
+  { href: "/statistics", label: "상담 통계", icon: BarChart },
 ];
 
 export function AppSidebar() {
