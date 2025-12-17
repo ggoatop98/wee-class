@@ -37,19 +37,10 @@ export default function PostEditor({ post }: PostEditorProps) {
     const form = useForm<PostFormValues>({
         resolver: zodResolver(postSchema),
         defaultValues: {
-            title: '',
-            content: '',
+            title: post?.title || '',
+            content: post?.content || '',
         },
     });
-
-    useEffect(() => {
-        if (post) {
-            form.reset({
-                title: post.title,
-                content: post.content,
-            });
-        }
-    }, [post, form]);
     
     const onSubmit = async (data: PostFormValues) => {
         if (!user) {
@@ -72,7 +63,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                     authorId: user.uid,
                     authorName: user.displayName || user.email,
                     createdAt: Timestamp.now(),
-                    likeCount: 0,
                     commentCount: 0,
                 };
                 await addDoc(collection(db, 'posts'), newPost);
@@ -113,6 +103,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                                         <FormLabel>내용</FormLabel>
                                         <FormControl>
                                             <RichTextEditor
+                                                key={post?.id || 'new-post'}
                                                 content={field.value}
                                                 onChange={field.onChange}
                                                 placeholder="내용을 입력하세요..."
