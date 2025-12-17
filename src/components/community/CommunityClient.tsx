@@ -42,7 +42,7 @@ export default function CommunityClient() {
 
     return (
         <>
-            <PageHeader title="커뮤니티">
+            <PageHeader title="자유게시판">
                 <div className="flex w-full max-w-sm items-center space-x-2">
                     <Input 
                         type="text" 
