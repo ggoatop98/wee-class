@@ -118,7 +118,9 @@ export default function PostView({ postId }: PostViewProps) {
 
     return (
         <>
-            <PageHeader title="게시글 보기" />
+            <PageHeader title="게시글 보기">
+                <Button variant="outline" onClick={() => router.push('/community')}>목록으로</Button>
+            </PageHeader>
             <Card>
                 <CardHeader>
                     <CardTitle>{post.title}</CardTitle>
@@ -134,8 +136,7 @@ export default function PostView({ postId }: PostViewProps) {
                         dangerouslySetInnerHTML={{ __html: post.content }}
                     />
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                    <Button variant="outline" onClick={() => router.push('/community')}>목록으로</Button>
+                <CardFooter className="flex justify-end">
                     {user?.uid === post.authorId && (
                         <div className="flex gap-2">
                             <Button variant="outline" onClick={() => router.push(`/community/edit/${post.id}`)}>수정</Button>
