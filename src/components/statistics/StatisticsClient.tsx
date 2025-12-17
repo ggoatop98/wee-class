@@ -8,13 +8,15 @@ import type { CounselingLog, PsychologicalTest, CombinedRecord, Student, Counsel
 import { useAuth } from "@/contexts/AuthContext";
 import { DateRange } from "react-day-picker";
 import { addDays, format, startOfMonth } from "date-fns";
+import * as XLSX from 'xlsx';
 
 import { PageHeader } from "../PageHeader";
 import DateRangePickerModal from "../records/DateRangePickerModal";
 import { Button } from "../ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Download } from "lucide-react";
 import StatisticsTable from "./StatisticsTable";
 import { Card, CardContent } from "../ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 export interface StatisticRow {
     no: number | string;
@@ -28,6 +30,7 @@ export interface StatisticRow {
 
 export default function StatisticsClient() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
   const [psychologicalTests, setPsychologicalTests] = useState<PsychologicalTest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -218,13 +221,56 @@ export default function StatisticsClient() {
     return "기간을 선택하세요";
   }, [dateRange]);
 
+  const handleDownloadExcel = () => {
+    if (statisticsData.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: '다운로드할 데이터가 없습니다.',
+        description: '선택한 기간에 해당하는 통계가 없습니다.',
+      });
+      return;
+    }
+
+    const dataToExport = statisticsData.map(row => ({
+      'No.': row.no,
+      '대분류': row.level1,
+      '중분류': row.level2,
+      '상담구분': row.level3,
+      '상담건수': row.count,
+      '평균상담시간(분)': row.avgTime.toFixed(2),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "상담 현황 통계");
+
+    // Adjust column widths
+    worksheet['!cols'] = [
+      { wch: 5 },  // No.
+      { wch: 10 }, // 대분류
+      { wch: 15 }, // 중분류
+      { wch: 20 }, // 상담구분
+      { wch: 10 }, // 상담건수
+      { wch: 20 }, // 평균상담시간(분)
+    ];
+
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(workbook, `상담_현황_통계_${today}.xlsx`);
+  };
+
   return (
     <>
       <PageHeader title="상담 현황 통계">
-        <Button onClick={() => setIsDateRangeModalOpen(true)} variant="outline">
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {rangeText}
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={() => setIsDateRangeModalOpen(true)} variant="outline">
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {rangeText}
+            </Button>
+            <Button onClick={handleDownloadExcel} variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                다운로드
+            </Button>
+        </div>
       </PageHeader>
       <Card>
         <CardContent className="p-0">
