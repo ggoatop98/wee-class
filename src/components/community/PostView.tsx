@@ -84,7 +84,7 @@ export default function PostView({ postId }: PostViewProps) {
                 createdAt: Timestamp.now()
             });
             setNewComment('');
-            toast({ title: '성공', description: '댓글이 작성되었습니다.' });
+            toast({ title: '성공', description: '댓글이 작성되었습니다.', duration: 500 });
         } catch (error) {
             console.error('Error adding comment: ', error);
             toast({ variant: 'destructive', title: '오류', description: '댓글 작성 중 오류가 발생했습니다.' });
@@ -106,7 +106,7 @@ export default function PostView({ postId }: PostViewProps) {
     const handleDeleteComment = async (commentId: string) => {
         try {
             await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
-            toast({ title: '성공', description: '댓글이 삭제되었습니다.' });
+            toast({ title: '성공', description: '댓글이 삭제되었습니다.', duration: 500 });
         } catch (error) {
             console.error('Error deleting comment: ', error);
             toast({ variant: 'destructive', title: '오류', description: '댓글 삭제 중 오류가 발생했습니다.' });
