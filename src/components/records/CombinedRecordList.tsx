@@ -24,9 +24,10 @@ interface CombinedRecordListProps {
   onEdit: (record: CombinedRecord) => void;
   onDelete: (record: CombinedRecord) => void;
   loading: boolean;
+  pagination: React.ReactNode;
 }
 
-export default function CombinedRecordList({ records, onEdit, onDelete, loading }: CombinedRecordListProps) {
+export default function CombinedRecordList({ records, onEdit, onDelete, loading, pagination }: CombinedRecordListProps) {
   if (loading) {
     return (
       <div className="rounded-lg border">
@@ -63,6 +64,7 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
   }
 
   return (
+    <>
     <div className="rounded-lg border bg-card">
       <Table>
         <TableHeader>
@@ -135,5 +137,9 @@ export default function CombinedRecordList({ records, onEdit, onDelete, loading 
         </TableBody>
       </Table>
     </div>
+    <div className="mt-4 flex justify-center">
+      {pagination}
+    </div>
+    </>
   );
 }

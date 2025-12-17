@@ -21,8 +21,10 @@ import CombinedRecordList from "./CombinedRecordList";
 import { Button } from "../ui/button";
 import DateRangePickerModal from "./DateRangePickerModal";
 import { deleteObject, listAll, ref } from "firebase/storage";
+import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext, PaginationEllipsis } from "@/components/ui/pagination";
 
 type DownloadType = 'neisedu' | 'ledger';
+const RECORDS_PER_PAGE = 20;
 
 export default function CombinedRecordsClient() {
   const { user } = useAuth();
@@ -35,6 +37,7 @@ export default function CombinedRecordsClient() {
   const router = useRouter();
   const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
   const [downloadType, setDownloadType] = useState<DownloadType>('neisedu');
+  const [currentPage, setCurrentPage] = useState(1);
 
 
   useEffect(() => {
@@ -177,6 +180,7 @@ export default function CombinedRecordsClient() {
   }, [counselingLogs, psychologicalTests]);
 
   const filteredRecords = useMemo(() => {
+    setCurrentPage(1);
     if (!searchTerm) {
       return combinedRecords;
     }
@@ -184,6 +188,13 @@ export default function CombinedRecordsClient() {
       record.studentName.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [combinedRecords, searchTerm]);
+
+  const paginatedRecords = useMemo(() => {
+    const startIndex = (currentPage - 1) * RECORDS_PER_PAGE;
+    return filteredRecords.slice(startIndex, startIndex + RECORDS_PER_PAGE);
+  }, [filteredRecords, currentPage]);
+
+  const totalPages = Math.ceil(filteredRecords.length / RECORDS_PER_PAGE);
 
   const handleDelete = async (record: CombinedRecord) => {
     if (!user) return;
@@ -416,6 +427,59 @@ export default function CombinedRecordsClient() {
     XLSX.writeFile(workbook, `상담관리대장_${today}.xlsx`);
   };
 
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage + 1 < maxPagesToShow) {
+        startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+    }
+
+    return (
+        <Pagination>
+            <PaginationContent>
+                <PaginationItem>
+                    <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); setCurrentPage(p => Math.max(1, p - 1)); }} />
+                </PaginationItem>
+
+                {startPage > 1 && (
+                    <PaginationItem>
+                        <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setCurrentPage(1); }}>1</PaginationLink>
+                    </PaginationItem>
+                )}
+                 {startPage > 2 && <PaginationEllipsis />}
+
+                {pageNumbers.map(number => (
+                    <PaginationItem key={number}>
+                        <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setCurrentPage(number); }} isActive={currentPage === number}>
+                            {number}
+                        </PaginationLink>
+                    </PaginationItem>
+                ))}
+
+                {endPage < totalPages -1 && <PaginationEllipsis />}
+                {endPage < totalPages && (
+                    <PaginationItem>
+                        <PaginationLink href="#" onClick={(e) => { e.preventDefault(); setCurrentPage(totalPages); }}>{totalPages}</PaginationLink>
+                    </PaginationItem>
+                )}
+
+                <PaginationItem>
+                    <PaginationNext href="#" onClick={(e) => { e.preventDefault(); setCurrentPage(p => Math.min(totalPages, p + 1)); }} />
+                </PaginationItem>
+            </PaginationContent>
+        </Pagination>
+    );
+  }
+
 
   return (
     <>
@@ -439,10 +503,11 @@ export default function CombinedRecordsClient() {
         </div>
       </PageHeader>
       <CombinedRecordList
-        records={filteredRecords}
+        records={paginatedRecords}
         onDelete={handleDelete}
         onEdit={handleEdit}
         loading={loading}
+        pagination={renderPagination()}
       />
       <DateRangePickerModal
         isOpen={isDateRangeModalOpen}
