@@ -9,9 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 import type { ParentApplication } from '@/types';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Loader2, PlusCircle, ArrowLeft } from 'lucide-react';
+import { Loader2, Pencil, Trash2, ArrowLeft } from 'lucide-react';
 import ApplicationForm from './ApplicationForm';
 import { useAuth } from '@/contexts/AuthContext';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface ParentApplicationClientProps {
     studentId: string;
@@ -121,9 +122,29 @@ export default function ParentApplicationClient({ studentId, studentName }: Pare
             <PageHeader title={`${studentName} ${formTitle}`}>
                  <div className="flex gap-2">
                     <Button onClick={() => setIsEditing(true)}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <Pencil className="mr-2 h-4 w-4" />
                         수정
                     </Button>
+                     <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                삭제
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    이 작업은 되돌릴 수 없습니다. 내용이 영구적으로 삭제됩니다.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>취소</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                     <Button variant="outline" onClick={() => router.back()}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         뒤로가기
