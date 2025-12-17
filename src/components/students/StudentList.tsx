@@ -3,7 +3,7 @@
 
 import React, { useRef } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload, FolderArchive, ClipboardUser, ClipboardPen } from 'lucide-react';
+import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload, FolderArchive, ClipboardSignature, ClipboardPen } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -119,7 +119,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                     <div className="flex gap-2">
                       <Link href={`/records/${student.id}/parent-application?studentName=${encodeURIComponent(student.name)}`}>
                         <Button variant="outline" size="sm">
-                            <ClipboardUser className="h-4 w-4 mr-1" />
+                            <ClipboardSignature className="h-4 w-4 mr-1" />
                             학부모 신청서
                         </Button>
                       </Link>
