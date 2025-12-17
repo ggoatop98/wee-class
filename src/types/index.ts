@@ -141,7 +141,6 @@ export interface Post {
   content: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
-  viewCount: number;
   likeCount: number;
   commentCount: number;
 }

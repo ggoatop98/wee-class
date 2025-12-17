@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, increment, onSnapshot, collection, addDoc, Timestamp, query, orderBy, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot, collection, addDoc, Timestamp, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Post, Comment } from '@/types';
@@ -48,14 +48,6 @@ export default function PostView({ postId }: PostViewProps) {
             const commentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
             setComments(commentsData);
         });
-
-        // Increment view count
-        const incrementViewCount = async () => {
-            await updateDoc(postRef, {
-                viewCount: increment(1)
-            });
-        }
-        incrementViewCount();
 
         return () => {
             unsubPost();

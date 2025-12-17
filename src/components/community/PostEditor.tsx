@@ -72,7 +72,6 @@ export default function PostEditor({ post }: PostEditorProps) {
                     authorId: user.uid,
                     authorName: user.displayName || user.email,
                     createdAt: Timestamp.now(),
-                    viewCount: 0,
                     likeCount: 0,
                     commentCount: 0,
                 };
