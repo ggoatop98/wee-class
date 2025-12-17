@@ -3,7 +3,7 @@
 
 import React, { useRef } from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload, FolderArchive } from 'lucide-react';
+import { Pencil, Trash2, BookUser, ClipboardList, Beaker, Upload, FolderArchive, ClipboardUser, ClipboardPen } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -77,7 +77,7 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
             <TableHead className="text-base">연락처</TableHead>
             <TableHead className="text-base">정서행동특성검사</TableHead>
             <TableHead className="text-base">상태</TableHead>
-            <TableHead className="text-center w-[380px] text-base">작업</TableHead>
+            <TableHead className="text-center w-[480px] text-base">작업</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -117,6 +117,18 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                 <TableCell className="text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div className="flex gap-2">
+                      <Link href={`/records/${student.id}/parent-application?studentName=${encodeURIComponent(student.name)}`}>
+                        <Button variant="outline" size="sm">
+                            <ClipboardUser className="h-4 w-4 mr-1" />
+                            학부모 신청서
+                        </Button>
+                      </Link>
+                       <Link href={`/records/${student.id}/teacher-referral?studentName=${encodeURIComponent(student.name)}`}>
+                        <Button variant="outline" size="sm">
+                            <ClipboardPen className="h-4 w-4 mr-1" />
+                            교사 의뢰서
+                        </Button>
+                      </Link>
                        <Link href={`/records/${student.id}/conceptualization?studentName=${encodeURIComponent(student.name)}`}>
                         <Button variant="outline" size="sm">
                             <ClipboardList className="h-4 w-4 mr-1" />

@@ -2,31 +2,42 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import RichTextEditor from '@/components/ui/RichTextEditor';
 import { PageHeader } from '../PageHeader';
-import { Printer } from 'lucide-react';
+import { Printer, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
-interface CaseConceptualizationFormProps {
+interface ApplicationFormProps {
+    formTitle: string;
     studentName: string;
     initialContent: string;
     onSave: (content: string) => void;
     onCancel: () => void;
+    handleDelete?: () => void;
 }
 
-export default function CaseConceptualizationForm({ studentName, initialContent, onSave, onCancel }: CaseConceptualizationFormProps) {
+export default function ApplicationForm({ formTitle, studentName, initialContent, onSave, onCancel: externalOnCancel, handleDelete }: ApplicationFormProps) {
     const [content, setContent] = useState(initialContent);
+    const router = useRouter();
 
     const handleSaveClick = () => {
         onSave(content);
     };
+
+    const onCancel = () => {
+        if(initialContent) {
+            externalOnCancel();
+        } else {
+            router.back();
+        }
+    }
     
     const handlePrint = () => {
         const printContent = `
             <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px;">
-                <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">사례개념화</h1>
+                <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">${formTitle}</h1>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <tbody>
                         <tr>
@@ -36,7 +47,7 @@ export default function CaseConceptualizationForm({ studentName, initialContent,
                     </tbody>
                 </table>
                 <div style="margin-bottom: 20px;">
-                    <h2 style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px;">사례개념화 내용</h2>
+                    <h2 style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px;">내용</h2>
                     <div style="min-height: 400px; padding: 10px; border: 1px solid #eee; word-wrap: break-word;">${content}</div>
                 </div>
             </div>
@@ -44,7 +55,7 @@ export default function CaseConceptualizationForm({ studentName, initialContent,
 
         const printWindow = window.open('', '_blank', 'height=800,width=800');
         if (printWindow) {
-            printWindow.document.write('<html><head><title>사례개념화 인쇄</title>');
+            printWindow.document.write(`<html><head><title>${formTitle} 인쇄</title>`);
             printWindow.document.write('</head><body>');
             printWindow.document.write(printContent);
             printWindow.document.write('</body></html>');
@@ -59,15 +70,36 @@ export default function CaseConceptualizationForm({ studentName, initialContent,
         }
     }
 
-
     return (
         <div className="flex flex-col h-screen p-8">
-             <PageHeader title={`${studentName} 사례개념화 ${initialContent ? '수정' : '작성'}`}>
+             <PageHeader title={`${studentName} ${formTitle} ${initialContent ? '수정' : '작성'}`}>
                 <div className="flex gap-2">
                     <Button type="button" variant="outline" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" />
                         인쇄
                     </Button>
+                    {handleDelete && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    삭제
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>정말 삭제하시겠습니까?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        이 작업은 되돌릴 수 없습니다. 내용이 영구적으로 삭제됩니다.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>취소</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">삭제</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
                     <Button variant="outline" onClick={onCancel}>취소</Button>
                     <Button onClick={handleSaveClick}>저장</Button>
                 </div>
@@ -76,7 +108,7 @@ export default function CaseConceptualizationForm({ studentName, initialContent,
                 <RichTextEditor
                     content={content}
                     onChange={setContent}
-                    placeholder="사례개념화 내용을 입력하세요..."
+                    placeholder="내용을 입력하세요..."
                 />
             </div>
         </div>

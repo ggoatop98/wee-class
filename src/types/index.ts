@@ -1,5 +1,4 @@
 
-
 import type { Timestamp } from 'firebase/firestore';
 
 export type StudentStatus = '상담중' | '종결';
@@ -78,6 +77,26 @@ export interface CaseConceptualization {
     updatedAt: Timestamp;
 }
 
+export interface ParentApplication {
+    id: string;
+    userId: string;
+    studentId: string;
+    studentName: string;
+    content: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
+export interface TeacherReferral {
+    id: string;
+    userId: string;
+    studentId: string;
+    studentName: string;
+    content: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
 export interface PsychologicalTest {
     id: string;
     userId: string;
@@ -141,7 +160,6 @@ export interface Post {
   content: string;
   createdAt: Timestamp;
   updatedAt?: Timestamp;
-  likeCount: number;
   commentCount: number;
 }
 

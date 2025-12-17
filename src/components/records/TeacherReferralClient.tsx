@@ -1,39 +1,38 @@
 
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
-import type { CaseConceptualization } from '@/types';
+import type { TeacherReferral } from '@/types';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
-import { Loader2, Pencil, PlusCircle, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Loader2, PlusCircle, ArrowLeft } from 'lucide-react';
 import ApplicationForm from './ApplicationForm';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface CaseConceptualizationClientProps {
+interface TeacherReferralClientProps {
     studentId: string;
     studentName: string;
 }
 
-export default function CaseConceptualizationClient({ studentId, studentName }: CaseConceptualizationClientProps) {
+export default function TeacherReferralClient({ studentId, studentName }: TeacherReferralClientProps) {
     const { user } = useAuth();
-    const [conceptualization, setConceptualization] = useState<CaseConceptualization | null>(null);
+    const [application, setApplication] = useState<TeacherReferral | null>(null);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
 
-    const formTitle = "사례개념화";
-    const collectionName = "caseConceptualizations";
-
+    const formTitle = "교사 의뢰서";
+    const collectionName = "teacherReferrals";
 
     useEffect(() => {
         if (!studentId || !user?.uid) {
             setLoading(false);
-            setConceptualization(null);
+            setApplication(null);
             return;
         }
         setLoading(true);
@@ -44,10 +43,10 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
             if (!snapshot.empty) {
-                const data = snapshot.docs[0].data() as CaseConceptualization;
-                setConceptualization({ id: snapshot.docs[0].id, ...data });
+                const data = snapshot.docs[0].data() as TeacherReferral;
+                setApplication({ id: snapshot.docs[0].id, ...data });
             } else {
-                setConceptualization(null);
+                setApplication(null);
             }
             setLoading(false);
         });
@@ -61,13 +60,11 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
         }
 
         try {
-            if (conceptualization) {
-                // Update existing
-                const docRef = doc(db, collectionName, conceptualization.id);
+            if (application) {
+                const docRef = doc(db, collectionName, application.id);
                 await setDoc(docRef, { content, updatedAt: Timestamp.now() }, { merge: true });
-                toast({ title: '성공', description: '사례개념화가 수정되었습니다.' });
+                toast({ title: '성공', description: `${formTitle}가 수정되었습니다.` });
             } else {
-                // Create new
                 await addDoc(collection(db, collectionName), {
                     userId: user.uid,
                     studentId,
@@ -76,24 +73,24 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                     createdAt: Timestamp.now(),
                     updatedAt: Timestamp.now(),
                 });
-                toast({ title: '성공', description: '사례개념화가 저장되었습니다.' });
+                toast({ title: '성공', description: `${formTitle}가 저장되었습니다.` });
             }
             setIsEditing(false);
         } catch (error) {
-            console.error('Error saving conceptualization: ', error);
+            console.error(`Error saving ${collectionName}: `, error);
             toast({ variant: 'destructive', title: '오류', description: '저장 중 오류가 발생했습니다.' });
         }
     };
-
+    
     const handleDelete = async () => {
-        if (!conceptualization) return;
+        if (!application) return;
         try {
-            await deleteDoc(doc(db, collectionName, conceptualization.id));
-            toast({ title: "성공", description: "사례개념화가 삭제되었습니다." });
-            setConceptualization(null);
+            await deleteDoc(doc(db, collectionName, application.id));
+            toast({ title: "성공", description: `${formTitle}가 삭제되었습니다.` });
+            setApplication(null);
             setIsEditing(false);
         } catch (error) {
-            console.error("Error deleting conceptualization: ", error);
+            console.error(`Error deleting ${collectionName}: `, error);
             toast({ variant: "destructive", title: "오류", description: "삭제 중 오류가 발생했습니다." });
         }
     };
@@ -105,27 +102,27 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
             </div>
         );
     }
-    
-    if (isEditing || !conceptualization) {
+
+    if (isEditing || !application) {
         return (
             <ApplicationForm
                 formTitle={formTitle}
                 studentName={studentName}
-                initialContent={conceptualization?.content || ''}
+                initialContent={application?.content || ''}
                 onSave={handleSave}
                 onCancel={() => setIsEditing(false)}
-                handleDelete={conceptualization ? handleDelete : undefined}
+                handleDelete={application ? handleDelete : undefined}
             />
         );
     }
 
     return (
         <div className="p-8">
-            <PageHeader title={`${studentName} 사례개념화`}>
+            <PageHeader title={`${studentName} ${formTitle}`}>
                  <div className="flex gap-2">
                     <Button onClick={() => setIsEditing(true)}>
-                         <Pencil className="mr-2 h-4 w-4" />
-                         수정
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        수정
                     </Button>
                     <Button variant="outline" onClick={() => router.back()}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -134,8 +131,8 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                 </div>
             </PageHeader>
             <div
-              className="prose max-w-none prose-sm sm:prose-base focus:outline-none p-6 border rounded-lg min-h-[60vh]"
-              dangerouslySetInnerHTML={{ __html: conceptualization.content }}
+                className="prose max-w-none prose-sm sm:prose-base focus:outline-none p-6 border rounded-lg min-h-[60vh]"
+                dangerouslySetInnerHTML={{ __html: application.content }}
             />
         </div>
     );
