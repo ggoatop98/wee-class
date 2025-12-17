@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,8 +17,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,7 +32,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push('/');
+      // Successful login will be handled by the useEffect hook
     } catch (err: any) {
       if (err.code === 'auth/invalid-credential') {
         setError('이메일 또는 비밀번호가 올바르지 않습니다.');
@@ -34,15 +40,15 @@ export default function LoginPage() {
         setError('로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       }
       console.error(err);
+      setLoading(false); // Only stop loading on error
     }
-    setLoading(false);
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">WeeClass Aid 로그인</CardTitle>
+          <CardTitle className="text-2xl">Wee Class 로그인</CardTitle>
           <CardDescription>
             계속하려면 이메일과 비밀번호를 입력하세요.
           </CardDescription>
