@@ -12,24 +12,31 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { House, Calendar, CalendarDays, Users, BookUser, LogOut, BarChart, UserCog } from "lucide-react";
+import { House, Calendar, CalendarDays, Users, BookUser, LogOut, BarChart, UserCog, MessageSquare } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { href: "/", label: "Home", icon: House },
+  { href: "/dashboard", label: "Home", icon: House },
   { href: "/schedule", label: "일정", icon: Calendar },
   { href: "/calendar", label: "캘린더", icon: CalendarDays },
   { href: "/students", label: "내담자", icon: Users },
   { href: "/records", label: "상담 목록", icon: BookUser },
   { href: "/statistics", label: "상담 통계", icon: BarChart },
+  { href: "/community", label: "자유게시판", icon: MessageSquare },
   { href: "/account", label: "계정 관리", icon: UserCog },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
-  const isRecordsPage = pathname.startsWith('/records');
+  
+  const getIsActive = (itemHref: string) => {
+    if (itemHref === "/dashboard") return pathname === itemHref || pathname === "/";
+    if (itemHref === "/records") return pathname.startsWith('/records');
+    if (itemHref === "/community") return pathname.startsWith('/community');
+    return pathname === itemHref;
+  }
 
   return (
     <Sidebar>
@@ -46,7 +53,7 @@ export function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={item.href === "/records" ? isRecordsPage : pathname === item.href}
+                isActive={getIsActive(item.href)}
                 tooltip={{ children: item.label }}
               >
                 <Link href={item.href}>

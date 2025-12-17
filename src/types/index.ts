@@ -133,4 +133,22 @@ export interface CombinedRecord {
     coCounselees?: CoCounselee[];
 }
 
-    
+export interface Post {
+  id: string;
+  authorId: string;
+  authorName: string;
+  title: string;
+  content: string;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+  viewCount: number;
+  likeCount: number;
+}
+
+export interface Comment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  createdAt: Timestamp;
+}
