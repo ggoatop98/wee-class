@@ -74,7 +74,7 @@ export default function PostEditor({ post }: PostEditorProps) {
                     createdAt: Timestamp.now(),
                     viewCount: 0,
                     likeCount: 0,
-                    comments: [],
+                    commentCount: 0,
                 };
                 await addDoc(collection(db, 'posts'), newPost);
                 toast({ title: '성공', description: '게시글이 작성되었습니다.' });

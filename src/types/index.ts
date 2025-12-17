@@ -143,6 +143,7 @@ export interface Post {
   updatedAt?: Timestamp;
   viewCount: number;
   likeCount: number;
+  commentCount: number;
 }
 
 export interface Comment {

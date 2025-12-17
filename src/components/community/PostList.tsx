@@ -38,11 +38,13 @@ export default function PostList({ posts, loading }: PostListProps) {
                 <TableHead>작성자</TableHead>
                 <TableHead>작성일</TableHead>
                 <TableHead>조회수</TableHead>
+                <TableHead>댓글</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {[...Array(10)].map((_, i) => (
               <TableRow key={i}>
+                <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-full" /></TableCell>
@@ -66,12 +68,13 @@ export default function PostList({ posts, loading }: PostListProps) {
             <TableHead className="w-[200px] text-center">작성자</TableHead>
             <TableHead className="w-[150px] text-center">작성일</TableHead>
             <TableHead className="w-[100px] text-center">조회수</TableHead>
+            <TableHead className="w-[100px] text-center">댓글</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {posts.length === 0 ? (
              <TableRow>
-              <TableCell colSpan={5} className="h-24 text-center text-base">
+              <TableCell colSpan={6} className="h-24 text-center text-base">
                 등록된 게시글이 없습니다.
               </TableCell>
             </TableRow>
@@ -83,6 +86,7 @@ export default function PostList({ posts, loading }: PostListProps) {
                 <TableCell className="text-center">{post.authorName}</TableCell>
                 <TableCell className="text-center">{format(post.createdAt.toDate(), 'yy.MM.dd.')}</TableCell>
                 <TableCell className="text-center">{post.viewCount || 0}</TableCell>
+                <TableCell className="text-center">{post.commentCount || 0}</TableCell>
               </TableRow>
             ))
           )}
