@@ -34,8 +34,8 @@ function DashboardPageContent() {
   const [calendarDate, setCalendarDate] = useState<Date | undefined>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   
-  let unsubStudents: () => void = () => {};
-  let unsubAppointments: () => void = () => {};
+  let unsubStudents: (() => void) | undefined;
+  let unsubAppointments: (() => void) | undefined;
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -56,8 +56,8 @@ function DashboardPageContent() {
     });
 
     return () => {
-      unsubStudents();
-      unsubAppointments();
+      if (unsubStudents) unsubStudents();
+      if (unsubAppointments) unsubAppointments();
     };
   }, [user?.uid]);
   
@@ -226,7 +226,7 @@ function DashboardPageContent() {
   return (
     <AppLayout>
       <main className="p-8">
-        <PageHeader title="대시보드" />
+        <PageHeader title="Wee Class counseling system" />
         <div className="grid gap-8 md:grid-cols-3">
           
           <div className="space-y-8 md:col-span-1">
@@ -351,3 +351,5 @@ export default function DashboardPage() {
     </AuthGuard>
   );
 }
+
+    
