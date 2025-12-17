@@ -7,7 +7,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import type { CounselingLog, Student, CoCounselee, CounselingDivision } from '@/types';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -89,22 +89,32 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
 
     useEffect(() => {
         if (log) {
-            const [hour, minute] = log.counselingTime.split(':');
+            const [hour, minute] = log.counselingTime ? log.counselingTime.split(':') : ['13', '00'];
+            
+            let logDate;
+            try {
+                // The date is 'yyyy-MM-dd'. We need to parse it correctly, assuming local timezone.
+                // Creating a new Date directly from this string can cause timezone issues.
+                logDate = parse(log.counselingDate, 'yyyy-MM-dd', new Date());
+            } catch(e) {
+                logDate = new Date();
+            }
+
             form.reset({
-                counselingDate: new Date(log.counselingDate),
-                counselingHour: hour || '13',
-                counselingMinute: minute || '00',
+                counselingDate: logDate,
+                counselingHour: hour,
+                counselingMinute: minute,
                 counselingDuration: log.counselingDuration || 40,
                 counselingMethod: log.counselingMethod || '면담',
                 isAdvisory: log.isAdvisory || false,
                 isParentCounseling: log.isParentCounseling || false,
                 advisoryField: log.advisoryField || '기타',
                 counselingDivision: log.counselingDivision || '기타',
-                mainIssues: log.mainIssues,
+                mainIssues: log.mainIssues || '',
                 therapistComments: log.therapistComments || '',
-                counselingGoals: log.counselingGoals,
-                sessionContent: log.sessionContent,
-                nextSessionGoals: log.nextSessionGoals,
+                counselingGoals: log.counselingGoals || '',
+                sessionContent: log.sessionContent || '',
+                nextSessionGoals: log.nextSessionGoals || '',
                 coCounselees: log.coCounselees || [],
             });
         } else {
@@ -442,3 +452,4 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
 
     
     
+
