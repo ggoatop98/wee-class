@@ -13,7 +13,7 @@ export function PageHeader({ title, children, centered = false }: PageHeaderProp
       "flex items-center mb-8",
       centered ? "flex-col gap-4" : "justify-between"
     )}>
-      <h2 className="text-3xl font-bold tracking-tight text-foreground">{title}</h2>
+      <h2 className="text-3xl tracking-tight text-foreground">{title}</h2>
       <div className={cn(
         "flex items-center",
         centered ? "w-full justify-center" : "space-x-2"
