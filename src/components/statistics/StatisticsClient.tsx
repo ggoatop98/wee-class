@@ -37,9 +37,20 @@ export default function StatisticsClient() {
   const [loading, setLoading] = useState(true);
   const [isDateRangeModalOpen, setIsDateRangeModalOpen] = useState(false);
   
-  const [dateRange, setDateRange] = useState<DateRange>({
-    from: startOfMonth(new Date()),
-    to: new Date(),
+  const [dateRange, setDateRange] = useState<DateRange>(() => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    let marchFirst = new Date(currentYear, 2, 1); // Month is 0-indexed, so 2 is March
+
+    // If today is before March 1st of the current year, the school year started last year.
+    if (today < marchFirst) {
+      marchFirst = new Date(currentYear - 1, 2, 1);
+    }
+
+    return {
+      from: marchFirst,
+      to: today,
+    };
   });
 
   useEffect(() => {
