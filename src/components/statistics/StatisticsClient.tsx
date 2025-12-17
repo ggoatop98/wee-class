@@ -1,8 +1,9 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { collection, onSnapshot, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { CounselingLog, PsychologicalTest, CombinedRecord, Student, CounselingDivision, CoCounselee } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,7 +43,12 @@ export default function StatisticsClient() {
   });
 
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+        setLoading(false);
+        setCounselingLogs([]);
+        setPsychologicalTests([]);
+        return;
+    }
     
     setLoading(true);
 
@@ -59,8 +65,8 @@ export default function StatisticsClient() {
     });
 
     Promise.all([
-        new Promise(resolve => onSnapshot(logsQuery, () => resolve(true))),
-        new Promise(resolve => onSnapshot(testsQuery, () => resolve(true))),
+        getDocs(logsQuery),
+        getDocs(testsQuery),
     ]).then(() => setLoading(false));
 
     return () => {

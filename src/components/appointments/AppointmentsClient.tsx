@@ -25,7 +25,12 @@ export default function AppointmentsClient() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+      setLoading(false);
+      setAppointments([]);
+      setStudents([]);
+      return;
+    };
     
     const q = query(collection(db, "appointments"), where("userId", "==", user.uid));
     const unsubAppointments = onSnapshot(q, (snapshot) => {

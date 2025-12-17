@@ -38,7 +38,13 @@ export default function CombinedRecordsClient() {
 
 
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+        setLoading(false);
+        setCounselingLogs([]);
+        setPsychologicalTests([]);
+        setStudents([]);
+        return;
+    }
     
     setLoading(true);
 
@@ -63,9 +69,9 @@ export default function CombinedRecordsClient() {
 
     // Initial loading finished after all snapshots are active
     Promise.all([
-        new Promise(resolve => onSnapshot(logsQuery, () => resolve(true))),
-        new Promise(resolve => onSnapshot(testsQuery, () => resolve(true))),
-        new Promise(resolve => onSnapshot(studentsQuery, () => resolve(true))),
+        getDocs(logsQuery),
+        getDocs(testsQuery),
+        getDocs(studentsQuery),
     ]).then(() => setLoading(false));
 
 

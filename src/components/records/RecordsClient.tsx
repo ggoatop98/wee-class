@@ -40,7 +40,12 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     const previousLog = isFormVisible && !selectedLog && logs.length > 0 ? logs[0] : null;
 
     useEffect(() => {
-        if (!studentId || !user?.uid) return;
+        if (!studentId || !user?.uid) {
+            setLoading(false);
+            setLogs([]);
+            setStudents([]);
+            return;
+        }
         setLoading(true);
 
         const logsQuery = query(

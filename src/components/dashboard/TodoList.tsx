@@ -19,7 +19,10 @@ export default function TodoList() {
   const [newTask, setNewTask] = useState('');
 
   useEffect(() => {
-    if (!user?.uid) return;
+    if (!user?.uid) {
+      setTodos([]);
+      return;
+    }
 
     // Remove orderBy from the query
     const q = query(

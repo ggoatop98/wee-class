@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -38,17 +37,17 @@ function DashboardPageContent() {
   useEffect(() => {
     if (!user?.uid) return;
 
-    const unsubStudents = onSnapshot(query(collection(db, "students"), where("userId", "==", user.uid)), (snapshot) => {
+    const studentsQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+    const unsubStudents = onSnapshot(studentsQuery, (snapshot) => {
         const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
         setStudents(studentsData);
     });
     
-    const q = query(
+    const appointmentsQuery = query(
       collection(db, "appointments"), 
       where("userId", "==", user.uid)
     );
-
-    const unsubAppointments = onSnapshot(q, (snapshot) => {
+    const unsubAppointments = onSnapshot(appointmentsQuery, (snapshot) => {
       const appointmentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
       setAllAppointments(appointmentsData);
     });

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
@@ -34,6 +35,7 @@ export default function StudentsClient() {
   useEffect(() => {
     if (!user?.uid) {
         setLoading(false);
+        setStudents([]);
         return;
     };
     const q = query(collection(db, "students"), where("userId", "==", user.uid));

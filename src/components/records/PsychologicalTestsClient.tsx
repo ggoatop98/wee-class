@@ -33,7 +33,11 @@ export default function PsychologicalTestsClient({ studentId, studentName }: Psy
     const router = useRouter();
 
     useEffect(() => {
-        if (!studentId || !user?.uid) return;
+        if (!studentId || !user?.uid) {
+            setLoading(false);
+            setTests([]);
+            return;
+        }
         setLoading(true);
         const q = query(
             collection(db, "psychologicalTests"),
