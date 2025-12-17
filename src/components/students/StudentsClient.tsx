@@ -8,7 +8,7 @@ import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDoc
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebase/storage";
 import { useToast } from "@/hooks/use-toast";
-import type { Student, StudentStatus, UploadedFile } from "@/types";
+import type { Student, StudentStatus, UploadedFile, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { PageHeader } from "../PageHeader";
@@ -32,26 +32,45 @@ export default function StudentsClient() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
 
+  // States for related records
+  const [parentApplications, setParentApplications] = useState<ParentApplication[]>([]);
+  const [teacherReferrals, setTeacherReferrals] = useState<TeacherReferral[]>([]);
+  const [caseConceptualizations, setCaseConceptualizations] = useState<CaseConceptualization[]>([]);
+  const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
+  const [psychologicalTests, setPsychologicalTests] = useState<PsychologicalTest[]>([]);
+
   useEffect(() => {
     if (!user?.uid) {
         setLoading(false);
         setStudents([]);
         return;
     };
-    const q = query(collection(db, "students"), where("userId", "==", user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
-      
-      studentsData.sort((a, b) => {
-        const timeA = a.createdAt?.toMillis() || 0;
-        const timeB = b.createdAt?.toMillis() || 0;
-        return timeB - timeA;
-      });
 
-      setStudents(studentsData);
-      setLoading(false);
+    const collectionsToWatch = {
+      students: setStudents,
+      parentApplications: setParentApplications,
+      teacherReferrals: setTeacherReferrals,
+      caseConceptualizations: setCaseConceptualizations,
+      counselingLogs: setCounselingLogs,
+      psychologicalTests: setPsychologicalTests,
+    };
+
+    const unsubscribers = Object.entries(collectionsToWatch).map(([collectionName, setter]) => {
+      const q = query(collection(db, collectionName), where("userId", "==", user.uid));
+      return onSnapshot(q, (snapshot) => {
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (collectionName === 'students') {
+          (data as Student[]).sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+        }
+        setter(data as any);
+      });
     });
-    return () => unsubscribe();
+
+    // Set loading to false after initial fetches
+    const studentQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+    getDocs(studentQuery).then(() => setLoading(false));
+
+    return () => unsubscribers.forEach(unsub => unsub());
   }, [user?.uid]);
   
   const fetchFilesForStudent = useCallback(async (studentId: string) => {
@@ -129,7 +148,7 @@ export default function StudentsClient() {
     try {
         const batch = writeBatch(db);
 
-        const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests"];
+        const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests", "parentApplications", "teacherReferrals"];
         for (const coll of collectionsToDeleteFrom) {
             const q = query(collection(db, coll), where("studentId", "==", studentId), where("userId", "==", user.uid));
             const snapshot = await getDocs(q);
@@ -241,6 +260,13 @@ export default function StudentsClient() {
         onUpdateStatus={handleUpdateStatus}
         onOpenFileUploadModal={handleOpenFileUploadModal}
         loading={loading}
+        records={{
+          parentApplications,
+          teacherReferrals,
+          caseConceptualizations,
+          counselingLogs,
+          psychologicalTests,
+        }}
       />
       <StudentForm
         isOpen={isStudentModalOpen}
