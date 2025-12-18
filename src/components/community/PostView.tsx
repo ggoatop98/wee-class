@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, onSnapshot, collection, addDoc, Timestamp, query, orderBy, deleteDoc, increment } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot, collection, addDoc, Timestamp, query, orderBy, deleteDoc, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Post, Comment } from '@/types';
@@ -41,12 +41,27 @@ export default function PostView({ postId }: PostViewProps) {
                 router.push('/community');
             }
             setLoading(false);
+        }, (error) => {
+            console.error("Error listening to post snapshot: ", error);
+            toast({
+                variant: "destructive",
+                title: "오류",
+                description: "게시글을 불러오는 중 권한 오류가 발생했습니다. 보안 규칙을 확인해주세요.",
+            });
+            setLoading(false);
         });
 
         const commentsQuery = query(collection(db, `posts/${postId}/comments`), orderBy('createdAt', 'asc'));
         const unsubComments = onSnapshot(commentsQuery, (snapshot) => {
             const commentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
             setComments(commentsData);
+        }, (error) => {
+            console.error("Error listening to comments snapshot: ", error);
+            toast({
+                variant: "destructive",
+                title: "오류",
+                description: "댓글을 불러오는 중 오류가 발생했습니다.",
+            });
         });
 
         return () => {
@@ -55,12 +70,17 @@ export default function PostView({ postId }: PostViewProps) {
         };
 
     }, [postId, router, toast]);
+    
+    const updateCommentCount = async () => {
+        const commentsQuery = query(collection(db, `posts/${postId}/comments`));
+        const commentsSnapshot = await getDocs(commentsQuery);
+        const count = commentsSnapshot.size;
+        await updateDoc(doc(db, 'posts', postId), { commentCount: count });
+    };
 
     const handleAddComment = async () => {
         if (newComment.trim() === '' || !user) return;
         
-        const postRef = doc(db, 'posts', postId);
-
         try {
             await addDoc(collection(db, `posts/${postId}/comments`), {
                 content: newComment,
@@ -68,13 +88,11 @@ export default function PostView({ postId }: PostViewProps) {
                 authorName: user.displayName || user.email,
                 createdAt: Timestamp.now()
             });
-
-            await updateDoc(postRef, {
-                commentCount: increment(1)
-            });
+            
+            await updateCommentCount();
 
             setNewComment('');
-            toast({ title: '성공', description: '댓글이 작성되었습니다.', duration: 500 });
+            toast({ title: '성공', description: '댓글이 작성되었습니다.', duration: 3000 });
         } catch (error) {
             console.error('Error adding comment: ', error);
             toast({ variant: 'destructive', title: '오류', description: '댓글 작성 중 오류가 발생했습니다.' });
@@ -85,7 +103,7 @@ export default function PostView({ postId }: PostViewProps) {
         if (!post) return;
         try {
             await deleteDoc(doc(db, 'posts', post.id));
-            toast({ title: '성공', description: '게시글이 삭제되었습니다.', duration: 500 });
+            toast({ title: '성공', description: '게시글이 삭제되었습니다.', duration: 3000 });
             router.push('/community');
         } catch (error) {
             console.error('Error deleting post: ', error);
@@ -94,15 +112,12 @@ export default function PostView({ postId }: PostViewProps) {
     };
 
     const handleDeleteComment = async (commentId: string) => {
-        const postRef = doc(db, 'posts', postId);
         try {
             await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
             
-            await updateDoc(postRef, {
-                commentCount: increment(-1)
-            });
+            await updateCommentCount();
 
-            toast({ title: '성공', description: '댓글이 삭제되었습니다.', duration: 500 });
+            toast({ title: '성공', description: '댓글이 삭제되었습니다.', duration: 3000 });
         } catch (error) {
             console.error('Error deleting comment: ', error);
             toast({ variant: 'destructive', title: '오류', description: '댓글 삭제 중 오류가 발생했습니다.' });
@@ -178,7 +193,7 @@ export default function PostView({ postId }: PostViewProps) {
                                     <p className="font-semibold">{comment.authorName}</p>
                                     <p className="text-xs text-muted-foreground">{format(comment.createdAt.toDate(), 'yyyy.MM.dd HH:mm')}</p>
                                 </div>
-                                {user?.uid === comment.authorId && (
+                                {(user?.uid === comment.authorId || user?.uid === post.authorId) && (
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
                                             <Button variant="ghost" size="icon" className="h-6 w-6">
