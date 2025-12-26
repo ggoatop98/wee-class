@@ -8,7 +8,7 @@ import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDoc
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebase/storage";
 import { useToast } from "@/hooks/use-toast";
-import type { Student, StudentStatus, UploadedFile, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest } from "@/types";
+import type { Student, StudentStatus, UploadedFile, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest, StudentApplication } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { PageHeader } from "../PageHeader";
@@ -38,6 +38,8 @@ export default function StudentsClient() {
   const [caseConceptualizations, setCaseConceptualizations] = useState<CaseConceptualization[]>([]);
   const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
   const [psychologicalTests, setPsychologicalTests] = useState<PsychologicalTest[]>([]);
+  const [studentApplications, setStudentApplications] = useState<StudentApplication[]>([]);
+
 
   useEffect(() => {
     if (!user?.uid) {
@@ -53,6 +55,7 @@ export default function StudentsClient() {
       caseConceptualizations: setCaseConceptualizations,
       counselingLogs: setCounselingLogs,
       psychologicalTests: setPsychologicalTests,
+      studentApplications: setStudentApplications,
     };
 
     const unsubscribers = Object.entries(collectionsToWatch).map(([collectionName, setter]) => {
@@ -148,7 +151,7 @@ export default function StudentsClient() {
     try {
         const batch = writeBatch(db);
 
-        const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests", "parentApplications", "teacherReferrals"];
+        const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests", "parentApplications", "teacherReferrals", "studentApplications"];
         for (const coll of collectionsToDeleteFrom) {
             const q = query(collection(db, coll), where("studentId", "==", studentId), where("userId", "==", user.uid));
             const snapshot = await getDocs(q);
@@ -266,6 +269,7 @@ export default function StudentsClient() {
           caseConceptualizations,
           counselingLogs,
           psychologicalTests,
+          studentApplications,
         }}
       />
       <StudentForm

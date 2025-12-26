@@ -97,6 +97,16 @@ export interface TeacherReferral {
     updatedAt: Timestamp;
 }
 
+export interface StudentApplication {
+    id: string;
+    userId: string;
+    studentId: string;
+    studentName: string;
+    content: string;
+    createdAt: Timestamp;
+    updatedAt: Timestamp;
+}
+
 export interface PsychologicalTest {
     id: string;
     userId: string;

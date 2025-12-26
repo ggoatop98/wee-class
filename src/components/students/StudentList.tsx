@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Pencil, Trash2, BookUser, ClipboardList, Beaker, FolderArchive, ClipboardSignature, ClipboardPen } from 'lucide-react';
+import { Pencil, Trash2, BookUser, ClipboardList, Beaker, FolderArchive, ClipboardSignature, ClipboardPen, FileSignature } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import type { Student, StudentStatus, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest } from '@/types';
+import type { Student, StudentStatus, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest, StudentApplication } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,7 @@ interface StudentListProps {
     caseConceptualizations: CaseConceptualization[];
     counselingLogs: CounselingLog[];
     psychologicalTests: PsychologicalTest[];
+    studentApplications: StudentApplication[];
   }
 }
 
@@ -129,6 +130,12 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                 <TableCell className="text-center">
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div className="flex gap-2">
+                      <Link href={`/records/${student.id}/student-application?studentName=${encodeURIComponent(student.name)}`}>
+                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'studentApplications') && 'font-bold')}>
+                            <FileSignature className="h-4 w-4 mr-1" />
+                            학생 신청서
+                        </Button>
+                      </Link>
                       <Link href={`/records/${student.id}/parent-application?studentName=${encodeURIComponent(student.name)}`}>
                         <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'parentApplications') && 'font-bold')}>
                             <ClipboardSignature className="h-4 w-4 mr-1" />
