@@ -78,8 +78,8 @@ service cloud.firestore {
         (
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount']) &&
           (
-            request.resource.data.commentCount == resource.data.commentCount + 1 ||
-            request.resource.data.commentCount == resource.data.commentCount - 1
+            request.resource.data.commentCount == (resource.data.get('commentCount', 0) + 1) ||
+            request.resource.data.commentCount == (resource.data.get('commentCount', 0) - 1)
           )
         )
       );
