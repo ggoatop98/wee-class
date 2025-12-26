@@ -103,7 +103,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
         if (!conceptualization) return;
 
         const printContent = `
-            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 18px;">
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 16px;">
                 <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">${formTitle}</h1>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <tbody>
@@ -198,7 +198,7 @@ export default function CaseConceptualizationClient({ studentId, studentName }: 
                 </div>
             </PageHeader>
             <div
-              className="prose max-w-none prose-lg dark:prose-invert focus:outline-none p-6 border rounded-lg min-h-[60vh]"
+              className="prose max-w-none prose-base dark:prose-invert focus:outline-none p-6 border rounded-lg min-h-[60vh]"
               dangerouslySetInnerHTML={{ __html: conceptualization.content }}
             />
         </div>

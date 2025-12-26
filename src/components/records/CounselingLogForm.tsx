@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -197,7 +196,7 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
     const handlePrint = () => {
         const data = form.getValues();
         const printContent = `
-            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px;">
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 16px;">
                 <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">상담 일지</h1>
                 <div style="border: 1px solid #ccc; padding: 20px;">
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -428,11 +427,11 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                                             )}/>
                                         )}
                                     </div>
-                                    <FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} className="text-lg" /></FormControl><FormMessage />
+                                    <FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} className="text-base" /></FormControl><FormMessage />
                                 </FormItem>
                             )}/>
                              <FormField control={form.control} name="therapistComments" render={({ field }) => (
-                                <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} className="text-lg" /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} className="text-base" /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
                         <div className="flex justify-end gap-2 pt-4">

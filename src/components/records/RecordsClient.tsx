@@ -140,7 +140,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
     const handlePrint = () => {
         if (!selectedLog) return;
         const printContent = `
-            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 18px;">
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 16px;">
                 <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">상담 일지</h1>
                 <div style="border: 1px solid #ccc; padding: 20px;">
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -293,11 +293,11 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                             <CardContent className="space-y-6">
                                 <div>
                                     <h3 className="font-semibold text-lg mb-2">주요 내용</h3>
-                                    <div className="prose prose-lg max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.mainIssues}</div>
+                                    <div className="prose prose-base max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.mainIssues}</div>
                                 </div>
                                 <div>
                                     <h3 className="font-semibold text-lg mb-2">상담 의견</h3>
-                                    <div className="prose prose-lg max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.therapistComments}</div>
+                                    <div className="prose prose-base max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.therapistComments}</div>
                                 </div>
                             </CardContent>
                         </Card>

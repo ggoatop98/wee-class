@@ -99,7 +99,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
     const handlePrint = () => {
         const data = form.getValues();
         const printContent = `
-            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px;">
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 16px;">
                 <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">심리검사 결과</h1>
                 <div style="border: 1px solid #ccc; padding: 20px;">
                     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -244,7 +244,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                 <FormControl className="flex-grow">
                                     <Textarea
                                         placeholder="검사 결과를 입력하세요..."
-                                        className="min-h-[40vh] text-lg"
+                                        className="min-h-[40vh] text-base"
                                         {...field}
                                     />
                                 </FormControl>
