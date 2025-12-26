@@ -8,7 +8,7 @@ import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDoc
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebase/storage";
 import { useToast } from "@/hooks/use-toast";
-import type { Student, StudentStatus, UploadedFile, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest, StudentApplication } from "@/types";
+import type { Student, StudentStatus, UploadedFile } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 
 import { PageHeader } from "../PageHeader";
@@ -44,15 +44,6 @@ export default function StudentsClient() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
 
-  // States for related records
-  const [parentApplications, setParentApplications] = useState<ParentApplication[]>([]);
-  const [teacherReferrals, setTeacherReferrals] = useState<TeacherReferral[]>([]);
-  const [caseConceptualizations, setCaseConceptualizations] = useState<CaseConceptualization[]>([]);
-  const [counselingLogs, setCounselingLogs] = useState<CounselingLog[]>([]);
-  const [psychologicalTests, setPsychologicalTests] = useState<PsychologicalTest[]>([]);
-  const [studentApplications, setStudentApplications] = useState<StudentApplication[]>([]);
-
-
   useEffect(() => {
     if (!user?.uid) {
         setLoading(false);
@@ -60,39 +51,23 @@ export default function StudentsClient() {
         return;
     };
 
-    const collectionsToWatch = {
-      students: setStudents,
-      parentApplications: setParentApplications,
-      teacherReferrals: setTeacherReferrals,
-      caseConceptualizations: setCaseConceptualizations,
-      counselingLogs: setCounselingLogs,
-      psychologicalTests: setPsychologicalTests,
-      studentApplications: setStudentApplications,
-    };
-
-    const unsubscribers = Object.entries(collectionsToWatch).map(([collectionName, setter]) => {
-      const q = query(collection(db, collectionName), where("userId", "==", user.uid));
-      return onSnapshot(q, (snapshot) => {
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (collectionName === 'students') {
-          (data as Student[]).sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
-        }
-        setter(data as any);
-      }, (error) => {
-        console.error(`Error fetching ${collectionName}:`, error);
+    const studentQuery = query(collection(db, "students"), where("userId", "==", user.uid));
+    const unsubscribe = onSnapshot(studentQuery, (snapshot) => {
+        const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Student));
+        studentsData.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+        setStudents(studentsData);
+        setLoading(false);
+    }, (error) => {
+        console.error(`Error fetching students:`, error);
         toast({
           variant: "destructive",
           title: "데이터 로딩 오류",
-          description: `${collectionName} 컬렉션을 불러오는 중 권한 오류가 발생했습니다. 보안 규칙을 확인해주세요.`,
+          description: `학생 정보를 불러오는 중 오류가 발생했습니다.`,
         });
-      });
+        setLoading(false);
     });
 
-    // Set loading to false after initial fetches
-    const studentQuery = query(collection(db, "students"), where("userId", "==", user.uid));
-    getDocs(studentQuery).then(() => setLoading(false)).catch(() => setLoading(false));
-
-    return () => unsubscribers.forEach(unsub => unsub());
+    return () => unsubscribe();
   }, [user?.uid, toast]);
   
   const fetchFilesForStudent = useCallback(async (studentId: string) => {
@@ -281,14 +256,6 @@ export default function StudentsClient() {
         onUpdateStatus={handleUpdateStatus}
         onOpenFileUploadModal={handleOpenFileUploadModal}
         loading={loading}
-        records={{
-          parentApplications,
-          teacherReferrals,
-          caseConceptualizations,
-          counselingLogs,
-          psychologicalTests,
-          studentApplications,
-        }}
       />
       <StudentForm
         isOpen={isStudentModalOpen}

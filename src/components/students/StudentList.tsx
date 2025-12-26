@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React from 'react';
@@ -15,10 +16,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import type { Student, StudentStatus, ParentApplication, TeacherReferral, CaseConceptualization, CounselingLog, PsychologicalTest, StudentApplication } from '@/types';
+import type { Student, StudentStatus } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
 
 interface StudentListProps {
   students: Student[];
@@ -27,21 +27,9 @@ interface StudentListProps {
   onUpdateStatus: (id: string, status: StudentStatus) => void;
   onOpenFileUploadModal: (student: Student) => void;
   loading: boolean;
-  records: {
-    parentApplications: ParentApplication[];
-    teacherReferrals: TeacherReferral[];
-    caseConceptualizations: CaseConceptualization[];
-    counselingLogs: CounselingLog[];
-    psychologicalTests: PsychologicalTest[];
-    studentApplications: StudentApplication[];
-  }
 }
 
-export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onOpenFileUploadModal, loading, records }: StudentListProps) {
-  
-  const hasRecord = (studentId: string, recordType: keyof StudentListProps['records']) => {
-    return records[recordType].some(record => record.studentId === studentId);
-  }
+export default function StudentList({ students, onEdit, onDelete, onUpdateStatus, onOpenFileUploadModal, loading }: StudentListProps) {
 
   if (loading) {
     return (
@@ -131,37 +119,37 @@ export default function StudentList({ students, onEdit, onDelete, onUpdateStatus
                   <div className="flex flex-col items-center justify-center gap-2">
                     <div className="flex gap-2">
                       <Link href={`/records/${student.id}/student-application?studentName=${encodeURIComponent(student.name)}`}>
-                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'studentApplications') && 'font-bold')}>
+                        <Button variant="outline" size="sm">
                             <FileSignature className="h-4 w-4 mr-1" />
                             학생 신청서
                         </Button>
                       </Link>
                       <Link href={`/records/${student.id}/parent-application?studentName=${encodeURIComponent(student.name)}`}>
-                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'parentApplications') && 'font-bold')}>
+                        <Button variant="outline" size="sm">
                             <ClipboardSignature className="h-4 w-4 mr-1" />
                             학부모 신청서
                         </Button>
                       </Link>
                        <Link href={`/records/${student.id}/teacher-referral?studentName=${encodeURIComponent(student.name)}`}>
-                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'teacherReferrals') && 'font-bold')}>
+                        <Button variant="outline" size="sm">
                             <ClipboardPen className="h-4 w-4 mr-1" />
                             교사 의뢰서
                         </Button>
                       </Link>
                        <Link href={`/records/${student.id}/conceptualization?studentName=${encodeURIComponent(student.name)}`}>
-                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'caseConceptualizations') && 'font-bold')}>
+                        <Button variant="outline" size="sm">
                             <ClipboardList className="h-4 w-4 mr-1" />
                             사례개념화
                         </Button>
                       </Link>
                        <Link href={`/records/${student.id}?studentName=${encodeURIComponent(student.name)}`}>
-                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'counselingLogs') && 'font-bold')}>
+                        <Button variant="outline" size="sm">
                             <BookUser className="h-4 w-4 mr-1" />
                             상담일지
                         </Button>
                       </Link>
                       <Link href={`/records/${student.id}/tests?studentName=${encodeURIComponent(student.name)}`}>
-                        <Button variant="outline" size="sm" className={cn(hasRecord(student.id, 'psychologicalTests') && 'font-bold')}>
+                        <Button variant="outline" size="sm">
                             <Beaker className="h-4 w-4 mr-1" />
                             심리검사
                         </Button>
