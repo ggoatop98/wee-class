@@ -13,13 +13,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import truncate from 'truncate';
 
 import { PageHeader } from '@/components/PageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import CounselingLogForm from '@/components/records/CounselingLogForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import Link from 'next/link';
 import { Badge } from '../ui/badge';
+import { Separator } from '../ui/separator';
 
 interface RecordsClientProps {
     studentId: string;
@@ -86,7 +87,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
 
     const handleSelectLog = (log: CounselingLog) => {
         setSelectedLog(log);
-        setIsFormVisible(true);
+        setIsFormVisible(false); // Make sure form is not visible when just selecting
     };
 
     const handleDeleteLog = async (logId: string) => {
@@ -115,7 +116,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                 coCounselees: data.coCounselees || [],
             };
 
-            if (selectedLog) {
+            if (selectedLog && isFormVisible) { // Check if we are in edit mode
                 await setDoc(doc(db, 'counselingLogs', selectedLog.id), dataToSave, { merge: true });
                 toast({ title: '성공', description: '상담일지가 수정되었습니다.' });
             } else {
@@ -123,7 +124,8 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                 toast({ title: '성공', description: '새 상담일지가 저장되었습니다.' });
             }
             setIsFormVisible(false);
-            setSelectedLog(null);
+            // After saving, re-select the log to show its content
+            // This needs to be handled carefully, maybe by fetching the newly created/updated log
         } catch (error) {
             console.error('Error saving log: ', error);
             toast({ variant: 'destructive', title: '오류', description: '저장 중 오류가 발생했습니다.' });
@@ -132,7 +134,6 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
 
     const handleCancel = () => {
         setIsFormVisible(false);
-        setSelectedLog(null);
     };
 
     return (
@@ -171,7 +172,7 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                             <li key={log.id} >
                                                 <div
                                                     onClick={() => handleSelectLog(log)}
-                                                    className={`p-4 rounded-lg cursor-pointer border ${selectedLog?.id === log.id ? 'bg-primary/10 border-primary' : 'bg-card hover:bg-muted/50'}`}
+                                                    className={`p-4 rounded-lg cursor-pointer border ${selectedLog?.id === log.id && !isFormVisible ? 'bg-primary/10 border-primary' : 'bg-card hover:bg-muted/50'}`}
                                                 >
                                                     <div className="flex justify-between items-start">
                                                       <div>
@@ -220,9 +221,33 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                             allStudents={students}
                             onSave={handleSaveLog}
                             onCancel={handleCancel}
-                            log={selectedLog}
+                            log={selectedLog} // Pass selectedLog to edit
                             previousLog={previousLog}
                         />
+                    ) : selectedLog ? (
+                         <Card className="min-h-[70vh]">
+                            <CardHeader>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <CardTitle>{new Date(selectedLog.counselingDate).toLocaleDateString('ko-KR')} 상담일지</CardTitle>
+                                        <CardDescription className="pt-1">
+                                            {selectedLog.counselingTime} ({selectedLog.counselingDuration || 'N/A'}분) / {selectedLog.counselingMethod}
+                                        </CardDescription>
+                                    </div>
+                                    <Button variant="outline" onClick={() => setIsFormVisible(true)}>수정하기</Button>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div>
+                                    <h3 className="font-semibold text-base mb-2">주요 내용</h3>
+                                    <div className="prose prose-lg max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.mainIssues}</div>
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-base mb-2">상담 의견</h3>
+                                    <div className="prose prose-lg max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.therapistComments}</div>
+                                </div>
+                            </CardContent>
+                        </Card>
                     ) : (
                         <Card className="h-full flex items-center justify-center min-h-[70vh]">
                             <CardContent className="text-center">
