@@ -4,13 +4,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PlusCircle, Loader2, Trash2, ArrowLeft } from 'lucide-react';
+import { PlusCircle, Loader2, Trash2, ArrowLeft, Printer } from 'lucide-react';
 import { collection, onSnapshot, query, where, doc, addDoc, setDoc, Timestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import type { CounselingLog, Student } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import truncate from 'truncate';
+import { format } from 'date-fns';
 
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -136,6 +137,52 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
         setIsFormVisible(false);
     };
 
+    const handlePrint = () => {
+        if (!selectedLog) return;
+        const printContent = `
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px;">
+                <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">상담 일지</h1>
+                <div style="border: 1px solid #ccc; padding: 20px;">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">내담자명</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${selectedLog.studentName}</td>
+                                <td style="border: 1px solid #ccc; padding: 8px; font-weight: bold; width: 120px;">상담일시</td>
+                                <td style="border: 1px solid #ccc; padding: 8px;">${format(new Date(selectedLog.counselingDate), "yyyy-MM-dd")} ${selectedLog.counselingTime} (${selectedLog.counselingDuration}분)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px;">상담 내용</h2>
+                        <div style="min-height: 200px; padding: 10px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word;">${selectedLog.mainIssues.replace(/\n/g, '<br />')}</div>
+                    </div>
+                    <div>
+                        <h2 style="font-size: 18px; font-weight: bold; border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 10px;">상담 의견</h2>
+                        <div style="min-height: 200px; padding: 10px; border: 1px solid #eee; white-space: pre-wrap; word-wrap: break-word;">${(selectedLog.therapistComments || '').replace(/\n/g, '<br />')}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const printWindow = window.open('', '_blank', 'height=800,width=800');
+        if (printWindow) {
+            printWindow.document.write('<html><head><title>상담일지 인쇄</title>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.onafterprint = function() {
+                printWindow.close();
+            };
+        } else {
+            alert('팝업 차단으로 인해 인쇄 창을 열 수 없습니다. 팝업 차단을 해제해주세요.');
+        }
+    }
+
+
     return (
         <>
             <PageHeader title={`${studentName} 상담 기록`}>
@@ -234,16 +281,22 @@ export default function RecordsClient({ studentId, studentName }: RecordsClientP
                                             {selectedLog.counselingTime} ({selectedLog.counselingDuration || 'N/A'}분) / {selectedLog.counselingMethod}
                                         </CardDescription>
                                     </div>
-                                    <Button variant="outline" onClick={() => setIsFormVisible(true)}>수정하기</Button>
+                                    <div className="flex gap-2">
+                                        <Button variant="outline" onClick={handlePrint}>
+                                            <Printer className="mr-2 h-4 w-4" />
+                                            인쇄
+                                        </Button>
+                                        <Button variant="outline" onClick={() => setIsFormVisible(true)}>수정하기</Button>
+                                    </div>
                                 </div>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div>
-                                    <h3 className="font-semibold text-base mb-2">주요 내용</h3>
+                                    <h3 className="font-semibold text-lg mb-2">주요 내용</h3>
                                     <div className="prose prose-lg max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.mainIssues}</div>
                                 </div>
                                 <div>
-                                    <h3 className="font-semibold text-base mb-2">상담 의견</h3>
+                                    <h3 className="font-semibold text-lg mb-2">상담 의견</h3>
                                     <div className="prose prose-lg max-w-none p-4 border rounded-md min-h-[20vh] whitespace-pre-wrap">{selectedLog.therapistComments}</div>
                                 </div>
                             </CardContent>
