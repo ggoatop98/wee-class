@@ -40,27 +40,13 @@ export default function StudentApplicationClient({ studentId, studentName }: Stu
     <p>그 밖에 다른 감정: ___________________</p>
     <br>
     <h3>3. 나는 이렇게 생각해요 (체크해 주세요.)</h3>
-    <table border="1" style="width:100%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th style="padding: 8px; border: 1px solid #ccc;">내용</th>
-                <th style="padding: 8px; border: 1px solid #ccc;">전혀 아니다</th>
-                <th style="padding: 8px; border: 1px solid #ccc;">아니다</th>
-                <th style="padding: 8px; border: 1px solid #ccc;">보통이다</th>
-                <th style="padding: 8px; border: 1px solid #ccc;">그렇다</th>
-                <th style="padding: 8px; border: 1px solid #ccc;">매우 그렇다</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">나는 내 자신이 마음에 들어요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">내 의견을 잘 표현하는 편이에요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">친구들은 나를 좋아해요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">나는 부모님과 사이가 좋아요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">나에게 가끔 즐거운 일들이 있어요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">나는 남들보다 잘하는 것이 있어요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-            <tr><td style="padding: 8px; border: 1px solid #ccc;">나는 요즘 마음이 힘들어요.</td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td><td style="padding: 8px; border: 1px solid #ccc;"></td></tr>
-        </tbody>
-    </table>
+    <p><strong>나는 내 자신이 마음에 들어요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
+    <p><strong>내 의견을 잘 표현하는 편이에요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
+    <p><strong>친구들은 나를 좋아해요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
+    <p><strong>나는 부모님과 사이가 좋아요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
+    <p><strong>나에게 가끔 즐거운 일들이 있어요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
+    <p><strong>나는 남들보다 잘하는 것이 있어요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
+    <p><strong>나는 요즘 마음이 힘들어요.</strong><br>[ ] 전혀 아니다 [ ] 아니다 [ ] 보통이다 [ ] 그렇다 [ ] 매우 그렇다</p>
     <br>
     <h3>4. 학교 수업은 어때요?</h3>
     <p>내가 가장 좋아하는 시간은: ________________ / 제일 힘든 시간은: ________________</p>
