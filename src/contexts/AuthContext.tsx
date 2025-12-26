@@ -5,7 +5,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { onAuthStateChanged, User, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from 'firebase/auth';
 import { auth, db, storage } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
-import { collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, query, where, getDocs, writeBatch, type QuerySnapshot, type Firestore } from 'firebase/firestore';
 import { ref, listAll, deleteObject } from 'firebase/storage';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +20,18 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Helper function to delete documents in batches
+async function deleteInBatches(db: Firestore, querySnapshot: QuerySnapshot) {
+  const batchSize = 500;
+  const docs = querySnapshot.docs;
+  for (let i = 0; i < docs.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const chunk = docs.slice(i, i + batchSize);
+    chunk.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -67,28 +79,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userId = user.uid;
 
     try {
-        const batch = writeBatch(db);
-
-        // Firestore 데이터 삭제
-        const collectionsToDelete = ["students", "appointments", "counselingLogs", "caseConceptualizations", "psychologicalTests", "todos"];
+        // Firestore 데이터 삭제 (in batches)
+        const collectionsToDelete = ["students", "appointments", "counselingLogs", "caseConceptualizations", "psychologicalTests", "parentApplications", "teacherReferrals", "studentApplications", "todos"];
         for (const coll of collectionsToDelete) {
             const q = query(collection(db, coll), where("userId", "==", userId));
             const snapshot = await getDocs(q);
-            snapshot.forEach(doc => {
-                batch.delete(doc.ref);
-            });
+            if (!snapshot.empty) {
+                await deleteInBatches(db, snapshot);
+            }
         }
         
         // Storage 데이터 삭제
         const storageFolderRef = ref(storage, `student_files/${userId}`);
         const res = await listAll(storageFolderRef);
-        // listAll은 하위 폴더의 파일까지 모두 가져오지 않으므로, 각 학생 폴더를 순회해야 합니다.
         for (const folderRef of res.prefixes) {
             const studentFilesRes = await listAll(folderRef);
             await Promise.all(studentFilesRes.items.map((itemRef) => deleteObject(itemRef)));
         }
-
-        await batch.commit();
 
         // Firebase Auth에서 사용자 삭제
         await deleteUser(user);

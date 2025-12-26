@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { PlusCircle } from "lucide-react";
-import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDocs, writeBatch, Timestamp, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, doc, deleteDoc, query, updateDoc, where, getDocs, writeBatch, Timestamp, orderBy, type QuerySnapshot, type Firestore } from "firebase/firestore";
 import { db, storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL, deleteObject, listAll } from "firebase/storage";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,18 @@ import StudentList from "./StudentList";
 import StudentForm from "./StudentForm";
 import FileUploadModal from "./FileUploadModal";
 import { Input } from "@/components/ui/input";
+
+// Helper function to delete documents in batches
+async function deleteInBatches(db: Firestore, querySnapshot: QuerySnapshot) {
+  const batchSize = 500;
+  const docs = querySnapshot.docs;
+  for (let i = 0; i < docs.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const chunk = docs.slice(i, i + batchSize);
+    chunk.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  }
+}
 
 export default function StudentsClient() {
   const { user } = useAuth();
@@ -156,25 +168,24 @@ export default function StudentsClient() {
   const handleDeleteStudent = async (studentId: string) => {
     if (!user) return;
     try {
-        const batch = writeBatch(db);
-
+        // Delete Firestore data in batches
         const collectionsToDeleteFrom = ["counselingLogs", "caseConceptualizations", "psychologicalTests", "parentApplications", "teacherReferrals", "studentApplications"];
         for (const coll of collectionsToDeleteFrom) {
             const q = query(collection(db, coll), where("studentId", "==", studentId), where("userId", "==", user.uid));
             const snapshot = await getDocs(q);
-            snapshot.forEach(doc => {
-                batch.delete(doc.ref);
-            });
+            if (!snapshot.empty) {
+                await deleteInBatches(db, snapshot);
+            }
         }
         
+        // Delete files from Storage
         const storageFolderRef = ref(storage, `student_files/${user.uid}/${studentId}`);
         const res = await listAll(storageFolderRef);
         await Promise.all(res.items.map((itemRef) => deleteObject(itemRef)));
 
+        // Finally, delete the student document itself
         const studentRef = doc(db, "students", studentId);
-        batch.delete(studentRef);
-
-        await batch.commit();
+        await deleteDoc(studentRef);
 
         toast({
             title: "성공",
