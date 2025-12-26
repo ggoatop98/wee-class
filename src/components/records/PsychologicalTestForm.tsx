@@ -244,7 +244,7 @@ export default function PsychologicalTestForm({ studentName, initialData, onSave
                                 <FormControl className="flex-grow">
                                     <Textarea
                                         placeholder="검사 결과를 입력하세요..."
-                                        className="min-h-[40vh]"
+                                        className="min-h-[40vh] text-lg"
                                         {...field}
                                     />
                                 </FormControl>

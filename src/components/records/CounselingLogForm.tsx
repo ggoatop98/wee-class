@@ -428,11 +428,11 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
                                             )}/>
                                         )}
                                     </div>
-                                    <FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} /></FormControl><FormMessage />
+                                    <FormControl><Textarea placeholder="상담 내용을 요약하여 기록하세요." {...field} rows={8} className="text-lg" /></FormControl><FormMessage />
                                 </FormItem>
                             )}/>
                              <FormField control={form.control} name="therapistComments" render={({ field }) => (
-                                <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>상담 의견</FormLabel><FormControl><Textarea placeholder="상담 내용에 대한 의견을 기록하세요." {...field} rows={8} className="text-lg" /></FormControl><FormMessage /></FormItem>
                             )}/>
                         </div>
                         <div className="flex justify-end gap-2 pt-4">
@@ -452,4 +452,3 @@ export default function CounselingLogForm({ studentId, studentName, currentStude
 
     
     
-

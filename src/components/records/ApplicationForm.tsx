@@ -36,7 +36,7 @@ export default function ApplicationForm({ formTitle, studentName, initialContent
     
     const handlePrint = () => {
         const printContent = `
-            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px;">
+            <div style="font-family: Arial, sans-serif; padding: 30px; margin: 0 auto; max-width: 800px; font-size: 18px;">
                 <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">${formTitle}</h1>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                     <tbody>

@@ -155,7 +155,7 @@ export default function StudentApplicationClient({ studentId, studentName }: Stu
                 </div>
             </PageHeader>
             <div
-                className="prose max-w-none prose-sm sm:prose-base focus:outline-none p-6 border rounded-lg min-h-[60vh]"
+                className="prose max-w-none prose-lg dark:prose-invert focus:outline-none p-6 border rounded-lg min-h-[60vh]"
                 dangerouslySetInnerHTML={{ __html: application.content }}
             />
         </div>
