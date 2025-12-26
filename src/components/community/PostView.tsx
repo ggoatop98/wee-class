@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc, updateDoc, onSnapshot, collection, addDoc, Timestamp, query, orderBy, deleteDoc, getDocs } from 'firebase/firestore';
+import { doc, onSnapshot, collection, addDoc, Timestamp, query, orderBy, deleteDoc, updateDoc, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Post, Comment } from '@/types';
@@ -70,13 +70,6 @@ export default function PostView({ postId }: PostViewProps) {
         };
 
     }, [postId, router, toast]);
-    
-    const updateCommentCount = async () => {
-        const commentsQuery = query(collection(db, `posts/${postId}/comments`));
-        const commentsSnapshot = await getDocs(commentsQuery);
-        const count = commentsSnapshot.size;
-        await updateDoc(doc(db, 'posts', postId), { commentCount: count });
-    };
 
     const handleAddComment = async () => {
         if (newComment.trim() === '' || !user) return;
@@ -88,8 +81,11 @@ export default function PostView({ postId }: PostViewProps) {
                 authorName: user.displayName || user.email,
                 createdAt: Timestamp.now()
             });
-            
-            await updateCommentCount();
+
+            // Atomically increment the comment count
+            await updateDoc(doc(db, 'posts', postId), {
+                commentCount: increment(1)
+            });
 
             setNewComment('');
             toast({ title: '성공', description: '댓글이 작성되었습니다.', duration: 3000 });
@@ -115,7 +111,10 @@ export default function PostView({ postId }: PostViewProps) {
         try {
             await deleteDoc(doc(db, `posts/${postId}/comments`, commentId));
             
-            await updateCommentCount();
+            // Atomically decrement the comment count
+            await updateDoc(doc(db, 'posts', postId), {
+                commentCount: increment(-1)
+            });
 
             toast({ title: '성공', description: '댓글이 삭제되었습니다.', duration: 3000 });
         } catch (error) {
@@ -184,7 +183,7 @@ export default function PostView({ postId }: PostViewProps) {
 
             {/* Comments Section */}
             <div className="mt-8">
-                <h3 className="text-lg font-semibold mb-4">댓글 ({comments.length})</h3>
+                <h3 className="text-lg font-semibold mb-4">댓글 ({post.commentCount || 0})</h3>
                 <div className="space-y-4 mb-6">
                     {comments.map(comment => (
                         <Card key={comment.id} className="bg-muted/50">

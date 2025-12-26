@@ -74,8 +74,14 @@ service cloud.firestore {
       allow update: if isSignedIn() && (
         // Case 1: The author is updating content fields.
         (isOwner(resource.data.authorId) && request.resource.data.diff(resource.data).affectedKeys().hasAny(['title', 'content', 'updatedAt'])) ||
-        // Case 2: Any user is updating ONLY the commentCount.
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount'])
+        // Case 2: Any user is updating ONLY the commentCount, and only by +1 or -1.
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount']) &&
+          (
+            request.resource.data.commentCount == resource.data.commentCount + 1 ||
+            request.resource.data.commentCount == resource.data.commentCount - 1
+          )
+        )
       );
 
       allow delete: if isSignedIn() && isOwner(resource.data.authorId);
