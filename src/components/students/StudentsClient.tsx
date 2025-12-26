@@ -66,15 +66,22 @@ export default function StudentsClient() {
           (data as Student[]).sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
         }
         setter(data as any);
+      }, (error) => {
+        console.error(`Error fetching ${collectionName}:`, error);
+        toast({
+          variant: "destructive",
+          title: "데이터 로딩 오류",
+          description: `${collectionName} 컬렉션을 불러오는 중 권한 오류가 발생했습니다. 보안 규칙을 확인해주세요.`,
+        });
       });
     });
 
     // Set loading to false after initial fetches
     const studentQuery = query(collection(db, "students"), where("userId", "==", user.uid));
-    getDocs(studentQuery).then(() => setLoading(false));
+    getDocs(studentQuery).then(() => setLoading(false)).catch(() => setLoading(false));
 
     return () => unsubscribers.forEach(unsub => unsub());
-  }, [user?.uid]);
+  }, [user?.uid, toast]);
   
   const fetchFilesForStudent = useCallback(async (studentId: string) => {
     if (!user) return;

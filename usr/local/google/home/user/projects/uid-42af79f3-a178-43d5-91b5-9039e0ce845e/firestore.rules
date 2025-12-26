@@ -1,0 +1,93 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // --- Collection Rules ---
+
+    // Students: Users can only manage their own student records.
+    match /students/{studentId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // Appointments: Users can only manage their own appointments.
+    match /appointments/{appointmentId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // CounselingLogs: Users can only manage their own logs.
+    match /counselingLogs/{logId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // CaseConceptualizations, ParentApplications, TeacherReferrals
+    match /caseConceptualizations/{conceptualizationId} {
+        allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+     match /parentApplications/{applicationId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+     match /teacherReferrals/{referralId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // StudentApplications: Users can only manage their own applications.
+    match /studentApplications/{applicationId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // PsychologicalTests: Users can only manage their own test results.
+    match /psychologicalTests/{testId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // Todos: Users can only manage their own todos.
+    match /todos/{todoId} {
+      allow read, update, delete: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+    }
+
+    // Posts:
+    match /posts/{postId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(request.resource.data.authorId);
+
+      // Unified update rule for posts
+      allow update: if isSignedIn() && (
+        // Case 1: The author is updating content fields.
+        (isOwner(resource.data.authorId) && request.resource.data.diff(resource.data).affectedKeys().hasAny(['title', 'content', 'updatedAt'])) ||
+        // Case 2: Any user is updating ONLY the commentCount.
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount'])
+      );
+
+      allow delete: if isSignedIn() && isOwner(resource.data.authorId);
+
+      // Comments: Sub-collection of posts
+      match /comments/{commentId} {
+        allow read, list: if isSignedIn();
+        allow create: if isSignedIn();
+        // Comment author OR post author can delete a comment.
+        allow delete: if isSignedIn() && (isOwner(resource.data.authorId) || isOwner(get(/databases/$(database)/documents/posts/$(postId)).data.authorId));
+        allow update: if false;
+      }
+    }
+  }
+}
